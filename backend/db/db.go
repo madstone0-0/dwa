@@ -16,9 +16,8 @@ import (
 // 	Close()
 // }
 
-func NewPool(dbConfig config.Database) (*pgxpool.Pool, func(), error) {
+func NewPool(ctx context.Context, dbConfig config.Database) (*pgxpool.Pool, func(), error) {
 	f := func() {}
-	ctx := context.Background()
 
 	consString, err := dbConfig.DSN()
 
@@ -32,6 +31,8 @@ func NewPool(dbConfig config.Database) (*pgxpool.Pool, func(), error) {
 		logging.Errorf("Error parsing connection string -> %v", err)
 		return nil, f, err
 	}
+
+	logging.Infof("Config -> %v", cfg.ConnString())
 
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {

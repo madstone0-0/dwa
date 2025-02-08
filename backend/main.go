@@ -4,7 +4,10 @@ import (
 	"backend/config"
 	"backend/db"
 	"backend/internal/logging"
-	"log"
+	"backend/internal/utils"
+	"backend/routes/auth"
+	misc "backend/services"
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +35,8 @@ func env(key string) string {
 }
 
 func main() {
-	pool, closeFunc, err := db.NewPool(config.Database{
+	ctx := context.Background()
+	pool, closeFunc, err := db.NewPool(ctx, config.Database{
 		Name:     env("DB_NAME"),
 		Username: env("DB_USER"),
 		Hostname: env("DB_HOST"),
@@ -41,24 +45,33 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal("Cannot connect to db")
+		logging.Fatalf("Cannot connect to db")
 	}
 
 	defer closeFunc()
 
 	app := gin.Default()
 
+	app.Use(gin.Recovery())
+
 	app.GET("/info", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": "Dwa backend server",
-		})
+		utils.SendMsg(c, http.StatusOK, "Dwa backend server")
 	})
 
 	app.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": statusText,
+		utils.SendMsg(c, http.StatusOK, statusText)
+	})
+
+	app.GET("/db", func(c *gin.Context) {
+		version, err := misc.Health(ctx, pool)
+		utils.SendSR(c, utils.ServiceReturn[string]{
+			Status:     http.StatusOK,
+			Data:       version,
+			ServiceErr: err,
 		})
 	})
+
+	auth.AuthRoutes(ctx, pool, app)
 
 	app.Run()
 }
