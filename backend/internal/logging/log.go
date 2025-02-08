@@ -41,7 +41,7 @@ func el(level logrus.Level) {
 type Fields logrus.Fields
 
 // Debugf will logs a message at 'Debug' level
-func Debugf(format string, args ...interface{}) {
+func Debugf(format string, args ...any) {
 	if logger.Level >= logrus.DebugLevel {
 		entry := logger.WithFields(logrus.Fields{})
 		entry.Debugf(format, args...)
@@ -49,7 +49,7 @@ func Debugf(format string, args ...interface{}) {
 }
 
 // Infof logs a message at 'Info' level
-func Infof(format string, args ...interface{}) {
+func Infof(format string, args ...any) {
 	if logger.Level >= logrus.InfoLevel {
 		entry := logger.WithFields(logrus.Fields{})
 		entry.Infof(format, args...)
@@ -57,7 +57,7 @@ func Infof(format string, args ...interface{}) {
 }
 
 // Warnf logs a message at 'Warn' level
-func Warnf(format string, args ...interface{}) {
+func Warnf(format string, args ...any) {
 	if logger.Level >= logrus.WarnLevel {
 		entry := logger.WithFields(logrus.Fields{})
 		entry.Warnf(format, args...)
@@ -65,7 +65,7 @@ func Warnf(format string, args ...interface{}) {
 }
 
 // Errorf logs a message at 'Error' level
-func Errorf(format string, args ...interface{}) {
+func Errorf(format string, args ...any) {
 	if logger.Level >= logrus.ErrorLevel {
 		entry := logger.WithFields(logrus.Fields{})
 		entry.Errorf(format, args...)
@@ -73,7 +73,7 @@ func Errorf(format string, args ...interface{}) {
 }
 
 // Fatalf logs a message at 'Fatal' level
-func Fatalf(format string, args ...interface{}) {
+func Fatalf(format string, args ...any) {
 	if logger.Level >= logrus.FatalLevel {
 		entry := logger.WithFields(logrus.Fields{})
 		entry.Fatalf(format, args...)
