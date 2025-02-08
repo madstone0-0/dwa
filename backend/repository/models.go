@@ -5,36 +5,93 @@
 package repository
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AccType string
+
+const (
+	AccTypeMOMO AccType = "MOMO"
+	AccTypeBANK AccType = "BANK"
+)
+
+func (e *AccType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AccType(s)
+	case string:
+		*e = AccType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AccType: %T", src)
+	}
+	return nil
+}
+
+type NullAccType struct {
+	AccType AccType
+	Valid   bool // Valid is true if AccType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAccType) Scan(value interface{}) error {
+	if value == nil {
+		ns.AccType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AccType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAccType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AccType), nil
+}
+
+type Account struct {
+	Uid          pgtype.UUID
+	Accounttype  AccType
+	Bankname     pgtype.Text
+	Momoprovider pgtype.Text
+}
+
 type Buyer struct {
-	Uid  int32
+	Uid  pgtype.UUID
 	Name string
 }
 
 type Item struct {
-	Iid         int32
-	Vid         pgtype.Int4
+	Iid         pgtype.UUID
+	Vid         pgtype.UUID
 	Name        string
+	Pictureurl  pgtype.Text
 	Description pgtype.Text
+	Cost        pgtype.Numeric
 }
 
 type Transaction struct {
-	Tid   int32
-	Bid   int32
-	Vid   int32
+	Tid   pgtype.UUID
+	Bid   pgtype.UUID
+	Vid   pgtype.UUID
+	Iid   pgtype.UUID
 	Amt   pgtype.Numeric
 	TTime pgtype.Timestamp
 }
 
 type User struct {
-	Uid      int32
+	Uid      pgtype.UUID
 	Email    string
 	Passhash string
+	Isadmin  pgtype.Bool
 }
 
 type Vendor struct {
-	Uid  int32
+	Uid  pgtype.UUID
 	Name string
+	Logo pgtype.Text
 }

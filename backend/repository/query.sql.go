@@ -7,6 +7,8 @@ package repository
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const dbVersion = `-- name: DbVersion :one
@@ -36,7 +38,7 @@ limit 1
 `
 
 type GetBuyerByEmailRow struct {
-	Uid      int32
+	Uid      pgtype.UUID
 	Email    string
 	Name     string
 	Passhash string
@@ -70,13 +72,13 @@ limit 1
 `
 
 type GetBuyerByIdRow struct {
-	Uid      int32
+	Uid      pgtype.UUID
 	Email    string
 	Name     string
 	Passhash string
 }
 
-func (q *Queries) GetBuyerById(ctx context.Context, uid int32) (GetBuyerByIdRow, error) {
+func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerByIdRow, error) {
 	row := q.db.QueryRow(ctx, getBuyerById, uid)
 	var i GetBuyerByIdRow
 	err := row.Scan(
@@ -89,24 +91,108 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid int32) (GetBuyerByIdRow,
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select uid, email, passhash from "user" where email like $1 limit 1
+select uid, email, passhash, isadmin from "user" where email like $1 limit 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
-	err := row.Scan(&i.Uid, &i.Email, &i.Passhash)
+	err := row.Scan(
+		&i.Uid,
+		&i.Email,
+		&i.Passhash,
+		&i.Isadmin,
+	)
 	return i, err
 }
 
 const getUserById = `-- name: GetUserById :one
-select uid, email, passhash from "user" where uid = $1 limit 1
+select uid, email, passhash, isadmin from "user" where uid = $1 limit 1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, uid int32) (User, error) {
+func (q *Queries) GetUserById(ctx context.Context, uid pgtype.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, getUserById, uid)
 	var i User
-	err := row.Scan(&i.Uid, &i.Email, &i.Passhash)
+	err := row.Scan(
+		&i.Uid,
+		&i.Email,
+		&i.Passhash,
+		&i.Isadmin,
+	)
+	return i, err
+}
+
+const getVendorByEmail = `-- name: GetVendorByEmail :one
+select
+    "user".uid,
+    email,
+    name,
+    logo,
+    passhash
+from
+    "user"
+inner join vendor on
+    "user".uid = vendor.uid
+where
+    email like $1
+limit 1
+`
+
+type GetVendorByEmailRow struct {
+	Uid      pgtype.UUID
+	Email    string
+	Name     string
+	Logo     pgtype.Text
+	Passhash string
+}
+
+func (q *Queries) GetVendorByEmail(ctx context.Context, email string) (GetVendorByEmailRow, error) {
+	row := q.db.QueryRow(ctx, getVendorByEmail, email)
+	var i GetVendorByEmailRow
+	err := row.Scan(
+		&i.Uid,
+		&i.Email,
+		&i.Name,
+		&i.Logo,
+		&i.Passhash,
+	)
+	return i, err
+}
+
+const getVendorById = `-- name: GetVendorById :one
+select
+    "user".uid,
+    email,
+    name,
+    logo,
+    passhash
+from
+    "user"
+inner join vendor on
+    "user".uid = vendor.uid
+where
+    "user".uid = $1
+limit 1
+`
+
+type GetVendorByIdRow struct {
+	Uid      pgtype.UUID
+	Email    string
+	Name     string
+	Logo     pgtype.Text
+	Passhash string
+}
+
+func (q *Queries) GetVendorById(ctx context.Context, uid pgtype.UUID) (GetVendorByIdRow, error) {
+	row := q.db.QueryRow(ctx, getVendorById, uid)
+	var i GetVendorByIdRow
+	err := row.Scan(
+		&i.Uid,
+		&i.Email,
+		&i.Name,
+		&i.Logo,
+		&i.Passhash,
+	)
 	return i, err
 }
 
@@ -115,7 +201,7 @@ insert into buyer (uid, name) values ($1, $2)
 `
 
 type InsertBuyerParams struct {
-	Uid  int32
+	Uid  pgtype.UUID
 	Name string
 }
 
@@ -133,9 +219,9 @@ type InsertUserParams struct {
 	Passhash string
 }
 
-func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (int32, error) {
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (pgtype.UUID, error) {
 	row := q.db.QueryRow(ctx, insertUser, arg.Email, arg.Passhash)
-	var uid int32
+	var uid pgtype.UUID
 	err := row.Scan(&uid)
 	return uid, err
 }
