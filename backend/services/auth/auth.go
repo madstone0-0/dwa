@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/internal/utils/hashing"
 	"backend/repository"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -35,7 +37,19 @@ func doesUserExistByEmail(ctx context.Context, pool *pgxpool.Pool, email string)
 	return true, nil
 }
 
-func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid int32) (bool, error) {
+func isUserBuyer(ctx context.Context, pool *pgxpool.Pool, email string) (bool, error) {
+	q := repository.New(pool)
+	_, err := q.GetBuyerByEmail(ctx, email)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid pgtype.UUID) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetUserById(ctx, uid)
 	if err != nil {
@@ -47,7 +61,7 @@ func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid int32) (bool
 	return true, nil
 }
 
-func SignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.ServiceReturn[any] {
+func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -111,22 +125,58 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 	}
 
 	q := repository.New(pool)
-	info, err := q.GetBuyerByEmail(ctx, user.Email)
+
+	isBuyer, err := isUserBuyer(ctx, pool, user.Email)
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	if !hashing.Compare(user.Password, info.Passhash) {
-		return utils.ServiceReturn[any]{
-			Status: http.StatusUnauthorized,
-			Data: utils.JMap{
-				"err": "Incorrect password",
-			},
-		}
+	if isBuyer {
+		logging.Infof("User is buyer")
+	} else {
+		logging.Infof("User is vendor")
 	}
 
-	return utils.ServiceReturn[any]{
-		Status: http.StatusOK,
-		Data:   info,
+	if isBuyer {
+		info, err := q.GetBuyerByEmail(ctx, user.Email)
+		if err != nil {
+			return utils.MakeError(err, http.StatusInternalServerError)
+		}
+
+		if !hashing.Compare(user.Password, info.Passhash) {
+			return utils.ServiceReturn[any]{
+				Status: http.StatusUnauthorized,
+				Data: utils.JMap{
+					"err": "Incorrect password",
+				},
+			}
+		}
+
+		return utils.ServiceReturn[any]{
+			Status: http.StatusOK,
+			Data:   info,
+		}
+
+	} else {
+		info, err := q.GetVendorByEmail(ctx, user.Email)
+		if err != nil {
+			return utils.MakeError(err, http.StatusInternalServerError)
+		}
+
+		if !hashing.Compare(user.Password, info.Passhash) {
+			return utils.ServiceReturn[any]{
+				Status: http.StatusUnauthorized,
+				Data: utils.JMap{
+					"err": "Incorrect password",
+				},
+			}
+		}
+
+		return utils.ServiceReturn[any]{
+			Status: http.StatusOK,
+			Data:   info,
+		}
+
 	}
+
 }
