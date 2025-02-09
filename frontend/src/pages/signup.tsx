@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+ {/* Signup function */}
 function Signup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -37,6 +38,8 @@ function Signup() {
                     <h2 className="text-white text-2xl font-bold mb-4 text-center">Sign Up</h2>
                     {error && <p className="bg-yellow-300 text-black p-2 rounded mb-4">{error}</p>}
                     <form onSubmit={handleSignup} className="flex flex-col">
+
+                         {/* Full Name */}
                         <label className="text-white text-sm font-bold mb-1">Full Name</label>
                         <input 
                             type="text" 
@@ -45,6 +48,8 @@ function Signup() {
                             required 
                             className="p-2 mb-4 border rounded w-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         />
+
+                         {/* Email */}
                         <label className="text-white text-sm font-bold mb-1">Email</label>
                         <input 
                             type="email" 
@@ -53,6 +58,8 @@ function Signup() {
                             required 
                             className="p-2 mb-4 border rounded w-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         />
+
+                         {/* Password */}
                         <label className="text-white text-sm font-bold mb-1">Password</label>
                         <input 
                             type="password" 
@@ -61,6 +68,8 @@ function Signup() {
                             required 
                             className="p-2 mb-4 border rounded w-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         />
+
+                         {/* Re-enter Password */}
                         <label className="text-white text-sm font-bold mb-1">Confirm Password</label>
                         <input 
                             type="password" 
