@@ -11,7 +11,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 const statusText string = `They have taken the bridge and the second hall.
@@ -21,27 +20,14 @@ A shadow lurks in the dark. We can not get out.
 They are coming.
 `
 
-func env(key string) string {
-	viper.SetConfigFile(".env")
-	err := viper.ReadInConfig()
-	if err != nil {
-		logging.Fatalf("Error reading .env file -> %v", err)
-	}
-	v, ok := viper.Get(key).(string)
-	if !ok {
-		logging.Fatalf("Error reading key -> %s", key)
-	}
-	return v
-}
-
 func main() {
 	ctx := context.Background()
 	pool, closeFunc, err := db.NewPool(ctx, config.Database{
-		Name:     env("DB_NAME"),
-		Username: env("DB_USER"),
-		Hostname: env("DB_HOST"),
-		Password: env("DB_PASS"),
-		Port:     env("DB_PORT"),
+		Name:     utils.Env("DB_NAME"),
+		Username: utils.Env("DB_USER"),
+		Hostname: utils.Env("DB_HOST"),
+		Password: utils.Env("DB_PASS"),
+		Port:     utils.Env("DB_PORT"),
 	})
 
 	if err != nil {
@@ -73,5 +59,5 @@ func main() {
 
 	auth.AuthRoutes(ctx, pool, app)
 
-	app.Run()
+	app.Run("localhost:8080")
 }

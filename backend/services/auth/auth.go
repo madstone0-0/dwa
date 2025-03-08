@@ -8,7 +8,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -113,6 +115,40 @@ func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils
 	}
 }
 
+type UserInfo struct {
+	Uid      pgtype.UUID `json:"uid"`
+	Email    string      `json:"email"`
+	Name     string      `json:"name"`
+	Passhash string      `json:"-"`
+}
+
+type InfoWToken struct {
+	UserInfo
+	Token string `json:"token"`
+}
+
+// TODO: Figure this out
+// func makeUserInfoWToken[T any](info T) (InfoWToken, error) {
+// 	var zero InfoWToken
+//
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+// 		"nbf": time.Now().Unix(),
+// 	})
+//
+// 	tokenString, err := token.SignedString([]byte(utils.Env("SECRET")))
+// 	if err != nil {
+// 		return zero, err
+// 	}
+//
+// 	infoWToken := InfoWToken{
+// 		UserInfo: UserInfo(info),
+// 		Token:    tokenString,
+// 	}
+//
+// 	return infoWToken, nil
+//
+// }
+
 func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
@@ -152,9 +188,25 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 			}
 		}
 
+		// HACK: Temp repetition cause I can't figure out how to make makeUserInfoWToken generic rn
+		// infoWToken, err := makeUserInfoWToken(info)
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"nbf": time.Now().Unix(),
+		})
+
+		tokenString, err := token.SignedString([]byte(utils.Env("SECRET")))
+		if err != nil {
+			return utils.MakeError(err, http.StatusInternalServerError)
+		}
+
+		infoWToken := InfoWToken{
+			UserInfo: UserInfo(info),
+			Token:    tokenString,
+		}
+
 		return utils.ServiceReturn[any]{
 			Status: http.StatusOK,
-			Data:   info,
+			Data:   infoWToken,
 		}
 
 	} else {
@@ -172,9 +224,30 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 			}
 		}
 
+		// HACK: Temp repetition cause I can't figure out how to make makeUserInfoWToken generic rn
+		// infoWToken, err := makeUserInfoWToken(info)
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"nbf": time.Now().Unix(),
+		})
+
+		tokenString, err := token.SignedString([]byte(utils.Env("SECRET")))
+		if err != nil {
+			return utils.MakeError(err, http.StatusInternalServerError)
+		}
+
+		infoWToken := InfoWToken{
+			UserInfo: UserInfo(UserInfo{
+				Uid:      info.Uid,
+				Email:    info.Email,
+				Name:     info.Name,
+				Passhash: info.Passhash,
+			}),
+			Token: tokenString,
+		}
+
 		return utils.ServiceReturn[any]{
 			Status: http.StatusOK,
-			Data:   info,
+			Data:   infoWToken,
 		}
 
 	}

@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"backend/internal/logging"
+
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 type ServiceError struct {
@@ -47,4 +50,18 @@ func MakeError(err error, status int) ServiceReturn[any] {
 			Status: status,
 		},
 	}
+}
+
+
+func Env(key string) string {
+	viper.SetConfigFile(".env")
+	err := viper.ReadInConfig()
+	if err != nil {
+		logging.Fatalf("Error reading .env file -> %v", err)
+	}
+	v, ok := viper.Get(key).(string)
+	if !ok {
+		logging.Fatalf("Error reading key -> %s", key)
+	}
+	return v
 }
