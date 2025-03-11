@@ -2,6 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Signup from './pages/signup';
 import Signin from './pages/signin';
 import LandingPage from './pages/landing';
+import VendorDashboard from './pages/VendorDashboard';
+
+
+
 
 import { useState } from 'react';
 import './App.css';
@@ -25,6 +29,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/vendor-dashboard" element={<VendorDashboard />} />
       </Routes>
     </Router>
   );

@@ -15,6 +15,9 @@ function Signin() {
         }
         console.log('Signin details:', { email, password });
         setError('');
+        
+        // Redirect to Vendor Dashboard upon successful login
+        navigate('/vendor-dashboard');
     };
 
     return (
