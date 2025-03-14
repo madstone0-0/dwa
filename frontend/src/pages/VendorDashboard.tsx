@@ -118,8 +118,10 @@ const VendorDashboard: React.FC = () => {
               placeholder="Price (GH₵)"
               value={newProduct.price}
               onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+              
               className="p-2 border rounded focus:ring-2 focus:ring-wine"
             />
+            
             <input
               type="text"
               placeholder="Image URL"
