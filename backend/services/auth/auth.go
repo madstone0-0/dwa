@@ -8,6 +8,7 @@ import (
 	"backend/repository"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -21,6 +22,10 @@ type SignupUser struct {
 	Password string `json:"password" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	IsVendor bool   `json:"isVendor"`
+}
+
+func (su SignupUser) String() string {
+	return fmt.Sprintf("{%s %s %v}", su.Email, su.Name, su.IsVendor)
 }
 
 type LoginUser struct {

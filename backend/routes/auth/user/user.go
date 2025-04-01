@@ -21,7 +21,7 @@ func UserAuthRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 	user.POST("/signup", func(c *gin.Context) {
 		var body auth.SignupUser
 		err := c.ShouldBindJSON(&body)
-		logging.Infof("Body -> %s", body)
+		logging.Infof("Body -> %s", body.String())
 
 		if err != nil {
 			logging.Errorf("Error parsing body -> %v", err)
