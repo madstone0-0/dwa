@@ -90,6 +90,37 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerBy
 	return i, err
 }
 
+const getItemsByVendorId = `-- name: GetItemsByVendorId :many
+select iid, vid, name, pictureurl, description, cost from "item" where vid = $1
+`
+
+func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]Item, error) {
+	rows, err := q.db.Query(ctx, getItemsByVendorId, vid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Item
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.Iid,
+			&i.Vid,
+			&i.Name,
+			&i.Pictureurl,
+			&i.Description,
+			&i.Cost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 select uid, email, passhash, isadmin from "user" where email like $1 limit 1
 `
@@ -224,4 +255,18 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (pgtype.
 	var uid pgtype.UUID
 	err := row.Scan(&uid)
 	return uid, err
+}
+
+const insertVendor = `-- name: InsertVendor :exec
+insert into vendor (uid, name) values ($1, $2)
+`
+
+type InsertVendorParams struct {
+	Uid  pgtype.UUID
+	Name string
+}
+
+func (q *Queries) InsertVendor(ctx context.Context, arg InsertVendorParams) error {
+	_, err := q.db.Exec(ctx, insertVendor, arg.Uid, arg.Name)
+	return err
 }

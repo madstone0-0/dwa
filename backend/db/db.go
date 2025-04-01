@@ -43,7 +43,7 @@ func NewPool(ctx context.Context, dbConfig config.Database) (*pgxpool.Pool, func
 	pingErr := validateDBPool(ctx, pool)
 	if pingErr != nil {
 		logging.Errorf("Error pinging pool -> %v", err)
-		return nil, f, err
+		return nil, f, pingErr
 	}
 
 	logging.Infof("Created and connected to pool successfully")

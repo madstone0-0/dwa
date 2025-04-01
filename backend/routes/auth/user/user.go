@@ -29,7 +29,7 @@ func UserAuthRoutes(ctx context.Context, pool *pgxpool.Pool, rg *gin.RouterGroup
 			return
 		}
 
-		sr := auth.BuyerSignUp(ctx, pool, body)
+		sr := auth.SignUp(ctx, pool, body)
 		utils.SendSR(c, sr)
 	})
 
