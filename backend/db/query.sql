@@ -73,3 +73,6 @@ insert into buyer (uid, name) values ($1, $2);
 
 -- name: GetItemsByVendorId :many
 select * from "item" where vid = $1;
+
+-- name: InsertVendor :exec
+insert into vendor (uid, name) values ($1, $2);

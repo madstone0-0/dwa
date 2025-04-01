@@ -20,6 +20,7 @@ type SignupUser struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	Name     string `json:"name" binding:"required"`
+	IsVendor bool   `json:"isVendor"`
 }
 
 type LoginUser struct {
@@ -63,7 +64,7 @@ func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid pgtype.UUID)
 	return true, nil
 }
 
-func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.ServiceReturn[any] {
+func SignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -97,20 +98,35 @@ func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	err = qtx.InsertBuyer(ctx, repository.InsertBuyerParams{
-		Name: user.Name,
-		Uid:  uid,
-	})
+	if user.IsVendor {
+		err = qtx.InsertVendor(ctx, repository.InsertVendorParams{
+			Name: user.Name,
+			Uid:  uid,
+		})
+	} else {
+		err = qtx.InsertBuyer(ctx, repository.InsertBuyerParams{
+			Name: user.Name,
+			Uid:  uid,
+		})
+	}
 
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
 	tx.Commit(ctx)
+
+	var msg string
+	if user.IsVendor {
+		msg = "Vendor created"
+	} else {
+		msg = "Buyer created"
+	}
+
 	return utils.ServiceReturn[any]{
 		Status: http.StatusCreated,
 		Data: utils.JMap{
-			"msg": "Buyer created",
+			"msg": msg,
 		},
 	}
 }
