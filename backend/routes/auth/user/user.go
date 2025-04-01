@@ -1,6 +1,7 @@
 package user
 
 import (
+	"backend/db"
 	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/services/auth"
@@ -8,10 +9,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func UserAuthRoutes(ctx context.Context, pool *pgxpool.Pool, rg *gin.RouterGroup) {
+func UserAuthRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 	user := rg.Group("/user")
 
 	user.GET("/info", func(c *gin.Context) {

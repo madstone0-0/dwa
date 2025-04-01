@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"backend/db"
 	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/internal/utils/hashing"
@@ -13,7 +14,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type SignupUser struct {
@@ -28,7 +28,9 @@ type LoginUser struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func doesUserExistByEmail(ctx context.Context, pool *pgxpool.Pool, email string) (bool, error) {
+var Hasher hashing.Hasher = hashing.BcryptHash{}
+
+func doesUserExistByEmail(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -40,7 +42,7 @@ func doesUserExistByEmail(ctx context.Context, pool *pgxpool.Pool, email string)
 	return true, nil
 }
 
-func isUserBuyer(ctx context.Context, pool *pgxpool.Pool, email string) (bool, error) {
+func isUserBuyer(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetBuyerByEmail(ctx, email)
 	if err != nil {
@@ -52,7 +54,7 @@ func isUserBuyer(ctx context.Context, pool *pgxpool.Pool, email string) (bool, e
 	return true, nil
 }
 
-func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid pgtype.UUID) (bool, error) {
+func doesUserExistById(ctx context.Context, pool db.Pool, uid pgtype.UUID) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetUserById(ctx, uid)
 	if err != nil {
@@ -64,7 +66,7 @@ func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid pgtype.UUID)
 	return true, nil
 }
 
-func SignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.ServiceReturn[any] {
+func SignUp(ctx context.Context, pool db.Pool, user SignupUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -84,7 +86,7 @@ func SignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.Serv
 	q := repository.New(pool)
 	qtx := q.WithTx(tx)
 
-	passhash, err := hashing.Hash(user.Password)
+	passhash, err := Hasher.Hash(user.Password)
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
@@ -165,7 +167,7 @@ type InfoWToken struct {
 //
 // }
 
-func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.ServiceReturn[any] {
+func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -195,7 +197,7 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
 
-		if !hashing.Compare(user.Password, info.Passhash) {
+		if !Hasher.Compare(user.Password, info.Passhash) {
 			return utils.ServiceReturn[any]{
 				Status: http.StatusUnauthorized,
 				Data: utils.JMap{
@@ -231,7 +233,7 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
 
-		if !hashing.Compare(user.Password, info.Passhash) {
+		if !Hasher.Compare(user.Password, info.Passhash) {
 			return utils.ServiceReturn[any]{
 				Status: http.StatusUnauthorized,
 				Data: utils.JMap{
