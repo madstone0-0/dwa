@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -15,6 +16,8 @@ func ItemRoutes(ctx context.Context, pool *pgxpool.Pool, rg *gin.RouterGroup) {
 		//get the items by the vendor id and then return them
 		q := repository.New(pool)
 		vId := c.Param("vId")
+
+		id, err := uuid.FromString(vId)
 
 		items, error := q.GetItemsByVendorId(ctx, vId)
 	})
