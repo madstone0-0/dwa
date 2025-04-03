@@ -4,6 +4,7 @@ import (
 	"backend/internal/logging"
 	"encoding/hex"
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -102,4 +103,16 @@ func ParseUUID(src string) (uuid pgtype.UUID, err error) {
 	uuid = pgtype.UUID{Bytes: dst, Valid: true}
 
 	return uuid, err
+}
+
+func ParseBody[T any](c *gin.Context, body *T) (err error) {
+	err = c.ShouldBindBodyWithJSON(&body)
+
+	if err != nil {
+		logging.Errorf("Error parsing body -> %v", err)
+		SendErr(c, http.StatusBadRequest, err)
+		return err
+	}
+
+	return nil
 }

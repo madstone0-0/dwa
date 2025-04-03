@@ -31,11 +31,9 @@ func ItemRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 
 	item.POST("/add", func(c *gin.Context) {
 		var body repository.InsertItemParams
-		err := c.ShouldBindBodyWithJSON(&body)
+		err := utils.ParseBody(c, &body)
 
 		if err != nil {
-			logging.Errorf("Error parsing body -> %v", err)
-			utils.SendErr(c, http.StatusBadRequest, err)
 			return
 		}
 

@@ -20,12 +20,9 @@ func UserAuthRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 
 	user.POST("/signup", func(c *gin.Context) {
 		var body auth.SignupUser
-		err := c.ShouldBindJSON(&body)
-		logging.Infof("Body -> %s", body.String())
+		err := utils.ParseBody(c, &body)
 
 		if err != nil {
-			logging.Errorf("Error parsing body -> %v", err)
-			utils.SendErr(c, http.StatusBadRequest, err)
 			return
 		}
 
@@ -35,12 +32,9 @@ func UserAuthRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 
 	user.POST("/login", func(c *gin.Context) {
 		var body auth.LoginUser
-		err := c.ShouldBindJSON(&body)
-		logging.Infof("Body -> %s", body)
+		err := utils.ParseBody(c, &body)
 
 		if err != nil {
-			logging.Errorf("Error parsing body -> %v", err)
-			utils.SendErr(c, http.StatusBadRequest, err)
 			return
 		}
 
