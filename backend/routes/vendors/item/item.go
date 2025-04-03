@@ -52,4 +52,16 @@ func ItemRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 		utils.SendSR(c, sr)
 	})
 
+	item.DELETE("/delete/:iId", func(c *gin.Context) {
+		iId := c.Param("iId")
+		iIdUUID, err := utils.ParseUUID(iId)
+
+		if err != nil {
+			utils.SendErr(c, http.StatusBadRequest, err)
+			return
+		}
+
+		sr := vendor.Delete(c, pool, iIdUUID)
+		utils.SendSR(c, sr)
+	})
 }

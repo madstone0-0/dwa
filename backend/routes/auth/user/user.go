@@ -2,7 +2,6 @@ package user
 
 import (
 	"backend/db"
-	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/services/auth"
 	"context"

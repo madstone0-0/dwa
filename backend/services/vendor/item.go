@@ -146,3 +146,28 @@ func Update(ctx context.Context, pool db.Pool, item repository.UpdateItemParams)
 	}
 }
 
+func Delete(ctx context.Context, pool db.Pool, iid pgtype.UUID) utils.ServiceReturn[any] {
+	exists, err := doesItemExistById(ctx, pool, iid)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	if !exists {
+		return utils.MakeError(errors.New("item does not exist"), http.StatusConflict)
+	}
+
+	q := repository.New(pool)
+	err = q.DeleteItem(ctx, iid)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	return utils.ServiceReturn[any]{
+		Status: http.StatusOK,
+		Data: utils.JMap{
+			"msg": "Item deleted",
+		},
+	}
+}

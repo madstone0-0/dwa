@@ -89,3 +89,5 @@ insert into item (vid, name, pictureurl, description, cost) values ($1, $2, $3, 
 -- name: UpdateItem :exec
 update item set name = $1,  description = $2, cost = $3, pictureurl = $4 where iid = $5 and vid = $6;
 
+-- name: DeleteItem :exec
+delete from item where iid = $1;

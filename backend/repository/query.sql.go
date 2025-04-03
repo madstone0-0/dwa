@@ -22,6 +22,15 @@ func (q *Queries) DbVersion(ctx context.Context) (string, error) {
 	return version, err
 }
 
+const DeleteItem = `-- name: DeleteItem :exec
+delete from item where iid = $1
+`
+
+func (q *Queries) DeleteItem(ctx context.Context, iid pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, DeleteItem, iid)
+	return err
+}
+
 const GetBuyerByEmail = `-- name: GetBuyerByEmail :one
 select
     "user".uid,
