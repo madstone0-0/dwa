@@ -74,5 +74,11 @@ insert into buyer (uid, name) values ($1, $2);
 -- name: GetItemsByVendorId :many
 select * from "item" where vid = $1;
 
+-- name: GetItemByName :one
+select * from item where name like $1;
+
 -- name: InsertVendor :exec
 insert into vendor (uid, name) values ($1, $2);
+
+-- name: InsertItem :one
+insert into item (vid, name, pictureurl, description, cost) values ($1, $2, $3, $4, $5) returning iid;
