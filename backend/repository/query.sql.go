@@ -90,6 +90,24 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerBy
 	return i, err
 }
 
+const GetItemById = `-- name: GetItemById :one
+select iid, vid, name, pictureurl, description, cost from item where iid = $1
+`
+
+func (q *Queries) GetItemById(ctx context.Context, iid pgtype.UUID) (Item, error) {
+	row := q.db.QueryRow(ctx, GetItemById, iid)
+	var i Item
+	err := row.Scan(
+		&i.Iid,
+		&i.Vid,
+		&i.Name,
+		&i.Pictureurl,
+		&i.Description,
+		&i.Cost,
+	)
+	return i, err
+}
+
 const GetItemByName = `-- name: GetItemByName :one
 select iid, vid, name, pictureurl, description, cost from item where name like $1
 `
@@ -311,5 +329,30 @@ type InsertVendorParams struct {
 
 func (q *Queries) InsertVendor(ctx context.Context, arg InsertVendorParams) error {
 	_, err := q.db.Exec(ctx, InsertVendor, arg.Uid, arg.Name)
+	return err
+}
+
+const UpdateItem = `-- name: UpdateItem :exec
+update item set name = $1,  description = $2, cost = $3, pictureurl = $4 where iid = $5 and vid = $6
+`
+
+type UpdateItemParams struct {
+	Name        string         `json:"name"`
+	Description *string        `json:"description"`
+	Cost        pgtype.Numeric `json:"cost"`
+	Pictureurl  *string        `json:"pictureurl"`
+	Iid         pgtype.UUID    `json:"iid"`
+	Vid         pgtype.UUID    `json:"vid"`
+}
+
+func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
+	_, err := q.db.Exec(ctx, UpdateItem,
+		arg.Name,
+		arg.Description,
+		arg.Cost,
+		arg.Pictureurl,
+		arg.Iid,
+		arg.Vid,
+	)
 	return err
 }

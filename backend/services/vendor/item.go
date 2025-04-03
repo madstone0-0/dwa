@@ -36,6 +36,18 @@ func doesItemExistByName(ctx context.Context, pool db.Pool, name string) (bool, 
 	return true, nil
 }
 
+func doesItemExistById(ctx context.Context, pool db.Pool, iid pgtype.UUID) (bool, error) {
+	q := repository.New(pool)
+	_, err := q.GetItemById(ctx, iid)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 func All(ctx context.Context, pool db.Pool, vid pgtype.UUID) utils.ServiceReturn[any] {
 	exists, err := doesVendorExistById(ctx, pool, vid)
 
@@ -80,7 +92,7 @@ func Add(ctx context.Context, pool db.Pool, item repository.InsertItemParams) ut
 	}
 
 	if exists {
-		return utils.MakeError(errors.New("item wiht the same name already exists"), http.StatusConflict)
+		return utils.MakeError(errors.New("item with the same name already exists"), http.StatusConflict)
 	}
 
 	q := repository.New(pool)
@@ -97,3 +109,40 @@ func Add(ctx context.Context, pool db.Pool, item repository.InsertItemParams) ut
 		},
 	}
 }
+
+func Update(ctx context.Context, pool db.Pool, item repository.UpdateItemParams) utils.ServiceReturn[any] {
+	exists, err := doesVendorExistById(ctx, pool, item.Vid)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	if !exists {
+		return utils.MakeError(errors.New("vendor does not exist"), http.StatusNotFound)
+	}
+
+	exists, err = doesItemExistById(ctx, pool, item.Iid)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	if !exists {
+		return utils.MakeError(errors.New("item does not exist"), http.StatusConflict)
+	}
+
+	q := repository.New(pool)
+	err = q.UpdateItem(ctx, item)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	return utils.ServiceReturn[any]{
+		Status: http.StatusOK,
+		Data: utils.JMap{
+			"msg": "Item updated",
+		},
+	}
+}
+

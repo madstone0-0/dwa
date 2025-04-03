@@ -2,7 +2,6 @@ package item
 
 import (
 	"backend/db"
-	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/repository"
 	"backend/services/vendor"
@@ -40,4 +39,17 @@ func ItemRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 		sr := vendor.Add(ctx, pool, body)
 		utils.SendSR(c, sr)
 	})
+
+	item.PUT("/update", func(c *gin.Context) {
+		var body repository.UpdateItemParams
+		err := utils.ParseBody(c, &body)
+
+		if err != nil {
+			return
+		}
+
+		sr := vendor.Update(c, pool, body)
+		utils.SendSR(c, sr)
+	})
+
 }

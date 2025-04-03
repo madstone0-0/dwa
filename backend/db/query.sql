@@ -77,8 +77,15 @@ select * from "item" where vid = $1;
 -- name: GetItemByName :one
 select * from item where name like $1;
 
+-- name: GetItemById :one
+select * from item where iid = $1;
+
 -- name: InsertVendor :exec
 insert into vendor (uid, name) values ($1, $2);
 
 -- name: InsertItem :one
 insert into item (vid, name, pictureurl, description, cost) values ($1, $2, $3, $4, $5) returning iid;
+
+-- name: UpdateItem :exec
+update item set name = $1,  description = $2, cost = $3, pictureurl = $4 where iid = $5 and vid = $6;
+
