@@ -6,6 +6,7 @@ import (
 	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/routes/auth"
+	"backend/routes/vendors"
 	misc "backend/services"
 	"context"
 	"net/http"
@@ -58,6 +59,8 @@ func main() {
 	})
 
 	auth.AuthRoutes(ctx, pool, app)
+
+	vendors.VendorRoutes(ctx, pool, app)
 
 	app.Run("localhost:8080")
 }
