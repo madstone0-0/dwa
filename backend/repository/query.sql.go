@@ -11,6 +11,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createItem = `-- name: CreateItem :one
+insert into "item" (vid, name, pictureurl, description, cost) values ($1, $2, $3, $4, $5) returning iid
+`
+
+type CreateItemParams struct {
+	Vid         pgtype.UUID
+	Name        string
+	Pictureurl  pgtype.Text
+	Description pgtype.Text
+	Cost        pgtype.Numeric
+}
+
+func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, createItem,
+		arg.Vid,
+		arg.Name,
+		arg.Pictureurl,
+		arg.Description,
+		arg.Cost,
+	)
+	var iid pgtype.UUID
+	err := row.Scan(&iid)
+	return iid, err
+}
+
 const dbVersion = `-- name: DbVersion :one
 select version()
 `
@@ -86,6 +111,24 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerBy
 		&i.Email,
 		&i.Name,
 		&i.Passhash,
+	)
+	return i, err
+}
+
+const getItemByItemId = `-- name: GetItemByItemId :one
+select iid, vid, name, pictureurl, description, cost from "item" where iid = $1
+`
+
+func (q *Queries) GetItemByItemId(ctx context.Context, iid pgtype.UUID) (Item, error) {
+	row := q.db.QueryRow(ctx, getItemByItemId, iid)
+	var i Item
+	err := row.Scan(
+		&i.Iid,
+		&i.Vid,
+		&i.Name,
+		&i.Pictureurl,
+		&i.Description,
+		&i.Cost,
 	)
 	return i, err
 }
