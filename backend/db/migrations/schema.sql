@@ -43,8 +43,8 @@ create table if not exists buyer (
 
 create table if not exists item (
     iid uuid default gen_random_uuid() primary key,
-    vid uuid default gen_random_uuid(),
-    name varchar(255) not null,
+    vid uuid default gen_random_uuid() not null,
+    name varchar(255) unique not null,
     pictureUrl varchar(255),
     description varchar(255),
     cost decimal( 12, 2) not null check (cost >= 0),
