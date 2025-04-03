@@ -106,8 +106,7 @@ func ParseUUID(src string) (uuid pgtype.UUID, err error) {
 }
 
 func ParseBody[T any](c *gin.Context, body *T) (err error) {
-	err = c.ShouldBindBodyWithJSON(&body)
-
+	err = c.ShouldBindBodyWithJSON(body)
 	if err != nil {
 		logging.Errorf("Error parsing body -> %v", err)
 		SendErr(c, http.StatusBadRequest, err)
