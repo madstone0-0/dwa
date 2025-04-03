@@ -31,8 +31,8 @@ func (e *AccType) Scan(src interface{}) error {
 }
 
 type NullAccType struct {
-	AccType AccType
-	Valid   bool // Valid is true if AccType is not NULL
+	AccType AccType `json:"acc_type"`
+	Valid   bool    `json:"valid"` // Valid is true if AccType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -54,44 +54,44 @@ func (ns NullAccType) Value() (driver.Value, error) {
 }
 
 type Account struct {
-	Uid          pgtype.UUID
-	Accounttype  AccType
-	Bankname     pgtype.Text
-	Momoprovider pgtype.Text
+	Uid          pgtype.UUID `json:"uid"`
+	Accounttype  AccType     `json:"accounttype"`
+	Bankname     *string     `json:"bankname"`
+	Momoprovider *string     `json:"momoprovider"`
 }
 
 type Buyer struct {
-	Uid  pgtype.UUID
-	Name string
+	Uid  pgtype.UUID `json:"uid"`
+	Name string      `json:"name"`
 }
 
 type Item struct {
-	Iid         pgtype.UUID
-	Vid         pgtype.UUID
-	Name        string
-	Pictureurl  pgtype.Text
-	Description pgtype.Text
-	Cost        pgtype.Numeric
+	Iid         pgtype.UUID    `json:"iid"`
+	Vid         pgtype.UUID    `json:"vid"`
+	Name        string         `json:"name"`
+	Pictureurl  *string        `json:"pictureurl"`
+	Description *string        `json:"description"`
+	Cost        pgtype.Numeric `json:"cost"`
 }
 
 type Transaction struct {
-	Tid   pgtype.UUID
-	Bid   pgtype.UUID
-	Vid   pgtype.UUID
-	Iid   pgtype.UUID
-	Amt   pgtype.Numeric
-	TTime pgtype.Timestamp
+	Tid   pgtype.UUID      `json:"tid"`
+	Bid   pgtype.UUID      `json:"bid"`
+	Vid   pgtype.UUID      `json:"vid"`
+	Iid   pgtype.UUID      `json:"iid"`
+	Amt   pgtype.Numeric   `json:"amt"`
+	TTime pgtype.Timestamp `json:"t_time"`
 }
 
 type User struct {
-	Uid      pgtype.UUID
-	Email    string
-	Passhash string
-	Isadmin  pgtype.Bool
+	Uid      pgtype.UUID `json:"uid"`
+	Email    string      `json:"email"`
+	Passhash string      `json:"passhash"`
+	Isadmin  *bool       `json:"isadmin"`
 }
 
 type Vendor struct {
-	Uid  pgtype.UUID
-	Name string
-	Logo pgtype.Text
+	Uid  pgtype.UUID `json:"uid"`
+	Name string      `json:"name"`
+	Logo *string     `json:"logo"`
 }
