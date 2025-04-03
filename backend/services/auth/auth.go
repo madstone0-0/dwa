@@ -34,6 +34,7 @@ type LoginUser struct {
 }
 
 var Hasher hashing.Hasher = hashing.BcryptHash{}
+var Enver utils.Enver = utils.DefaultEnv{}
 
 func doesUserExistByEmail(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
@@ -217,7 +218,7 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 			"nbf": time.Now().Unix(),
 		})
 
-		tokenString, err := token.SignedString([]byte(utils.Env("SECRET")))
+		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
 		if err != nil {
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
@@ -253,7 +254,7 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 			"nbf": time.Now().Unix(),
 		})
 
-		tokenString, err := token.SignedString([]byte(utils.Env("SECRET")))
+		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
 		if err != nil {
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}

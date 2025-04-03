@@ -21,14 +21,16 @@ A shadow lurks in the dark. We can not get out.
 They are coming.
 `
 
+var Enver utils.Enver = utils.DefaultEnv{}
+
 func main() {
 	ctx := context.Background()
 	pool, closeFunc, err := db.NewPool(ctx, config.Database{
-		Name:     utils.Env("DB_NAME"),
-		Username: utils.Env("DB_USER"),
-		Hostname: utils.Env("DB_HOST"),
-		Password: utils.Env("DB_PASS"),
-		Port:     utils.Env("DB_PORT"),
+		Name:     Enver.Env("DB_NAME"),
+		Username: Enver.Env("DB_USER"),
+		Hostname: Enver.Env("DB_HOST"),
+		Password: Enver.Env("DB_PASS"),
+		Port:     Enver.Env("DB_PORT"),
 	})
 
 	if err != nil {

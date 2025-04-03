@@ -66,8 +66,14 @@ func MakeError(err error, status int) ServiceReturn[any] {
 	}
 }
 
-// Env reads a key from the .env file and returns its value as a string
-func Env(key string) string {
+// Enver is an interface to abstract getting environment vars to make mocking easier
+type Enver interface {
+	// Env reads a key from the environment and returns its value as a string
+	Env(string) string
+}
+
+// env reads a key from the .env file and returns its value as a string
+func env(key string) string {
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -78,6 +84,12 @@ func Env(key string) string {
 		logging.Fatalf("Error reading key -> %s", key)
 	}
 	return v
+}
+
+type DefaultEnv struct{}
+
+func (e DefaultEnv) Env(key string) string {
+	return env(key)
 }
 
 // parseUUID converts a string UUID in standard form to a byte array.
