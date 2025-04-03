@@ -6,17 +6,20 @@ import (
 	"context"
 	"errors"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// type IDatabase interface {
-// 	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
-// 	QueryRow(context.Context, string, ...interface{}) pgx.Row
-// 	Query(context.Context, string, ...interface{}) (pgx.Rows, error)
-// 	Close()
-// }
+type Pool interface {
+	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+	QueryRow(context.Context, string, ...any) pgx.Row
+	Begin(context.Context) (pgx.Tx, error)
+	Close()
+}
 
-func NewPool(ctx context.Context, dbConfig config.Database) (*pgxpool.Pool, func(), error) {
+func NewPool(ctx context.Context, dbConfig config.Database) (Pool, func(), error) {
 	f := func() {}
 
 	consString, err := dbConfig.DSN()

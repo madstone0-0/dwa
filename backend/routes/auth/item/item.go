@@ -1,7 +1,10 @@
 package item
 
 import (
+<<<<<<< HEAD
 	"backend/internal/logging"
+=======
+>>>>>>> e617c34a7a764526b4efcceca3bc549ce27ff091
 	"backend/internal/utils"
 	"backend/repository"
 	"context"
@@ -19,6 +22,7 @@ func ItemRoutes(ctx context.Context, pool *pgxpool.Pool, rg *gin.RouterGroup) {
 		//get the items by the vendor id and then return them
 		q := repository.New(pool)
 		vId := c.Param("vId")
+<<<<<<< HEAD
 		var id pgtype.UUID
 		err := id.Scan(vId)
 
@@ -42,5 +46,15 @@ func ItemRoutes(ctx context.Context, pool *pgxpool.Pool, rg *gin.RouterGroup) {
 	item.GET("/:itemId", func(c *gin.Context){
 		q := repository.New(pool)
 		itemId := c.Param("itemId")
+=======
+		vIdUUID, err := utils.ParseUUID(vId)
+
+		if err != nil {
+			utils.SendErr(c, http.StatusBadRequest, err)
+			return
+		}
+
+		items, err := q.GetItemsByVendorId(ctx, vIdUUID)
+>>>>>>> e617c34a7a764526b4efcceca3bc549ce27ff091
 	})
 }

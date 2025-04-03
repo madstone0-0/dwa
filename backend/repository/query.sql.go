@@ -256,3 +256,17 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (pgtype.
 	err := row.Scan(&uid)
 	return uid, err
 }
+
+const insertVendor = `-- name: InsertVendor :exec
+insert into vendor (uid, name) values ($1, $2)
+`
+
+type InsertVendorParams struct {
+	Uid  pgtype.UUID
+	Name string
+}
+
+func (q *Queries) InsertVendor(ctx context.Context, arg InsertVendorParams) error {
+	_, err := q.db.Exec(ctx, insertVendor, arg.Uid, arg.Name)
+	return err
+}

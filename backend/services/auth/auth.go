@@ -1,25 +1,31 @@
 package auth
 
 import (
+	"backend/db"
 	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/internal/utils/hashing"
 	"backend/repository"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type SignupUser struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	Name     string `json:"name" binding:"required"`
+	IsVendor bool   `json:"isVendor"`
+}
+
+func (su SignupUser) String() string {
+	return fmt.Sprintf("{%s %s %v}", su.Email, su.Name, su.IsVendor)
 }
 
 type LoginUser struct {
@@ -27,7 +33,9 @@ type LoginUser struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func doesUserExistByEmail(ctx context.Context, pool *pgxpool.Pool, email string) (bool, error) {
+var Hasher hashing.Hasher = hashing.BcryptHash{}
+
+func doesUserExistByEmail(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -39,7 +47,7 @@ func doesUserExistByEmail(ctx context.Context, pool *pgxpool.Pool, email string)
 	return true, nil
 }
 
-func isUserBuyer(ctx context.Context, pool *pgxpool.Pool, email string) (bool, error) {
+func isUserBuyer(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetBuyerByEmail(ctx, email)
 	if err != nil {
@@ -51,7 +59,7 @@ func isUserBuyer(ctx context.Context, pool *pgxpool.Pool, email string) (bool, e
 	return true, nil
 }
 
-func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid pgtype.UUID) (bool, error) {
+func doesUserExistById(ctx context.Context, pool db.Pool, uid pgtype.UUID) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetUserById(ctx, uid)
 	if err != nil {
@@ -63,7 +71,7 @@ func doesUserExistById(ctx context.Context, pool *pgxpool.Pool, uid pgtype.UUID)
 	return true, nil
 }
 
-func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils.ServiceReturn[any] {
+func SignUp(ctx context.Context, pool db.Pool, user SignupUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -83,7 +91,7 @@ func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils
 	q := repository.New(pool)
 	qtx := q.WithTx(tx)
 
-	passhash, err := hashing.Hash(user.Password)
+	passhash, err := Hasher.Hash(user.Password)
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
@@ -97,20 +105,35 @@ func BuyerSignUp(ctx context.Context, pool *pgxpool.Pool, user SignupUser) utils
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	err = qtx.InsertBuyer(ctx, repository.InsertBuyerParams{
-		Name: user.Name,
-		Uid:  uid,
-	})
+	if user.IsVendor {
+		err = qtx.InsertVendor(ctx, repository.InsertVendorParams{
+			Name: user.Name,
+			Uid:  uid,
+		})
+	} else {
+		err = qtx.InsertBuyer(ctx, repository.InsertBuyerParams{
+			Name: user.Name,
+			Uid:  uid,
+		})
+	}
 
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
 	tx.Commit(ctx)
+
+	var msg string
+	if user.IsVendor {
+		msg = "Vendor created"
+	} else {
+		msg = "Buyer created"
+	}
+
 	return utils.ServiceReturn[any]{
 		Status: http.StatusCreated,
 		Data: utils.JMap{
-			"msg": "Buyer created",
+			"msg": msg,
 		},
 	}
 }
@@ -149,7 +172,7 @@ type InfoWToken struct {
 //
 // }
 
-func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.ServiceReturn[any] {
+func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -179,7 +202,7 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
 
-		if !hashing.Compare(user.Password, info.Passhash) {
+		if !Hasher.Compare(user.Password, info.Passhash) {
 			return utils.ServiceReturn[any]{
 				Status: http.StatusUnauthorized,
 				Data: utils.JMap{
@@ -215,7 +238,7 @@ func Login(ctx context.Context, pool *pgxpool.Pool, user LoginUser) utils.Servic
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
 
-		if !hashing.Compare(user.Password, info.Passhash) {
+		if !Hasher.Compare(user.Password, info.Passhash) {
 			return utils.ServiceReturn[any]{
 				Status: http.StatusUnauthorized,
 				Data: utils.JMap{
