@@ -90,6 +90,24 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerBy
 	return i, err
 }
 
+const GetItemByName = `-- name: GetItemByName :one
+select iid, vid, name, pictureurl, description, cost from item where name like $1
+`
+
+func (q *Queries) GetItemByName(ctx context.Context, name string) (Item, error) {
+	row := q.db.QueryRow(ctx, GetItemByName, name)
+	var i Item
+	err := row.Scan(
+		&i.Iid,
+		&i.Vid,
+		&i.Name,
+		&i.Pictureurl,
+		&i.Description,
+		&i.Cost,
+	)
+	return i, err
+}
+
 const GetItemsByVendorId = `-- name: GetItemsByVendorId :many
 select iid, vid, name, pictureurl, description, cost from "item" where vid = $1
 `

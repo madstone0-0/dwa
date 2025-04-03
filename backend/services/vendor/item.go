@@ -24,6 +24,18 @@ func doesVendorExistById(ctx context.Context, pool db.Pool, vid pgtype.UUID) (bo
 	return true, nil
 }
 
+func doesItemExistByName(ctx context.Context, pool db.Pool, name string) (bool, error) {
+	q := repository.New(pool)
+	_, err := q.GetItemByName(ctx, name)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 func All(ctx context.Context, pool db.Pool, vid pgtype.UUID) utils.ServiceReturn[any] {
 	exists, err := doesVendorExistById(ctx, pool, vid)
 
@@ -61,6 +73,16 @@ func Add(ctx context.Context, pool db.Pool, item repository.InsertItemParams) ut
 		return utils.MakeError(errors.New("vendor does not exist"), http.StatusNotFound)
 	}
 
+	exists, err = doesItemExistByName(ctx, pool, item.Name)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	if exists {
+		return utils.MakeError(errors.New("item wiht the same name already exists"), http.StatusConflict)
+	}
+
 	q := repository.New(pool)
 
 	iid, err := q.InsertItem(ctx, item)
@@ -74,5 +96,4 @@ func Add(ctx context.Context, pool db.Pool, item repository.InsertItemParams) ut
 			"iid": iid,
 		},
 	}
-
 }
