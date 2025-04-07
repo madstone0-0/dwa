@@ -2,7 +2,6 @@ package auth
 
 import (
 	it "backend/internal/testing"
-	_ "backend/internal/utils"
 	"backend/repository"
 	"context"
 	"errors"

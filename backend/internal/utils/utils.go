@@ -127,3 +127,7 @@ func ParseBody[T any](c *gin.Context, body *T) (err error) {
 
 	return nil
 }
+
+func MakePointer[T any](t T) *T {
+	return &t
+}
