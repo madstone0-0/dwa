@@ -104,15 +104,12 @@ func SignUp(ctx context.Context, pool db.Pool, user SignupUser, verify bool) uti
 			return utils.MakeError(errors.New("invalid email syntax"), http.StatusBadRequest)
 		}
 
-		logging.Infof("Email ret: %v", ret)
-
 		smtpRes, err := verifier.CheckSMTP(ret.Syntax.Domain, ret.Syntax.Username)
 
 		if err != nil {
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
 
-		logging.Infof("SMTP res: %v", smtpRes)
 		if !smtpRes.Deliverable {
 			return utils.MakeError(errors.New("email not deliverable"), http.StatusBadRequest)
 		}
