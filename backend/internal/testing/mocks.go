@@ -30,6 +30,11 @@ type MockRow struct {
 	mock.Mock
 }
 
+// MockRows is a mock implementation of the pgx.Rows interface
+type MockRows struct {
+	mock.Mock
+}
+
 func (m *MockQueries) GetUserByEmail(ctx context.Context, email string) (repository.User, error) {
 	args := m.Called(ctx, email)
 	return args.Get(0).(repository.User), args.Error(1)
