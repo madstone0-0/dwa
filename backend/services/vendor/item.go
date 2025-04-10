@@ -146,6 +146,7 @@ func Update(ctx context.Context, pool db.Pool, item repository.UpdateItemParams)
 	}
 }
 
+// TODO: Probably include vendorId check
 func Delete(ctx context.Context, pool db.Pool, iid pgtype.UUID) utils.ServiceReturn[any] {
 	exists, err := doesItemExistById(ctx, pool, iid)
 
@@ -154,7 +155,7 @@ func Delete(ctx context.Context, pool db.Pool, iid pgtype.UUID) utils.ServiceRet
 	}
 
 	if !exists {
-		return utils.MakeError(errors.New("item does not exist"), http.StatusConflict)
+		return utils.MakeError(errors.New("item does not exist"), http.StatusNotFound)
 	}
 
 	q := repository.New(pool)
