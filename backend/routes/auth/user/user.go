@@ -25,7 +25,7 @@ func UserAuthRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 			return
 		}
 
-		sr := auth.SignUp(ctx, pool, body)
+		sr := auth.SignUp(ctx, pool, body, true)
 		utils.SendSR(c, sr)
 	})
 

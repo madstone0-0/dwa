@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"time"
 
+	emailverifier "github.com/AfterShip/email-verifier"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -33,8 +35,11 @@ type LoginUser struct {
 	Password string `json:"password" binding:"required"`
 }
 
-var Hasher hashing.Hasher = hashing.BcryptHash{}
-var Enver utils.Enver = utils.DefaultEnv{}
+var (
+	Hasher   hashing.Hasher = hashing.BcryptHash{}
+	Enver    utils.Enver    = utils.DefaultEnv{}
+	verifier                = emailverifier.NewVerifier().EnableSMTPCheck().DisableCatchAllCheck()
+)
 
 func doesUserExistByEmail(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
@@ -72,7 +77,7 @@ func doesUserExistById(ctx context.Context, pool db.Pool, uid pgtype.UUID) (bool
 	return true, nil
 }
 
-func SignUp(ctx context.Context, pool db.Pool, user SignupUser) utils.ServiceReturn[any] {
+func SignUp(ctx context.Context, pool db.Pool, user SignupUser, verify bool) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
 
 	if err != nil {
@@ -88,6 +93,28 @@ func SignUp(ctx context.Context, pool db.Pool, user SignupUser) utils.ServiceRet
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 	defer tx.Rollback(ctx)
+
+	if verify {
+		ret, err := verifier.Verify(user.Email)
+		if err != nil {
+			return utils.MakeError(err, http.StatusInternalServerError)
+		}
+
+		if !ret.Syntax.Valid {
+			return utils.MakeError(errors.New("invalid email syntax"), http.StatusBadRequest)
+		}
+
+		smtpRes, err := verifier.CheckSMTP(ret.Syntax.Domain, ret.Syntax.Username)
+
+		if err != nil {
+			return utils.MakeError(err, http.StatusInternalServerError)
+		}
+
+		if !smtpRes.Deliverable {
+			return utils.MakeError(errors.New("email not deliverable"), http.StatusBadRequest)
+		}
+
+	}
 
 	q := repository.New(pool)
 	qtx := q.WithTx(tx)

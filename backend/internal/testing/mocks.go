@@ -30,6 +30,7 @@ type MockRow struct {
 	mock.Mock
 }
 
+// MockRows is a mock implementation of the pgx.Rows interface
 type MockRows struct {
 	mock.Mock
 }
