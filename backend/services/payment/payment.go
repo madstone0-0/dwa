@@ -25,6 +25,12 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 		return utils.MakeError(err, http.StatusBadRequest)
 	}
 
+	if item.Cost != transactionObj.Amt {
+		logging.Errorf("There is an amount mismatch")
+		err := errors.New("mismatch in amount")
+		return utils.MakeError(err, http.StatusBadRequest)
+	}
+
 	err = q.CreateTransaction(ctx, transactionObj)
 	if err != nil {
 		logging.Errorf("There was an error creating the transction record")
