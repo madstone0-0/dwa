@@ -3,7 +3,7 @@ import Signup from './pages/signup';
 import Signin from './pages/signin';
 import LandingPage from './pages/landing';
 import VendorDashboard from './pages/VendorDashboard';
-
+import CheckoutPayment from './pages/CheckoutPayment';
 
 
 
@@ -30,6 +30,7 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/vendor-dashboard" element={<VendorDashboard />} />
+        <Route path = "/checkout-payment" element={<CheckoutPayment />} />
       </Routes>
     </Router>
   );
