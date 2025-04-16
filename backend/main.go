@@ -65,5 +65,5 @@ func main() {
 
 	vendors.VendorRoutes(ctx, pool, app)
 
-	app.Run(fmt.Sprintf("localhost:%s", Enver.Env("PORT")))
+	app.Run(fmt.Sprintf("%s:%s", Enver.Env("HOST"), Enver.Env("PORT")))
 }
