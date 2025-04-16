@@ -9,6 +9,7 @@ import (
 	"backend/routes/vendors"
 	misc "backend/services"
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,5 +65,5 @@ func main() {
 
 	vendors.VendorRoutes(ctx, pool, app)
 
-	app.Run("localhost:8080")
+	app.Run(fmt.Sprintf("localhost:%s", Enver.Env("PORT")))
 }
