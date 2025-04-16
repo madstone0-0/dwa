@@ -4,6 +4,8 @@ import Signin from './pages/signin';
 import LandingPage from './pages/landing';
 import VendorDashboard from './pages/VendorDashboard';
 import CheckoutPayment from './pages/CheckoutPayment';
+import CartPage from './pages/CartPage';
+import ItemPage from './pages/ItemPage';
 
 
 
@@ -16,7 +18,7 @@ function App() {
   return (
     <Router>
       <nav>
-        <Link to="/">Home</Link> | <Link to="/signup">Signup</Link> | <Link to="/signin">Signin</Link> | <Link to="/landing">Landing</Link> | <Link to="/vendor-dashboard">Vendor Dashboard</Link>
+        <Link to="/">Home</Link> | <Link to="/signup">Signup</Link> | <Link to="/signin">Signin</Link> | <Link to="/landing">Landing</Link> | <Link to="/vendor-dashboard">Vendor Dashboard</Link> | <Link to="/checkout-payment">Checkout Payment</Link>| <Link to="/cart">Cart</Link>| <Link to="/item">Item</Link>
       </nav>
 
       <Routes>
@@ -31,6 +33,8 @@ function App() {
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/vendor-dashboard" element={<VendorDashboard />} />
         <Route path = "/checkout-payment" element={<CheckoutPayment />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path = "/item" element={<ItemPage />} />
       </Routes>
     </Router>
   );
