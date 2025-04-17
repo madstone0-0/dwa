@@ -29,6 +29,11 @@ const CartPage = () => {
     setCartItems(updatedItems);
   };
 
+  const handleRemoveItem = (id: number) => {
+    const updatedItems = cartItems.filter((item) => item.id !== id);
+    setCartItems(updatedItems);
+  };
+
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -72,6 +77,12 @@ const CartPage = () => {
                     />
                   </label>
                 </div>
+                <button
+                  onClick={() => handleRemoveItem(item.id)}
+                  className="text-red-500 hover:text-red-700 font-semibold"
+                >
+                  Remove
+                </button>
               </div>
             </div>
           ))}
