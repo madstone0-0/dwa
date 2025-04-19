@@ -91,3 +91,7 @@ update item set name = $1,  description = $2, cost = $3, pictureurl = $4 where i
 
 -- name: DeleteItem :exec
 delete from item where iid = $1;
+
+-- name: CreateTransaction :exec
+insert into transaction (bid, vid, iid, amt, ttime) values($1, $2, $3, $4, now());
+
