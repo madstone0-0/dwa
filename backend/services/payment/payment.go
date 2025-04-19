@@ -21,13 +21,13 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 
 	if item.Vid != transactionObj.Vid {
 		logging.Errorf("There is a mismatch in the vid")
-		err := errors.New("mismatch in vid")
+		err = errors.New("mismatch in vid")
 		return utils.MakeError(err, http.StatusBadRequest)
 	}
 
 	if item.Cost != transactionObj.Amt {
 		logging.Errorf("There is an amount mismatch")
-		err := errors.New("mismatch in amount")
+		err = errors.New("mismatch in amount")
 		return utils.MakeError(err, http.StatusBadRequest)
 	}
 
@@ -38,5 +38,8 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
+		Data: utils.JMap{
+			"msg": "Transaction created",
+		},
 	}
 }
