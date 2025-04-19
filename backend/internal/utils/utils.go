@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -77,7 +78,11 @@ func env(key string) string {
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 	if err != nil {
-		logging.Fatalf("Error reading .env file -> %v", err)
+		v, ok := os.LookupEnv(key)
+		if !ok {
+			logging.Fatalf("Error reading .env file -> %v", err)
+		}
+		return v
 	}
 	v, ok := viper.Get(key).(string)
 	if !ok {
@@ -126,4 +131,8 @@ func ParseBody[T any](c *gin.Context, body *T) (err error) {
 	}
 
 	return nil
+}
+
+func MakePointer[T any](t T) *T {
+	return &t
 }

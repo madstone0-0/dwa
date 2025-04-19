@@ -30,6 +30,11 @@ type MockRow struct {
 	mock.Mock
 }
 
+// MockRows is a mock implementation of the pgx.Rows interface
+type MockRows struct {
+	mock.Mock
+}
+
 func (m *MockQueries) GetUserByEmail(ctx context.Context, email string) (repository.User, error) {
 	args := m.Called(ctx, email)
 	return args.Get(0).(repository.User), args.Error(1)
@@ -152,4 +157,52 @@ func (m *MockPool) Close() {
 func (m *MockRow) Scan(dest ...any) error {
 	args := m.Called(dest...)
 	return args.Error(0)
+}
+
+func (m *MockRow) Close() {
+	m.Called()
+}
+
+func (m *MockRows) Close() {
+	m.Called()
+}
+
+func (m *MockRows) Err() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
+func (m *MockRows) CommandTag() pgconn.CommandTag {
+	args := m.Called()
+	return args.Get(0).(pgconn.CommandTag)
+}
+
+func (m *MockRows) Next() bool {
+	args := m.Called()
+	return args.Bool(0)
+}
+
+func (m *MockRows) Scan(dest ...any) error {
+	args := m.Called(dest...)
+	return args.Error(0)
+}
+
+func (m *MockRows) Values() ([]any, error) {
+	args := m.Called()
+	return args.Get(0).([]any), args.Error(1)
+}
+
+func (m *MockRows) RawValues() [][]byte {
+	args := m.Called()
+	return args.Get(0).([][]byte)
+}
+
+func (m *MockRows) Conn() *pgx.Conn {
+	args := m.Called()
+	return args.Get(0).(*pgx.Conn)
+}
+
+func (m *MockRows) FieldDescriptions() []pgconn.FieldDescription {
+	args := m.Called()
+	return args.Get(0).([]pgconn.FieldDescription)
 }

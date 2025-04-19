@@ -2,7 +2,6 @@ package auth
 
 import (
 	it "backend/internal/testing"
-	_ "backend/internal/utils"
 	"backend/repository"
 	"context"
 	"errors"
@@ -223,7 +222,8 @@ func TestSignUp(t *testing.T) {
 			Password: "password",
 			Name:     "Test Buyer",
 			IsVendor: false,
-		})
+		}, false)
+
 
 		if result.ServiceErr != nil {
 			t.Logf("Result: %+v", result)
@@ -245,7 +245,8 @@ func TestSignUp(t *testing.T) {
 			Password: "password",
 			Name:     "Existing User",
 			IsVendor: false,
-		})
+		}, false)
+
 
 		if result.ServiceErr != nil {
 			t.Logf("Result: %+v", result)

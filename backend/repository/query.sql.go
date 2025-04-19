@@ -11,6 +11,27 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const CreateTransaction = `-- name: CreateTransaction :exec
+insert into transaction (bid, vid, iid, amt, ttime) values($1, $2, $3, $4, now())
+`
+
+type CreateTransactionParams struct {
+	Bid pgtype.UUID    `json:"bid"`
+	Vid pgtype.UUID    `json:"vid"`
+	Iid pgtype.UUID    `json:"iid"`
+	Amt pgtype.Numeric `json:"amt"`
+}
+
+func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) error {
+	_, err := q.db.Exec(ctx, CreateTransaction,
+		arg.Bid,
+		arg.Vid,
+		arg.Iid,
+		arg.Amt,
+	)
+	return err
+}
+
 const DbVersion = `-- name: DbVersion :one
 select version()
 `

@@ -13,7 +13,7 @@ function Signup() {
         if (!name || !email || !password) {
             setError('All fields are required.');
             return;
-        }
+        } 
         console.log('Signup details:', { name, email, password });
         setError('');
         
