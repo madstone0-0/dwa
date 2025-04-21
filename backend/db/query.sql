@@ -95,3 +95,19 @@ delete from item where iid = $1;
 -- name: CreateTransaction :one
 insert into transaction (bid, vid, iid, amt, ttime) values($1, $2, $3, $4, now()) returning tid;
 
+-- name: GetTransactionsForVendor :many
+select item.name, amt, t_time from transaction 
+left join item on item.iid = transaction.iid
+where transaction.vid = $1 
+order by t_time desc;
+
+
+-- name: GetTotalSales :one
+select sum(amt) from transaction
+where vid = $1;
+
+-- name: GetTotalSalesForItem :one
+select sum(amt) from transaction
+where vid = $1 and iid = $2;
+insert into transaction (bid, vid, iid, amt, ttime) values($1, $2, $3, $4, now());
+
