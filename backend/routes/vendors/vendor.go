@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/internal/utils"
 	"backend/routes/vendors/item"
+	transaction "backend/routes/vendors/transactions"
 	"context"
 	"net/http"
 
@@ -18,4 +19,5 @@ func VendorRoutes(ctx context.Context, pool db.Pool, rg *gin.Engine) {
 	})
 
 	item.ItemRoutes(ctx, pool, vendor)
+	transaction.TransactionRoutes(ctx, pool, vendor)
 }

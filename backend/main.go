@@ -6,6 +6,7 @@ import (
 	"backend/internal/logging"
 	"backend/internal/utils"
 	"backend/routes/auth"
+	"backend/routes/buyers"
 	"backend/routes/vendors"
 	misc "backend/services"
 	"context"
@@ -64,6 +65,7 @@ func main() {
 	auth.AuthRoutes(ctx, pool, app)
 
 	vendors.VendorRoutes(ctx, pool, app)
+	buyers.BuyerRoutes(ctx, pool, app)
 
 	app.Run(fmt.Sprintf("%s:%s", Enver.Env("HOST"), Enver.Env("PORT")))
 }
