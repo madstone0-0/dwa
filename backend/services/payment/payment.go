@@ -12,11 +12,11 @@ import (
 
 func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj repository.CreateTransactionParams) utils.ServiceReturn[any] {
 	q := repository.New(pool)
-	item, err := q.GetItemById(ctx, transactionObj.Vid)
+	item, err := q.GetItemById(ctx, transactionObj.Iid)
 
 	if err != nil {
 		logging.Errorf("There was an error fetching the item")
-		return utils.MakeError(err, http.StatusBadRequest)
+		return utils.MakeError(err, http.StatusNotFound)
 	}
 
 	if item.Vid != transactionObj.Vid {
