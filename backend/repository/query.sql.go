@@ -12,7 +12,7 @@ import (
 )
 
 const CreateTransaction = `-- name: CreateTransaction :exec
-insert into transaction (bid, vid, iid, amt, ttime) values($1, $2, $3, $4, now())
+insert into transaction (bid, vid, iid, amt, t_time) values($1, $2, $3, $4, now())
 `
 
 type CreateTransactionParams struct {
@@ -177,6 +177,68 @@ func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]It
 			&i.Description,
 			&i.Cost,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const GetTotalSales = `-- name: GetTotalSales :one
+select sum(amt) from transaction
+where vid = $1
+`
+
+func (q *Queries) GetTotalSales(ctx context.Context, vid pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, GetTotalSales, vid)
+	var sum int64
+	err := row.Scan(&sum)
+	return sum, err
+}
+
+const GetTotalSalesForItem = `-- name: GetTotalSalesForItem :one
+select sum(amt) from transaction
+where vid = $1 and iid = $2
+`
+
+type GetTotalSalesForItemParams struct {
+	Vid pgtype.UUID `json:"vid"`
+	Iid pgtype.UUID `json:"iid"`
+}
+
+func (q *Queries) GetTotalSalesForItem(ctx context.Context, arg GetTotalSalesForItemParams) (int64, error) {
+	row := q.db.QueryRow(ctx, GetTotalSalesForItem, arg.Vid, arg.Iid)
+	var sum int64
+	err := row.Scan(&sum)
+	return sum, err
+}
+
+const GetTransactionsForVendor = `-- name: GetTransactionsForVendor :many
+select item.name, amt, t_time from transaction 
+left join item on item.iid = transaction.iid
+where transaction.vid = $1 
+order by t_time desc
+`
+
+type GetTransactionsForVendorRow struct {
+	Name  *string          `json:"name"`
+	Amt   pgtype.Numeric   `json:"amt"`
+	TTime pgtype.Timestamp `json:"t_time"`
+}
+
+func (q *Queries) GetTransactionsForVendor(ctx context.Context, vid pgtype.UUID) ([]GetTransactionsForVendorRow, error) {
+	rows, err := q.db.Query(ctx, GetTransactionsForVendor, vid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetTransactionsForVendorRow{}
+	for rows.Next() {
+		var i GetTransactionsForVendorRow
+		if err := rows.Scan(&i.Name, &i.Amt, &i.TTime); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

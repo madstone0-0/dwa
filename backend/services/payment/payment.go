@@ -38,5 +38,8 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
+		Data: utils.JMap{
+			"message": "Transaction created",
+		},
 	}
 }
