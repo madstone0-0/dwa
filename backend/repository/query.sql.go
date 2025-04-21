@@ -190,15 +190,15 @@ func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]It
 }
 
 const GetTotalSales = `-- name: GetTotalSales :one
-select sum(amt) from transaction
+select coalesce(sum(amt)::bigint, 0) from transaction
 where vid = $1
 `
 
-func (q *Queries) GetTotalSales(ctx context.Context, vid pgtype.UUID) (int64, error) {
+func (q *Queries) GetTotalSales(ctx context.Context, vid pgtype.UUID) (interface{}, error) {
 	row := q.db.QueryRow(ctx, GetTotalSales, vid)
-	var sum int64
-	err := row.Scan(&sum)
-	return sum, err
+	var coalesce interface{}
+	err := row.Scan(&coalesce)
+	return coalesce, err
 }
 
 const GetTotalSalesForItem = `-- name: GetTotalSalesForItem :one
