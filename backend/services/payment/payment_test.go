@@ -199,8 +199,7 @@ func TestCreateTransactionRecord(t *testing.T) {
 		mockPool.AssertExpectations(t)
 	})
 
-	t.Run("Insufficent funds", func(t *testing.T) {
-		mockPool := &it.MockPool{}
+	t.Run("Insufficient funds", func(t *testing.T) {
 		itemRow := &it.MockRow{}
 
 		testVid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
