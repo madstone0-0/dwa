@@ -34,6 +34,7 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 	tid, err := q.CreateTransaction(ctx, transactionObj)
 	if err != nil {
 		logging.Errorf("There was an error creating the transaction record")
+		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
 	return utils.ServiceReturn[any]{
