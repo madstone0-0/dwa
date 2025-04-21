@@ -202,7 +202,7 @@ func (q *Queries) GetTotalSales(ctx context.Context, vid pgtype.UUID) (int64, er
 }
 
 const GetTotalSalesForItem = `-- name: GetTotalSalesForItem :one
-select sum(amt) from transaction
+select coalesce(sum(amt)::bigint, 0) from transaction
 where vid = $1 and iid = $2
 `
 
@@ -211,11 +211,11 @@ type GetTotalSalesForItemParams struct {
 	Iid pgtype.UUID `json:"iid"`
 }
 
-func (q *Queries) GetTotalSalesForItem(ctx context.Context, arg GetTotalSalesForItemParams) (int64, error) {
+func (q *Queries) GetTotalSalesForItem(ctx context.Context, arg GetTotalSalesForItemParams) (interface{}, error) {
 	row := q.db.QueryRow(ctx, GetTotalSalesForItem, arg.Vid, arg.Iid)
-	var sum int64
-	err := row.Scan(&sum)
-	return sum, err
+	var coalesce interface{}
+	err := row.Scan(&coalesce)
+	return coalesce, err
 }
 
 const GetTransactionsForVendor = `-- name: GetTransactionsForVendor :many

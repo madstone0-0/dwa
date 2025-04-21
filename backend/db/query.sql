@@ -107,5 +107,5 @@ select sum(amt) from transaction
 where vid = $1;
 
 -- name: GetTotalSalesForItem :one
-select sum(amt) from transaction
+select coalesce(sum(amt)::bigint, 0) from transaction
 where vid = $1 and iid = $2;
