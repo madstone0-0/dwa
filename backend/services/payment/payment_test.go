@@ -199,7 +199,7 @@ func TestCreateTransactionRecord(t *testing.T) {
 		mockPool.AssertExpectations(t)
 	})
 
-	t.Run("Insufficent funds", func(t *testing.T) {
+	t.Run("Insufficient funds", func(t *testing.T) {
 		mockPool := &it.MockPool{}
 		itemRow := &it.MockRow{}
 
