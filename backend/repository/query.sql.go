@@ -11,7 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-
 const CreateTransaction = `-- name: CreateTransaction :one
 insert into transaction (bid, vid, iid, amt, ttime) values($1, $2, $3, $4, now()) returning tid
 `
