@@ -12,8 +12,8 @@ import (
 )
 
 const CreateTransaction = `-- name: CreateTransaction :exec
-insert into transaction (bid, vid, iid, amt, t_time) values($1, $2, $3, $4, now())
-`
+insert into transaction (bid, vid, iid, amt, t_time) values($1, $2, $3, $4, now())`
+
 
 type CreateTransactionParams struct {
 	Bid pgtype.UUID    `json:"bid"`
