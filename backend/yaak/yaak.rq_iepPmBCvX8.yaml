@@ -1,0 +1,30 @@
+type: http_request
+model: http_request
+id: rq_iepPmBCvX8
+createdAt: 2025-04-21T14:04:27.073696072
+updatedAt: 2025-04-21T14:27:04.968349755
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_7wmxxsU6eZ
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: TotalByItem
+sortPriority: 3000.003
+url: ${[ HOST ]}/vendor/transactions/total/:vid/:iid
+urlParameters:
+- enabled: true
+  name: :vid
+  value: 21713496-c870-4ad0-80bc-530ce6bb9bca
+  id: VHy74CtRII
+- enabled: true
+  name: :iid
+  value: e8da1a98-0e8a-4995-b4df-bcdc1e7d103d
+  id: BNfPbUhccq
+- enabled: true
+  name: ''
+  value: ''
+  id: PuyC80Fh95

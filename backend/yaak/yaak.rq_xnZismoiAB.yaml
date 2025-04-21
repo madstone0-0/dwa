@@ -1,0 +1,31 @@
+type: http_request
+model: http_request
+id: rq_xnZismoiAB
+createdAt: 2025-04-21T14:01:59.831493141
+updatedAt: 2025-04-21T14:01:59.831494200
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_ztwBvkZbSS
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "iid": "45c2bea7-bef4-4092-9abc-c3cc7a6f896c",
+      "vid": "0502b91d-f747-4e94-b0a5-85dcc2b49d7b",
+      "name": "Schrödinger's cat",
+      "pictureurl": "https://www.wikiwand.com/en/articles/Schr%C3%B6dinger's_cat#/media/File:Schrodingers_cat.svg",
+      "description": "Probably dead",
+      "cost": 140.99
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 6vd0NSxFxR
+method: PUT
+name: Update
+sortPriority: 0.001
+url: ${[ HOST ]}/vendor/item/update
+urlParameters: []

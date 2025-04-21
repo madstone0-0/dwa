@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_I3yERouhtQ
+createdAt: 2025-02-04T13:01:28
+updatedAt: 2025-02-08T00:32:09
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_MvIZiH3d3M
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Info
+sortPriority: -1738620100000.0
+url: ${[ HOST ]}/auth/info
+urlParameters: []
