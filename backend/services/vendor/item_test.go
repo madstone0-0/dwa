@@ -17,48 +17,19 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// vendorScanExists is a helper function to setup a mock row that confirms a vendor exists on scan
-func vendorScanExists(mockRow *it.MockRow) {
-	it.SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
-}
-
-// itemScanExists is a helper function to setup a mock row that confirms an item exists on scan
-func itemScanExists(mockRow *it.MockRow) {
-	it.SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
-}
-
-// vendorScanNotExists  is a helper function to setup a mock row that confirms a vendor does exists on scan returning an
-// appropriate error
-func vendorScanNotExists(mockRow *it.MockRow, err error) {
-	it.SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
-}
-
-// itemScanNotExists is a helper function to setup a mock row that confirms an item does exists on scan returning an
-// appropriate error
-func itemScanNotExists(mockRow *it.MockRow, err error) {
-	it.SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
-}
-
-// printError is a helper function to print out unexpected errors
-func printError(err error, t *testing.T) {
-	if err != nil {
-		t.Logf("Error: %v", err)
-	}
-}
-
 func TestDoesVendorExistById(t *testing.T) {
 	ctx := context.Background()
 	mockPool := it.MockPool{}
 
 	t.Run("Vendor exists", func(t *testing.T) {
 		mockRow := &it.MockRow{}
-		vendorScanExists(mockRow)
+		it.VendorScanExists(mockRow)
 		testUUID := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetVendorById, ctx, []any{testUUID})
 
 		exists, err := doesVendorExistById(ctx, &mockPool, testUUID)
 
-		printError(err, t)
+		it.PrintError(err, t)
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
@@ -68,13 +39,13 @@ func TestDoesVendorExistById(t *testing.T) {
 
 	t.Run("Vendor not found", func(t *testing.T) {
 		mockRow := &it.MockRow{}
-		vendorScanNotExists(mockRow, pgx.ErrNoRows)
+		it.VendorScanNotExists(mockRow, pgx.ErrNoRows)
 		testUUID := pgtype.UUID{Bytes: [16]byte{2}, Valid: true}
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetVendorById, ctx, []any{testUUID})
 
 		exists, err := doesVendorExistById(ctx, &mockPool, testUUID)
 
-		printError(err, t)
+		it.PrintError(err, t)
 
 		assert.NoError(t, err)
 		assert.False(t, exists)
@@ -85,7 +56,7 @@ func TestDoesVendorExistById(t *testing.T) {
 	t.Run("Database error", func(t *testing.T) {
 		mockRow := &it.MockRow{}
 		testUUID := pgtype.UUID{Bytes: [16]byte{3}, Valid: true}
-		vendorScanNotExists(mockRow, errors.New("e"))
+		it.VendorScanNotExists(mockRow, errors.New("e"))
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetVendorById, ctx, []any{testUUID})
 
 		_, err := doesVendorExistById(ctx, &mockPool, testUUID)
@@ -105,13 +76,13 @@ func TestDoesItemExistByName(t *testing.T) {
 
 	t.Run("Item exists", func(t *testing.T) {
 		mockRow := &it.MockRow{}
-		itemScanExists(mockRow)
-		testName := "Schrodingers Cat 1"
+		it.ItemScanExists(mockRow)
+		testName := "Schrodinger's Cat 1"
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetItemByName, ctx, []any{testName})
 
 		exists, err := doesItemExistByName(ctx, &mockPool, testName)
 
-		printError(err, t)
+		it.PrintError(err, t)
 
 		assert.NoError(t, err)
 		assert.True(t, exists)
@@ -121,13 +92,13 @@ func TestDoesItemExistByName(t *testing.T) {
 
 	t.Run("Item not found", func(t *testing.T) {
 		mockRow := &it.MockRow{}
-		itemScanNotExists(mockRow, pgx.ErrNoRows)
-		testName := "Schrodingers Cat 2"
+		it.ItemScanNotExists(mockRow, pgx.ErrNoRows)
+		testName := "Schrodinger's Cat 2"
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetItemByName, ctx, []any{testName})
 
 		exists, err := doesItemExistByName(ctx, &mockPool, testName)
 
-		printError(err, t)
+		it.PrintError(err, t)
 
 		assert.NoError(t, err)
 		assert.False(t, exists)
@@ -137,8 +108,8 @@ func TestDoesItemExistByName(t *testing.T) {
 
 	t.Run("Database error", func(t *testing.T) {
 		mockRow := &it.MockRow{}
-		testName := "Schrodingers Cat 3"
-		itemScanNotExists(mockRow, errors.New("e"))
+		testName := "Schrodinger's Cat 3"
+		it.ItemScanNotExists(mockRow, errors.New("e"))
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetItemByName, ctx, []any{testName})
 
 		_, err := doesItemExistByName(ctx, &mockPool, testName)
@@ -218,7 +189,7 @@ func TestAll(t *testing.T) {
 		testItem := repository.Item{
 			Iid:         pgtype.UUID{Bytes: [16]byte{1}, Valid: true},
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 1",
+			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -253,12 +224,12 @@ func TestAll(t *testing.T) {
 				}
 			},
 		)
-		vendorScanExists(mockRow)
+		it.VendorScanExists(mockRow)
 
 		result := All(ctx, mockPool, testVid)
 
 		if result.ServiceErr != nil {
-			printError(result.ServiceErr.Err, t)
+			it.PrintError(result.ServiceErr.Err, t)
 		}
 
 		assert.Nil(t, result.ServiceErr)
@@ -280,7 +251,7 @@ func TestAll(t *testing.T) {
 	t.Run("Vendor Not Found", func(t *testing.T) {
 		mockRow := &it.MockRow{}
 		testVid := pgtype.UUID{Bytes: [16]byte{2}, Valid: true}
-		vendorScanNotExists(mockRow, pgx.ErrNoRows)
+		it.VendorScanNotExists(mockRow, pgx.ErrNoRows)
 		it.SetupPoolQueryRow(mockPool, mockRow, repository.GetVendorById, ctx, []any{testVid})
 
 		result := All(ctx, mockPool, testVid)
@@ -295,7 +266,7 @@ func TestAll(t *testing.T) {
 		mockRow := &it.MockRow{}
 		mockRows := &it.MockRows{}
 		testVid := pgtype.UUID{Bytes: [16]byte{3}, Valid: true}
-		vendorScanExists(mockRow)
+		it.VendorScanExists(mockRow)
 		it.SetupPoolQueryRow(mockPool, mockRow, repository.GetVendorById, ctx, []any{testVid})
 		it.SetupPoolOnRet(mockPool, "Query", repository.GetItemsByVendorId, ctx, []any{testVid}, mockRows, errors.New("db error"))
 
@@ -323,7 +294,7 @@ func TestAdd(t *testing.T) {
 		testIid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testItem := repository.InsertItemParams{
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 1",
+			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -354,12 +325,12 @@ func TestAdd(t *testing.T) {
 				*dest = testIid
 			}
 		})
-		vendorScanExists(vendorRow)
+		it.VendorScanExists(vendorRow)
 
 		result := Add(ctx, mockPool, testItem)
 
 		if result.ServiceErr != nil {
-			printError(result.ServiceErr.Err, t)
+			it.PrintError(result.ServiceErr.Err, t)
 		}
 
 		assert.Nil(t, result.ServiceErr)
@@ -376,12 +347,12 @@ func TestAdd(t *testing.T) {
 		testVid := pgtype.UUID{Bytes: [16]byte{2}, Valid: true}
 		testItem := repository.InsertItemParams{
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 2",
+			Name:        "Schrodinger's Cat 2",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
 		}
-		vendorScanNotExists(mockRow, pgx.ErrNoRows)
+		it.VendorScanNotExists(mockRow, pgx.ErrNoRows)
 		it.SetupPoolQueryRow(mockPool, mockRow, repository.GetVendorById, ctx, []any{testVid})
 
 		result := Add(ctx, mockPool, testItem)
@@ -400,7 +371,7 @@ func TestAdd(t *testing.T) {
 		testVid := pgtype.UUID{Bytes: [16]byte{3}, Valid: true}
 		testItem := repository.InsertItemParams{
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 3",
+			Name:        "Schrodinger's Cat 3",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -408,8 +379,8 @@ func TestAdd(t *testing.T) {
 
 		it.SetupPoolQueryRow(mockPool, vendorRow, repository.GetVendorById, ctx, []any{testVid})
 		it.SetupPoolQueryRow(mockPool, itemRow, repository.GetItemByName, ctx, []any{testItem.Name})
-		itemScanExists(itemRow)
-		vendorScanExists(vendorRow)
+		it.ItemScanExists(itemRow)
+		it.VendorScanExists(vendorRow)
 
 		result := Add(ctx, mockPool, testItem)
 
@@ -429,7 +400,7 @@ func TestAdd(t *testing.T) {
 		testVid := pgtype.UUID{Bytes: [16]byte{4}, Valid: true}
 		testItem := repository.InsertItemParams{
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 4",
+			Name:        "Schrodinger's Cat 4",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -455,7 +426,7 @@ func TestAdd(t *testing.T) {
 			},
 			pgx.ErrNoRows)
 		it.SetupMock(itemRow, "Scan", []any{mock.AnythingOfType("*pgtype.UUID")}, errors.New("e"))
-		vendorScanExists(vendorRow)
+		it.VendorScanExists(vendorRow)
 
 		result := Add(ctx, mockPool, testItem)
 
@@ -483,7 +454,7 @@ func TestUpdate(t *testing.T) {
 		testItem := repository.UpdateItemParams{
 			Iid:         testIid,
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 1",
+			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -514,12 +485,12 @@ func TestUpdate(t *testing.T) {
 				*dest = testIid
 			}
 		})
-		vendorScanExists(vendorRow)
+		it.VendorScanExists(vendorRow)
 
 		result := Update(ctx, mockPool, testItem)
 
 		if result.ServiceErr != nil {
-			printError(result.ServiceErr.Err, t)
+			it.PrintError(result.ServiceErr.Err, t)
 		}
 
 		assert.Nil(t, result.ServiceErr)
@@ -537,12 +508,12 @@ func TestUpdate(t *testing.T) {
 		testVid := pgtype.UUID{Bytes: [16]byte{2}, Valid: true}
 		testItem := repository.InsertItemParams{
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 2",
+			Name:        "Schrodinger's Cat 2",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
 		}
-		vendorScanNotExists(mockRow, pgx.ErrNoRows)
+		it.VendorScanNotExists(mockRow, pgx.ErrNoRows)
 		it.SetupPoolQueryRow(mockPool, mockRow, repository.GetVendorById, ctx, []any{testVid})
 
 		result := Add(ctx, mockPool, testItem)
@@ -562,7 +533,7 @@ func TestUpdate(t *testing.T) {
 		// testIid := pgtype.UUID{Bytes: [16]byte{2}, Valid: true}
 		testItem := repository.InsertItemParams{
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 3",
+			Name:        "Schrodinger's Cat 3",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -570,8 +541,8 @@ func TestUpdate(t *testing.T) {
 
 		it.SetupPoolQueryRow(mockPool, vendorRow, repository.GetVendorById, ctx, []any{testVid})
 		it.SetupPoolQueryRow(mockPool, itemRow, repository.GetItemByName, ctx, []any{testItem.Name})
-		itemScanExists(itemRow)
-		vendorScanExists(vendorRow)
+		it.ItemScanExists(itemRow)
+		it.VendorScanExists(vendorRow)
 
 		result := Add(ctx, mockPool, testItem)
 
@@ -593,7 +564,7 @@ func TestUpdate(t *testing.T) {
 		testItem := repository.UpdateItemParams{
 			Iid:         testIid,
 			Vid:         testVid,
-			Name:        "Schrodingers Cat 4",
+			Name:        "Schrodinger's Cat 4",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
@@ -624,7 +595,7 @@ func TestUpdate(t *testing.T) {
 				*dest = testIid
 			}
 		})
-		vendorScanExists(vendorRow)
+		it.VendorScanExists(vendorRow)
 
 		result := Update(ctx, mockPool, testItem)
 
@@ -666,12 +637,12 @@ func TestDelete(t *testing.T) {
 			mock.Anything,
 			mock.Anything,
 		}, pgconn.CommandTag{}, nil)
-		itemScanExists(itemRow)
+		it.ItemScanExists(itemRow)
 
 		result := Delete(ctx, mockPool, testIid)
 
 		if result.ServiceErr != nil {
-			printError(result.ServiceErr.Err, t)
+			it.PrintError(result.ServiceErr.Err, t)
 		}
 
 		assert.Nil(t, result.ServiceErr)
@@ -696,7 +667,7 @@ func TestDelete(t *testing.T) {
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			pgx.ErrNoRows)
-		itemScanNotExists(itemRow, pgx.ErrNoRows)
+		it.ItemScanNotExists(itemRow, pgx.ErrNoRows)
 
 		result := Delete(ctx, mockPool, testIid)
 
@@ -730,7 +701,7 @@ func TestDelete(t *testing.T) {
 			mock.Anything,
 			mock.Anything,
 		}, pgconn.CommandTag{}, errors.New("e"))
-		itemScanExists(itemRow)
+		it.ItemScanExists(itemRow)
 
 		result := Delete(ctx, mockPool, testIid)
 
