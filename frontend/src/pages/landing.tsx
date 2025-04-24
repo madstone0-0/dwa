@@ -26,6 +26,8 @@ function LandingPage() {
   const navigate = useNavigate();
   const [recentlyViewed] = useState<Array<any>>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
 
   const SectionHeader = ({ title, linkText }: SectionHeaderProps) => (
     <div className="w-full flex justify-between items-center mb-4 px-8">
@@ -61,6 +63,29 @@ function LandingPage() {
 
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    
+    const allItems = [
+      ...Object.values(CATEGORIES),
+      ...[
+        { id: 1, name: "Essential Item 1", price: 12.99, image: "/images/repurchase-1.jpg" },
+        { id: 2, name: "Essential Item 2", price: 12.99, image: "/images/repurchase-2.jpg" },
+        { id: 3, name: "Essential Item 3", price: 12.99, image: "/images/repurchase-3.jpg" },
+        { id: 4, name: "Essential Item 4", price: 12.99, image: "/images/repurchase-4.jpg" }
+      ],
+      ...['Hair Styling', 'Tutoring', 'Graphic Design']
+    ];
+
+    const filtered = allItems.filter((item) => {
+      const searchString = typeof item === 'string' ? item.toLowerCase() : item.name.toLowerCase();
+      return searchString.includes(term);
+    });
+
+    setFilteredItems(filtered);
   };
 
   return (
@@ -106,13 +131,55 @@ function LandingPage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Ashesi DWA</h2>
           <p className="text-gray-700 text-lg">Ghana's Premier Student Marketplace</p>
           {/* Search bar */}
-          <div className="w-full max-w-2xl mx-auto">
+        <div className="w-full max-w-2xl mx-auto mt-8 relative">
+          <div className="relative flex items-center">
             <input
               type="text"
+              value={searchTerm}
+              onChange={handleSearch}
               placeholder="Search for products, services, or vendors"
-              className="w-full p-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-md"
+              className="w-full p-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-md"
             />
+            <button 
+              className="absolute right-2 p-2 text-gray-600 hover:text-yellow-500"
+              onClick={() => {/* Add search submission logic here */}}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
           </div>
+          
+          {/* Search Results Dropdown */}
+          {searchTerm && filteredItems.length > 0 && (
+            <div className="absolute z-10 w-full bg-white mt-2 rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+              {filteredItems.map((item, index) => (
+                <div 
+                  key={index}
+                  className="p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilteredItems([]);
+                  }}
+                >
+                  <div className="flex items-center">
+                    {typeof item === 'string' ? (
+                      <span>{item}</span>
+                    ) : (
+                      <>
+                        <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded mr-4" />
+                        <div>
+                          <p className="font-semibold">{item.name}</p>
+                          {item.price && <p className="text-sm text-gray-600">GH₵{item.price}</p>}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         </div>
 
         {/* Frequently Repurchased */}
