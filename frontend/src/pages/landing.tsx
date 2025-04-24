@@ -68,7 +68,20 @@ function LandingPage() {
       {/* Header */}
       <header className="bg-wine py-4 shadow-md flex justify-between px-8" style={{ backgroundColor: '#722F37' }}>
         <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-        
+       
+        {/* User Profile Icon */}
+        <div className="flex items-center">
+          <button
+            onClick={() => navigate('/user-profile')}
+            className="text-white hover:text-yellow-400 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zm0 0c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z" />
+            </svg>
+          </button>
+        </div>
+       
+
         {/* Shopping Cart Icon */}
         <div className="relative">
           <button 
@@ -92,6 +105,14 @@ function LandingPage() {
         <div className="w-full flex flex-col items-center py-16 px-6 text-center bg-yellow-100">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Ashesi DWA</h2>
           <p className="text-gray-700 text-lg">Ghana's Premier Student Marketplace</p>
+          {/* Search bar */}
+          <div className="w-full max-w-2xl mx-auto">
+            <input
+              type="text"
+              placeholder="Search for products, services, or vendors"
+              className="w-full p-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-md"
+            />
+          </div>
         </div>
 
         {/* Frequently Repurchased */}
