@@ -69,21 +69,17 @@ function LandingPage() {
       <header className="bg-wine py-4 shadow-md flex justify-between px-8" style={{ backgroundColor: '#722F37' }}>
         <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
        
-        {/* User Profile Icon */}
-        <div className="flex items-center">
-          <button
-            onClick={() => navigate('/user-profile')}
-            className="text-white hover:text-yellow-400 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zm0 0c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z" />
-            </svg>
-          </button>
-        </div>
-       
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate('/user-profile')}
+          className="text-white hover:text-yellow-400 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </button>
 
         {/* Shopping Cart Icon */}
-        <div className="relative">
           <button 
             onClick={goToCheckout}
             className="flex items-center text-white hover:text-yellow-400 transition-colors"
