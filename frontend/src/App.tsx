@@ -16,24 +16,12 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import './App.css';
 
 // Header Component
-const Header = () => {
-  return (
-    <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
-      <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-    </header>
-  );
-};
+
 
 // AppContent component to use useLocation hook (required for conditional rendering)
 const AppContent = () => {
-  const location = useLocation();
-  
-  // Don't show the global header on the landing page
-  const showHeader = location.pathname !== '/landing' && location.pathname !== '/';
-  
   return (
     <div className="app-container">
-      {showHeader && <Header />}
       <main className="content-area">
         <Routes>
           {/* Redirect from root to landing page */}
@@ -56,7 +44,6 @@ const AppContent = () => {
     </div>
   );
 };
-
 function App() {
   return (
     <Router>

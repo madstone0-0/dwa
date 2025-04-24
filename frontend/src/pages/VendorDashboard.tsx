@@ -5,16 +5,22 @@ import { useNavigate } from 'react-router-dom';
 interface Product {
   id: number;
   name: string;
+  description: string;
   price: number;
-  image: string;
+  quantity: number;
   category: string;
+  images: string[];
 }
 
 const VendorDashboard: React.FC = () => {
     const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', image: '', category: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', images: [] as string[], category: '' });
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [newDescription, setNewDescription] = useState<string>("");
+  const [newQuantity, setNewQuantity] = useState<number | string>("");
+  const [newImages, setNewImages] = useState<FileList | null>(null);
 
   const salesData = [
     { name: 'Mon', sales: 12 },
@@ -34,7 +40,7 @@ const VendorDashboard: React.FC = () => {
   const COLORS = ['#722F37', '#F59E0B', '#3B82F6', '#10B981'];
 
   const handleAddOrUpdateProduct = () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.category) return;
+    if (!newProduct.name || !newProduct.price || !newProduct.images.length || !newProduct.category) return;
 
     if (editingProduct) {
       setProducts(products.map(product => 
@@ -46,11 +52,13 @@ const VendorDashboard: React.FC = () => {
         id: products.length + 1, 
         name: newProduct.name, 
         price: parseFloat(newProduct.price), 
-        image: newProduct.image,
+        images: newProduct.images,
+        description: newDescription,
+        quantity: Number(newQuantity),
         category: newProduct.category
       }]);
     }
-    setNewProduct({ name: '', price: '', image: '', category: '' });
+    setNewProduct({ name: '', price: '', images: [], category: '' });
   };
 
   const handleDeleteProduct = (id: number) => {
@@ -59,7 +67,36 @@ const VendorDashboard: React.FC = () => {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
-    setNewProduct({ name: product.name, price: product.price.toString(), image: product.image, category: product.category });
+    setNewProduct({ name: product.name, price: product.price.toString(), images: product.images, category: product.category });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length === 3) {
+      setNewImages(files);
+    } else {
+      alert("Please upload exactly 3 images.");
+    }
+  };
+  
+  const getImageUrls = () => {
+    if (newImages) {
+      return Array.from(newImages).map((file) => URL.createObjectURL(file));
+    }
+    return [];
+  };
+  
+  const isFormValid = 
+    newProduct.name &&
+    newDescription &&
+    newProduct.price &&
+    newQuantity &&
+    newProduct.category &&
+    newImages &&
+    newImages.length === 3;
+  
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -154,35 +191,105 @@ const VendorDashboard: React.FC = () => {
 
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-xl font-bold mb-4 text-wine">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <input type="text" placeholder="Product Name" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} className="p-2 border rounded focus:ring-2 focus:ring-wine" />
-            <input type="number" placeholder="Price (GH₵)" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} className="p-2 border rounded focus:ring-2 focus:ring-wine" />
-            <input type="text" placeholder="Image URL" value={newProduct.image} onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} className="p-2 border rounded focus:ring-2 focus:ring-wine" />
-            <select value={newProduct.category} onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })} className="p-2 border rounded focus:ring-2 focus:ring-wine">
-              <option value="">Select Category</option>
-              <option value="Fashion">Fashion</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Services">Services</option>
-              <option value="Books">Books</option>
-            </select>
-            <button onClick={handleAddOrUpdateProduct} className="bg-yellow-400 text-black py-2 rounded font-bold hover:bg-yellow-500 md:col-span-2">
+          <div className="space-y-4">
+            <input 
+              type="text" 
+              placeholder="Product Name" 
+              value={newProduct.name} 
+              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
+              className="p-2 border rounded focus:ring-2 focus:ring-wine w-full" 
+            />
+            <textarea
+              placeholder="Product Description"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              className="p-2 border rounded focus:ring-2 focus:ring-wine w-full"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input 
+                type="number" 
+                placeholder="Price (GH₵)" 
+                value={newProduct.price} 
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
+                className="p-2 border rounded focus:ring-2 focus:ring-wine" 
+              />
+              <input 
+                type="number" 
+                placeholder="Quantity" 
+                value={newQuantity} 
+                onChange={(e) => setNewQuantity(e.target.value)} 
+                className="p-2 border rounded focus:ring-2 focus:ring-wine" 
+              />
+              <select 
+                value={newProduct.category} 
+                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })} 
+                className="p-2 border rounded focus:ring-2 focus:ring-wine"
+              >
+                <option value="">Select Category</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Services">Services</option>
+                <option value="Books">Books</option>
+              </select>
+            </div>
+            <div className="mt-4">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                className="p-2 border rounded focus:ring-2 focus:ring-wine w-full"
+              />
+              {newImages && newImages.length > 0 && (
+                <div className="mt-4 flex gap-4">
+                  {Array.from(newImages).map((file, index) => (
+                    <img
+                      key={index}
+                      src={URL.createObjectURL(file)}
+                      alt={`Product Preview ${index + 1}`}
+                      className="w-32 h-32 object-cover rounded"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            <button 
+              onClick={handleAddOrUpdateProduct} 
+              className="bg-yellow-400 text-black py-2 rounded font-bold hover:bg-yellow-500 w-full mt-4"
+              disabled={!isFormValid}
+            >
               {editingProduct ? 'Update Product' : 'Add Product'}
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {products.map((product) => (
-            <div key={product.id} className="bg-white p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <img src={product.image} alt={product.name} className="w-full h-48 object-cover mb-2 rounded" />
-              <h3 className="text-lg font-bold text-gray-800">{product.name}</h3>
-              <p className="text-wine font-semibold">GH₵{product.price.toFixed(2)}</p>
-              <p className="text-sm text-gray-600 mb-2">Category: {product.category}</p>
-              <button onClick={() => handleEditProduct(product)} className="bg-blue-500 text-white py-2 rounded font-bold hover:bg-blue-700 w-full mt-2">Edit</button>
-              <button onClick={() => handleDeleteProduct(product.id)} className="bg-black text-white py-2 rounded font-bold hover:bg-gray-800 w-full mt-2">Delete</button>
+        {products.filter(product =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        ).map((product) => (
+          <div key={product.id} className="bg-white p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="flex gap-2 mb-4">
+              {product.images.map((image, index) => (
+                <img 
+                  key={index}
+                  src={image} 
+                  alt={`${product.name} ${index + 1}`} 
+                  className="w-32 h-32 object-cover rounded" 
+                />
+              ))}
             </div>
-          ))}
-        </div>
+            <h3 className="text-lg font-bold text-gray-800">{product.name}</h3>
+            <p className="text-sm text-gray-600 mb-2">{product.description}</p>
+            <p className="text-wine font-semibold">GH₵{product.price.toFixed(2)}</p>
+            <p className="text-sm text-gray-600 mb-2">Quantity: {product.quantity}</p>
+            <p className="text-sm text-gray-600 mb-2">Category: {product.category}</p>
+            <div className="flex gap-2">
+              <button onClick={() => handleEditProduct(product)} className="bg-blue-500 text-white py-2 rounded font-bold hover:bg-blue-700 flex-1">Edit</button>
+              <button onClick={() => handleDeleteProduct(product.id)} className="bg-black text-white py-2 rounded font-bold hover:bg-gray-800 flex-1">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
       </main>
 
       {/* Footer */}
