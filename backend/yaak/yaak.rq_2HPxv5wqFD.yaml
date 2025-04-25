@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_2HPxv5wqFD
 createdAt: 2025-04-21T14:03:36.101812589
-updatedAt: 2025-04-21T14:26:42.991632159
+updatedAt: 2025-04-25T17:10:40.857596386
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_7wmxxsU6eZ
 authentication: {}
@@ -18,9 +18,9 @@ url: ${[ HOST ]}/vendor/transactions/:vid
 urlParameters:
 - enabled: true
   name: :vid
-  value: 21713496-c870-4ad0-80bc-530ce6bb9bca
+  value: 0502b91d-f747-4e94-b0a5-85dcc2b49d7b
   id: vawKQ4mgYM
 - enabled: true
   name: ''
   value: ''
-  id: 8bAqEezHPR
+  id: Kzur2EYHbN

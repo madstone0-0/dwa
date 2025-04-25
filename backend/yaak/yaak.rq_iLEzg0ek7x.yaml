@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_iLEzg0ek7x
 createdAt: 2025-02-08T01:46:15
-updatedAt: 2025-04-07T13:02:39.225600871
+updatedAt: 2025-04-25T17:08:53.880397016
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -13,7 +13,7 @@ body:
       "email": "madibahq@gmail.com",
       "password": "#MTS#@#test",
       "name": "Madiba Hudson-Quansah 2",
-      "isVendor": true
+      "isVendor": false
     }
 bodyType: application/json
 description: ''

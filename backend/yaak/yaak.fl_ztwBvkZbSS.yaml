@@ -2,9 +2,9 @@ type: folder
 model: folder
 id: fl_ztwBvkZbSS
 createdAt: 2025-04-21T14:01:59.817420791
-updatedAt: 2025-04-21T14:01:59.817421580
+updatedAt: 2025-04-25T17:11:36.944567837
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_kMt4bxwkXL
 name: Items
 description: ''
-sortPriority: 0.001
+sortPriority: 2000.0

@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_BukdDGTwWv
 createdAt: 2025-02-07T22:11:45
-updatedAt: 2025-02-07T22:12:11
+updatedAt: 2025-04-25T17:11:45.735757780
 workspaceId: wk_QjekB5v0Ow
 folderId: null
 authentication: {}
@@ -13,6 +13,6 @@ description: ''
 headers: []
 method: GET
 name: DB Health
-sortPriority: -1738620100000.0
+sortPriority: 4000.0
 url: ${[ HOST ]}/db
 urlParameters: []

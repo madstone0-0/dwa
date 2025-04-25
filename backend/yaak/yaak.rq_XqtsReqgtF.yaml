@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_XqtsReqgtF
 createdAt: 2025-04-21T14:02:19.005383758
-updatedAt: 2025-04-21T14:26:26.755374537
+updatedAt: 2025-04-25T17:11:43.585112877
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_aXjzo7eCah
 authentication: {}
@@ -10,10 +10,10 @@ authenticationType: null
 body:
   text: |-
     {
-      "bid": "ef020ccd-cd08-4d31-a153-fc68efc93d29",
-      "vid": "21713496-c870-4ad0-80bc-530ce6bb9bca",
-      "iid": "e8da1a98-0e8a-4995-b4df-bcdc1e7d103d",
-      "amt": 14.99
+      "bid": "74e8825e-5308-4636-a824-ed304c356b54",
+      "vid": "0502b91d-f747-4e94-b0a5-85dcc2b49d7b",
+      "iid": "45c2bea7-bef4-4092-9abc-c3cc7a6f896c",
+      "amt": 140.99
     }
 bodyType: application/json
 description: ''
@@ -24,6 +24,6 @@ headers:
   id: PpNNIeUP3p
 method: POST
 name: Init
-sortPriority: 3000.001
+sortPriority: 0.0
 url: ${[ HOST ]}/buyer/pay/initialize
 urlParameters: []

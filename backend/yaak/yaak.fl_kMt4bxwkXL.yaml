@@ -2,9 +2,9 @@ type: folder
 model: folder
 id: fl_kMt4bxwkXL
 createdAt: 2025-04-21T14:01:59.776016245
-updatedAt: 2025-04-21T14:01:59.776017236
+updatedAt: 2025-04-25T17:11:45.735592186
 workspaceId: wk_QjekB5v0Ow
 folderId: null
 name: Vendors
 description: ''
-sortPriority: -1743675300000.0
+sortPriority: 2000.0
