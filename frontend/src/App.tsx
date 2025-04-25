@@ -12,6 +12,8 @@ import InventoryManagementPage from './pages/InventoryManagementPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsersPage from './pages/AdminUsersPage';
+import ManageOrdersPage from './pages/ManageOrdersPage';
+import ManageProductsPage from './pages/ManageProductPage';
 
 import './App.css';
 
@@ -39,6 +41,12 @@ const AppContent = () => {
           <Route path="/user-profile" element={<UserProfilePage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin-manage-orders" element={<ManageOrdersPage />} />
+          <Route path="/admin-manage-products" element={<ManageProductsPage />} />
+          {/* Add more routes as needed */}
+          {/* Fallback route for 404 Not Found */}
+          {/* Add more routes as needed */}
+          {/* Fallback route for 404 Not Found */}
         </Routes>
       </main>
     </div>

@@ -95,12 +95,8 @@ function LandingPage() {
         <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
        
       <div className="flex items-center gap-4">
-        <button
-            onClick={() => navigate('/signin')}
-            className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm"
-          >
-            Sign In
-          </button>
+        <button onClick={() => navigate('/signin')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Sign In</button>
+        {/* <button onClick={() => navigate('/inventory-management')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Admin</button>  */}
           <button
             onClick={() => navigate('/signup')}
             className="bg-yellow-400 text-black hover:bg-yellow-500 transition-colors px-4 py-1 rounded-md text-sm font-medium"

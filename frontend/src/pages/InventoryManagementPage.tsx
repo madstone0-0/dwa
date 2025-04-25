@@ -143,7 +143,7 @@ const InventoryManagementPage = () => {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo and Brand */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/landing')}>
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/vendor-dashboard')}>
               <img 
                 src="/src/assets/dwa-icon.jpg" 
                 alt="DWA Logo" 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Assuming you're using React Router for navigation
+import { Link } from "react-router-dom"; 
 
 const AdminDashboard = () => {
   return (
@@ -26,10 +26,18 @@ const AdminDashboard = () => {
           </Link>
 
           <Link
-            to="/admin/orders"
+            to="/admin-manage-orders"
             className="bg-yellow-500 text-black text-center py-4 px-6 rounded-lg shadow-md hover:bg-yellow-400 w-full md:w-auto"
           >
             <h3 className="text-xl font-semibold">Manage Orders</h3>
+            <p className="mt-2 text-sm">View and manage orders placed by users.</p>
+          </Link>
+
+          <Link
+            to="/admin-manage-products"
+            className="bg-yellow-500 text-black text-center py-4 px-6 rounded-lg shadow-md hover:bg-yellow-400 w-full md:w-auto"
+          >
+            <h3 className="text-xl font-semibold">Manage Products</h3>
             <p className="mt-2 text-sm">View and manage orders placed by users.</p>
           </Link>
         </div>

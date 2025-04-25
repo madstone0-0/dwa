@@ -13,14 +13,15 @@ interface Product {
 }
 
 const VendorDashboard: React.FC = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', images: [] as string[], category: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: 0, images: [] as string[], category: '' });
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [newDescription, setNewDescription] = useState<string>("");
   const [newQuantity, setNewQuantity] = useState<number | string>("");
-  const [newImages, setNewImages] = useState<FileList | null>(null);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const salesData = [
     { name: 'Mon', sales: 12 },
@@ -40,25 +41,52 @@ const VendorDashboard: React.FC = () => {
   const COLORS = ['#722F37', '#F59E0B', '#3B82F6', '#10B981'];
 
   const handleAddOrUpdateProduct = () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.images.length || !newProduct.category) return;
+    console.log("handleAddOrUpdateProduct called");
+
+    if (!isFormValid) {
+      console.log("Form is not valid!");
+      setFormError("Please fill in all fields and upload exactly 3 images.");
+      return;
+    }
+
+    setFormError(null); // Clear previous error
+
+    const imageUrls = newImages.map(file => URL.createObjectURL(file));
 
     if (editingProduct) {
-      setProducts(products.map(product => 
-        product.id === editingProduct.id ? { ...product, ...newProduct, price: parseFloat(newProduct.price) } : product
+      console.log("Editing product", editingProduct);
+      setProducts(products.map(product =>
+        product.id === editingProduct.id
+          ? {
+              ...product,
+              name: newProduct.name,
+              price: newProduct.price,
+              description: newDescription,
+              quantity: Number(newQuantity),
+              category: newProduct.category,
+              images: imageUrls
+            }
+          : product
       ));
       setEditingProduct(null);
     } else {
-      setProducts([...products, { 
-        id: products.length + 1, 
-        name: newProduct.name, 
-        price: parseFloat(newProduct.price), 
-        images: newProduct.images,
+      console.log("Adding new product");
+      setProducts([...products, {
+        id: products.length + 1,
+        name: newProduct.name,
+        price: newProduct.price,
         description: newDescription,
         quantity: Number(newQuantity),
-        category: newProduct.category
+        category: newProduct.category,
+        images: imageUrls
       }]);
     }
-    setNewProduct({ name: '', price: '', images: [], category: '' });
+
+    // Reset form
+    setNewProduct({ name: '', price: 0, images: [], category: '' });
+    setNewDescription('');
+    setNewQuantity('');
+    setNewImages([]);
   };
 
   const handleDeleteProduct = (id: number) => {
@@ -67,84 +95,57 @@ const VendorDashboard: React.FC = () => {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
-    setNewProduct({ name: product.name, price: product.price.toString(), images: product.images, category: product.category });
+    setNewProduct({ name: product.name, price: product.price, images: product.images, category: product.category });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length === 3) {
-      setNewImages(files);
+      setNewImages(Array.from(files));
     } else {
       alert("Please upload exactly 3 images.");
     }
   };
-  
+
   const getImageUrls = () => {
-    if (newImages) {
-      return Array.from(newImages).map((file) => URL.createObjectURL(file));
-    }
-    return [];
+    return newImages.map((file) => URL.createObjectURL(file));
   };
-  
+
   const isFormValid = 
     newProduct.name &&
     newDescription &&
-    newProduct.price &&
+    newProduct.price > 0 &&
     newQuantity &&
     newProduct.category &&
-    newImages &&
     newImages.length === 3;
-  
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
   return (
-
     <div className="min-h-screen bg-gray-100 flex flex-col">
-       <header className="bg-wine shadow-md" style={{ backgroundColor: '#722F37' }}>
+      <header className="bg-wine shadow-md" style={{ backgroundColor: '#722F37' }}>
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            {/* Logo and Brand */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/landing')}>
-              <img 
-                src="/src/assets/dwa-icon.jpg" 
-                alt="DWA Logo" 
-                className="h-10 w-10 object-cover rounded-full"
-              />
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/vendor-dashboard')}>
+              <img src="/src/assets/dwa-icon.jpg" alt="DWA Logo" className="h-10 w-10 object-cover rounded-full" />
               <h1 className="text-white text-xl font-bold">Vendor Dashboard</h1>
             </div>
-
-            {/* Navigation Icons */}
             <div className="flex items-center space-x-6">
-              {/* Inventory */}
-              <button 
-                onClick={() => navigate('/inventory-management')}
-                className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center"
-              >
+              <button onClick={() => navigate('/inventory-management')} className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
                 <span className="text-xs mt-1">Inventory</span>
               </button>
-
-
-              {/* Earnings */}
-              <button 
-                onClick={() => navigate('/sales-and-earnings')}
-                className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center"
-              >
+              <button onClick={() => navigate('/sales-and-earnings')} className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 <span className="text-xs mt-1">Earnings</span>
               </button>
-
-              {/* Profile */}
-              <button 
-                onClick={() => navigate('/user-profile')}
-                className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center"
-              >
+              <button onClick={() => navigate('/user-profile')} className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -156,6 +157,7 @@ const VendorDashboard: React.FC = () => {
       </header>
 
       <main className="flex-grow p-8">
+        {/* Sales Trends and Category Distribution (charts) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-wine">Sales Trends</h2>
@@ -189,15 +191,16 @@ const VendorDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Product Form */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-xl font-bold mb-4 text-wine">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
           <div className="space-y-4">
-            <input 
-              type="text" 
-              placeholder="Product Name" 
-              value={newProduct.name} 
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} 
-              className="p-2 border rounded focus:ring-2 focus:ring-wine w-full" 
+            <input
+              type="text"
+              placeholder="Product Name"
+              value={newProduct.name}
+              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+              className="p-2 border rounded focus:ring-2 focus:ring-wine w-full"
             />
             <textarea
               placeholder="Product Description"
@@ -206,23 +209,23 @@ const VendorDashboard: React.FC = () => {
               className="p-2 border rounded focus:ring-2 focus:ring-wine w-full"
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input 
-                type="number" 
-                placeholder="Price (GH₵)" 
-                value={newProduct.price} 
-                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} 
-                className="p-2 border rounded focus:ring-2 focus:ring-wine" 
+              <input
+                type="number"
+                placeholder="Price (GH₵)"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
+                className="p-2 border rounded focus:ring-2 focus:ring-wine"
               />
-              <input 
-                type="number" 
-                placeholder="Quantity" 
-                value={newQuantity} 
-                onChange={(e) => setNewQuantity(e.target.value)} 
-                className="p-2 border rounded focus:ring-2 focus:ring-wine" 
+              <input
+                type="number"
+                placeholder="Quantity"
+                value={newQuantity}
+                onChange={(e) => setNewQuantity(e.target.value)}
+                className="p-2 border rounded focus:ring-2 focus:ring-wine"
               />
-              <select 
-                value={newProduct.category} 
-                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })} 
+              <select
+                value={newProduct.category}
+                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                 className="p-2 border rounded focus:ring-2 focus:ring-wine"
               >
                 <option value="">Select Category</option>
@@ -240,9 +243,9 @@ const VendorDashboard: React.FC = () => {
                 onChange={handleImageUpload}
                 className="p-2 border rounded focus:ring-2 focus:ring-wine w-full"
               />
-              {newImages && newImages.length > 0 && (
+              {newImages.length > 0 && (
                 <div className="mt-4 flex gap-4">
-                  {Array.from(newImages).map((file, index) => (
+                  {newImages.map((file, index) => (
                     <img
                       key={index}
                       src={URL.createObjectURL(file)}
@@ -253,8 +256,9 @@ const VendorDashboard: React.FC = () => {
                 </div>
               )}
             </div>
-            <button 
-              onClick={handleAddOrUpdateProduct} 
+            {formError && <p className="text-red-500">{formError}</p>}
+            <button
+              onClick={handleAddOrUpdateProduct}
               className="bg-yellow-400 text-black py-2 rounded font-bold hover:bg-yellow-500 w-full mt-4"
               disabled={!isFormValid}
             >
@@ -263,44 +267,36 @@ const VendorDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Product Listing */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {products.filter(product =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase())
-        ).map((product) => (
-          <div key={product.id} className="bg-white p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <div className="flex gap-2 mb-4">
-              {product.images.map((image, index) => (
-                <img 
-                  key={index}
-                  src={image} 
-                  alt={`${product.name} ${index + 1}`} 
-                  className="w-32 h-32 object-cover rounded" 
-                />
-              ))}
+          {products.filter(product =>
+            product.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ).map((product) => (
+            <div key={product.id} className="bg-white p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex gap-2 mb-4">
+                {product.images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Product ${index + 1}`}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                ))}
+              </div>
+              <h3 className="text-lg font-semibold text-wine">{product.name}</h3>
+              <p className="text-sm text-gray-500 mb-2">{product.category}</p>
+              <p className="text-sm text-gray-700">{product.description}</p>
+              <div className="flex justify-between items-center mt-4">
+                <p className="text-xl font-bold text-green-500">GH₵ {product.price}</p>
+                <div className="flex gap-4">
+                  <button onClick={() => handleEditProduct(product)} className="text-blue-500 hover:underline">Edit</button>
+                  <button onClick={() => handleDeleteProduct(product.id)} className="text-red-500 hover:underline">Delete</button>
+                </div>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-gray-800">{product.name}</h3>
-            <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-            <p className="text-wine font-semibold">GH₵{product.price.toFixed(2)}</p>
-            <p className="text-sm text-gray-600 mb-2">Quantity: {product.quantity}</p>
-            <p className="text-sm text-gray-600 mb-2">Category: {product.category}</p>
-            <div className="flex gap-2">
-              <button onClick={() => handleEditProduct(product)} className="bg-blue-500 text-white py-2 rounded font-bold hover:bg-blue-700 flex-1">Edit</button>
-              <button onClick={() => handleDeleteProduct(product.id)} className="bg-black text-white py-2 rounded font-bold hover:bg-gray-800 flex-1">Delete</button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-wine text-white text-center py-5 text-xs border-t border-gray-300" style={{ backgroundColor: '#722F37' }}>
-        <p className="mb-1">
-          <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp; | &nbsp;
-          <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; | &nbsp;
-          <span className="text-yellow-400 cursor-pointer hover:underline">Help</span>
-        </p>
-        <p>&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights reserved.</p>
-      </footer>
     </div>
   );
 };
