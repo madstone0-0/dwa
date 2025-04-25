@@ -1,11 +1,68 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
+ 
 // Header Component
 const Header = () => {
+  const navigate = useNavigate();
   return (
-    <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
-      <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-    </header>
+    <header className="bg-wine shadow-md" style={{ backgroundColor: '#722F37' }}>
+    <div className="container mx-auto px-4 py-3">
+      <div className="flex items-center justify-between">
+        {/* Logo and Brand */}
+        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/vendor-dashboard')}>
+          <img 
+            src="/src/assets/dwa-icon.jpg" 
+            alt="DWA Logo" 
+            className="h-10 w-10 object-cover rounded-full"
+          />
+          <h1 className="text-white text-xl font-bold">Sales & Earnings</h1>
+        </div>
+
+        {/* Navigation Icons */}
+            {/* Navigation Icons */}
+            <div className="flex items-center space-x-6">
+            <button onClick={() => navigate('/inventory-management')} className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <span className="text-xs mt-1">Inventory</span>
+              </button>
+              {/* Earnings */}
+              <button 
+                onClick={() => navigate('/sales-and-earnings')}
+                className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span className="text-xs mt-1">Earnings</span>
+              </button>
+
+              {/* Orders */}
+              <button 
+                onClick={() => navigate('/orders')}
+                className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17h6M9 13h6M9 9h6M5 3h14a2 2 0 012 2v16l-3-3H6l-3 3V5a2 2 0 012-2z" />
+                </svg>
+                <span className="text-xs mt-1">Orders</span>
+              </button>
+
+              {/* Profile */}
+              <button 
+                onClick={() => navigate('/user-profile')}
+                className="text-white hover:text-yellow-400 transition-colors flex flex-col items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="text-xs mt-1">Profile</span>
+              </button>
+            </div>
+      </div>
+    </div>
+  </header>
   );
 };
 
@@ -51,7 +108,6 @@ const SalesAndEarningsPage = () => {
       <Header />
 
       <main className="flex-grow p-4">
-        <h1 className="text-2xl font-semibold text-center mb-6">Sales and Earnings</h1>
         
         {/* Display Total Earnings */}
         <div className="text-center mb-6">

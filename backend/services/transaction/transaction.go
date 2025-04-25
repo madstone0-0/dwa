@@ -53,6 +53,7 @@ func GetTotalSalesByVendorIdAndItemId(ctx context.Context, pool db.Pool, vId pgt
 
 	if err != nil {
 		logging.Errorf("Error getting the total sales for item")
+		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
 	return utils.ServiceReturn[any]{

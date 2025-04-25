@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Assuming you're using React Router for navigation
+import { Link } from "react-router-dom"; 
 
 const AdminDashboard = () => {
   return (
@@ -7,7 +7,7 @@ const AdminDashboard = () => {
       <header className="bg-wine py-4 shadow-md flex justify-between items-center" style={{ backgroundColor: '#722F37' }}>
         <h1 className="text-white text-2xl font-bold">Admin Dashboard</h1>
         <Link to="/" className="text-white text-sm hover:underline">Logout</Link>
-      </header>
+      </header> 
 
       <main className="flex-grow p-6 flex flex-col items-center justify-start space-y-6">
         {/* Welcome Section */}
@@ -18,7 +18,7 @@ const AdminDashboard = () => {
         {/* Navigation Links Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           <Link
-            to="/admin/users"
+            to="/admin-users"
             className="bg-yellow-500 text-black text-center py-4 px-6 rounded-lg shadow-md hover:bg-yellow-400 w-full md:w-auto"
           >
             <h3 className="text-xl font-semibold">Manage Users</h3>
@@ -26,10 +26,18 @@ const AdminDashboard = () => {
           </Link>
 
           <Link
-            to="/admin/orders"
+            to="/admin-manage-orders"
             className="bg-yellow-500 text-black text-center py-4 px-6 rounded-lg shadow-md hover:bg-yellow-400 w-full md:w-auto"
           >
             <h3 className="text-xl font-semibold">Manage Orders</h3>
+            <p className="mt-2 text-sm">View and manage orders placed by users.</p>
+          </Link>
+
+          <Link
+            to="/admin-manage-products"
+            className="bg-yellow-500 text-black text-center py-4 px-6 rounded-lg shadow-md hover:bg-yellow-400 w-full md:w-auto"
+          >
+            <h3 className="text-xl font-semibold">Manage Products</h3>
             <p className="mt-2 text-sm">View and manage orders placed by users.</p>
           </Link>
         </div>
