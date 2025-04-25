@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_EWQekfQR6D
+createdAt: 2025-04-21T14:01:59.852350456
+updatedAt: 2025-04-21T14:01:59.852351225
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_ztwBvkZbSS
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: Delete
+sortPriority: 1000.001
+url: ${[ HOST ]}/vendor/item/delete/:iid
+urlParameters:
+- enabled: true
+  name: :iid
+  value: 1760d912-a44b-483c-9f61-cf8e6714fb24
+  id: kU2dffAUTM
+- enabled: true
+  name: ''
+  value: ''
+  id: nK2vzqBXdn
