@@ -96,7 +96,8 @@ function LandingPage() {
        
       <div className="flex items-center gap-4">
         <button onClick={() => navigate('/signin')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Sign In</button>
-        {/* <button onClick={() => navigate('/inventory-management')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Admin</button>  */}
+        <button onClick={() => navigate('/admin-dashboard')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Admin</button>
+        <button onClick={() => navigate('/vendor-dashboard')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Vendor</button>  
           <button
             onClick={() => navigate('/signup')}
             className="bg-yellow-400 text-black hover:bg-yellow-500 transition-colors px-4 py-1 rounded-md text-sm font-medium"
@@ -191,15 +192,26 @@ function LandingPage() {
               <img src={item.image} alt={item.name} className="w-full h-48 object-contain mb-4" />
               <h3 className="font-bold">{item.name}</h3>
               <p className="text-gray-600 text-sm">GH₵{item.price}</p>
-              <button 
-                className="bg-yellow-400 text-black px-3 py-1 rounded mt-2 text-sm hover:bg-yellow-500 w-full"
-                onClick={() => addToCart(item.id, item.name, item.price, item.image)}
-              >
-                Add to Cart
-              </button>
+              
+              {/* Buttons container */}
+              <div className="flex gap-2 mt-2">
+                <button 
+                  className="bg-yellow-400 text-black px-3 py-1 rounded text-sm hover:bg-yellow-500 w-full"
+                  onClick={() => addToCart(item.id, item.name, item.price, item.image)}
+                >
+                  Add to Cart
+                </button>
+                <button 
+                  className="bg-gray-200 text-black px-3 py-1 rounded text-sm hover:bg-gray-300 w-full"
+                  onClick={() => navigate(`/item`)} // We would add the id of the item to know we are looking for
+                >
+                  View Item
+                </button>
+              </div>
             </div>
           ))}
         </div>
+
 
         {/* Category Sections */}
         <SectionHeader title="Shop by Category" linkText="Browse all categories" />

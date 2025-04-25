@@ -49,23 +49,25 @@ const ManageProductsPage = () => {
     );
     setProducts(updated);
   };
-
+ 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-wine py-4 shadow-md px-6 flex justify-between items-center" style={{ backgroundColor: "#722F37" }}>
-      <button onClick={() => navigate('/admin-dashboard')} className="focus:outline-none">
-        <img
-          src="/logo.png" // Replace with your actual logo path
-          alt="Dashboard"
-          className="w-8 h-8 rounded-full"
-        />
-      </button>
-        <h1 className="text-white text-2xl font-bold">Manage Products</h1>
+      <div className="flex items-center space-x-3">
+          <a href="admin-dashboard" className="focus:outline-none">
+            <img 
+              src="/src/assets/dwa-icon.jpg" 
+              alt="DWA Logo" 
+              className="h-10 w-10 object-cover rounded-full"
+            />
+            </a>
+            <h1 className="text-white text-2xl font-bold">Ashesi DWA - Manage All Products</h1>
+          </div>
 
         <div className="flex gap-2">
           <button
-            onClick={() => navigate('/admin/users')}
+            onClick={() => navigate('/admin-users')}
             className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm"
           >
             Manage Users

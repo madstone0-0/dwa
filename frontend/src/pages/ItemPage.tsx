@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const item = {
   id: 1,
@@ -14,20 +15,54 @@ const item = {
 };
 
 const ItemPage = () => {
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(item.images[0]);
   const [quantity, setQuantity] = useState(1);
 
   const addToCart = () => {
-    // logic to add item to cart
     alert(`${quantity} of "${item.name}" added to cart!`);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
-        <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-      </header>
+      <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          {/* Logo and Brand Name */}
+          <div className="flex items-center space-x-3">
+            <a href="/landing">
+              <img 
+                src="/src/assets/dwa-icon.jpg" 
+                alt="DWA Logo" 
+                className="h-10 w-10 object-cover rounded-full cursor-pointer"
+              />
+            </a>
+            <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
+          </div>
+
+
+          {/* Profile Icon */}
+          <button 
+            onClick={() => navigate('/user-profile')}
+            className="text-white hover:text-yellow-400 transition-colors"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+              />
+            </svg>
+          </button>
+        </div>
+    </header>
 
       {/* Item Content */}
       <div className="max-w-5xl mx-auto p-6 flex flex-col md:flex-row gap-6 bg-white shadow-md mt-6 rounded-lg">

@@ -109,11 +109,13 @@ function CheckoutPayment() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           {/* Logo and Brand Name */}
           <div className="flex items-center space-x-3">
+          <a href="/landing">
             <img 
               src="/src/assets/dwa-icon.jpg" 
               alt="DWA Logo" 
               className="h-10 w-10 object-cover rounded-full"
             />
+            </a>
             <h1 className="text-white text-2xl font-bold">Ashesi DWA - Checkout</h1>
           </div>
 
