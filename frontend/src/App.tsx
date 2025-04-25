@@ -15,12 +15,18 @@ import ManageOrdersPage from './pages/ManageOrdersPage';
 import ManageProductsPage from './pages/ManageProductPage';
 
 import './App.css';
+import { useEffect } from 'react';
+import { ping } from './utils/api.ts';
 
 // Header Component
 
 
 // AppContent component to use useLocation hook (required for conditional rendering)
 const AppContent = () => {
+  useEffect(() => {
+    ping().then(data => console.log(data)).catch(e => console.error({e}))
+  }, [])
+
   return (
     <div className="app-container">
       <main className="content-area">
