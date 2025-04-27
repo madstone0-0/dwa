@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_HEBZhecixL
 createdAt: 2025-04-21T14:01:59.872191767
-updatedAt: 2025-04-21T14:01:59.872192462
+updatedAt: 2025-04-27T18:17:52.299932133
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_ztwBvkZbSS
 authentication: {}
@@ -10,10 +10,12 @@ authenticationType: null
 body:
   text: |-
     {
-      "vid": "0502b91d-f747-4e94-b0a5-85dcc2b49d7b",
+      "vid": "${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}",
       "name": "Schrödinger's cat",
       "pictureurl": "https://www.wikiwand.com/en/articles/Schr%C3%B6dinger's_cat#/media/File:Schrodingers_cat.svg",
       "description": "Probably dead",
+      "category": "FASHION",
+      "quantity": 10,
       "cost": 14.99
     }
 bodyType: application/json
@@ -23,6 +25,14 @@ headers:
   name: Content-Type
   value: application/json
   id: V2qPVFVDqC
+- enabled: true
+  name: Authorization
+  value: ${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.token', behavior='smart') ]}
+  id: fcX2EN6B7f
+- enabled: true
+  name: ''
+  value: ''
+  id: fwKeN3jdgq
 method: POST
 name: Add
 sortPriority: 2000.001

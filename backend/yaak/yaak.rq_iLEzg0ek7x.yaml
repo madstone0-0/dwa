@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_iLEzg0ek7x
 createdAt: 2025-02-08T01:46:15
-updatedAt: 2025-04-25T17:08:53.880397016
+updatedAt: 2025-04-27T17:55:46.845824558
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -10,10 +10,10 @@ authenticationType: null
 body:
   text: |-
     {
-      "email": "madibahq@gmail.com",
+      "email": "vendor@gmail.com",
       "password": "#MTS#@#test",
-      "name": "Madiba Hudson-Quansah 2",
-      "isVendor": false
+      "name": "Vendor",
+      "isVendor": true
     }
 bodyType: application/json
 description: ''
@@ -23,7 +23,7 @@ headers:
   value: application/json
   id: null
 method: POST
-name: SignUp
-sortPriority: -1738620100000.0
+name: SignUp Vendor
+sortPriority: 1000.0
 url: ${[ HOST ]}/auth/user/signup
 urlParameters: []

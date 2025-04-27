@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_WLnTYj13pP
-createdAt: 2025-02-08T02:15:37
-updatedAt: 2025-04-27T18:14:12.403370866
+id: rq_iREEakwNX9
+createdAt: 2025-04-27T17:55:35.425562766
+updatedAt: 2025-04-27T17:57:21.379473609
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -10,8 +10,10 @@ authenticationType: null
 body:
   text: |-
     {
-      "email": "vendor@gmail.com",
-      "password": "#MTS#@#test"
+      "email": "buyer@gmail.com",
+      "password": "#MTS#@#test",
+      "name": "Buyer",
+      "isVendor": false
     }
 bodyType: application/json
 description: ''
@@ -21,7 +23,7 @@ headers:
   value: application/json
   id: null
 method: POST
-name: Login Vendor
-sortPriority: 0.0
-url: ${[ HOST ]}/auth/user/login
+name: SignUp Buyer
+sortPriority: 2000.0
+url: ${[ HOST ]}/auth/user/signup
 urlParameters: []
