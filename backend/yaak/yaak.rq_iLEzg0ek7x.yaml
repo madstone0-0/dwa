@@ -1,0 +1,29 @@
+type: http_request
+model: http_request
+id: rq_iLEzg0ek7x
+createdAt: 2025-02-08T01:46:15
+updatedAt: 2025-04-25T17:08:53.880397016
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_M3lw2noVeI
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "email": "madibahq@gmail.com",
+      "password": "#MTS#@#test",
+      "name": "Madiba Hudson-Quansah 2",
+      "isVendor": false
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: null
+method: POST
+name: SignUp
+sortPriority: -1738620100000.0
+url: ${[ HOST ]}/auth/user/signup
+urlParameters: []

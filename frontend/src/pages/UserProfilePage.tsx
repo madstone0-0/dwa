@@ -3,9 +3,21 @@ import React, { useState } from "react";
 // Header Component
 const Header = () => {
   return (
-    <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
-      <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-    </header>
+    <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
+    <div className="container mx-auto px-4 flex justify-between items-center">
+      {/* Logo and Brand Name */}
+      <div className="flex items-center space-x-3">
+      <a href="/landing">
+        <img 
+          src="/src/assets/dwa-icon.jpg" 
+          alt="DWA Logo" 
+          className="h-10 w-10 object-cover rounded-full"
+        />
+        </a>
+        <h1 className="text-white text-2xl font-bold">Ashesi DWA - Profile</h1>
+      </div>
+    </div>
+</header>
   );
 };
 
@@ -111,7 +123,7 @@ const UserProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Include the Header here */}
+      {/* Header Component */}
       <Header />
 
       <main className="flex-grow p-4">

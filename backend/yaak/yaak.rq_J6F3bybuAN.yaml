@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_J6F3bybuAN
+createdAt: 2025-04-21T14:01:59.886011373
+updatedAt: 2025-04-25T17:08:11.958969399
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_ztwBvkZbSS
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: All
+sortPriority: 3000.001
+url: ${[ HOST ]}/vendor/item/:vid
+urlParameters:
+- enabled: true
+  name: :vid
+  value: 0502b91d-f747-4e94-b0a5-85dcc2b49d7b
+  id: 4MIkRD8NPE
+- enabled: true
+  name: ''
+  value: ''
+  id: MgsBW6BG73

@@ -26,6 +26,8 @@ function LandingPage() {
   const navigate = useNavigate();
   const [recentlyViewed] = useState<Array<any>>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
 
   const SectionHeader = ({ title, linkText }: SectionHeaderProps) => (
     <div className="w-full flex justify-between items-center mb-4 px-8">
@@ -63,17 +65,50 @@ function LandingPage() {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    
+    const allItems = [
+      ...Object.values(CATEGORIES),
+      ...[
+        { id: 1, name: "Essential Item 1", price: 12.99, image: "/images/repurchase-1.jpg" },
+        { id: 2, name: "Essential Item 2", price: 12.99, image: "/images/repurchase-2.jpg" },
+        { id: 3, name: "Essential Item 3", price: 12.99, image: "/images/repurchase-3.jpg" },
+        { id: 4, name: "Essential Item 4", price: 12.99, image: "/images/repurchase-4.jpg" }
+      ],
+      ...['Hair Styling', 'Tutoring', 'Graphic Design']
+    ];
+
+    const filtered = allItems.filter((item) => {
+      const searchString = typeof item === 'string' ? item.toLowerCase() : item.name.toLowerCase();
+      return searchString.includes(term);
+    });
+
+    setFilteredItems(filtered);
+  };
+
   return (
     <div className="bg-white min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-wine py-4 shadow-md flex justify-between px-8" style={{ backgroundColor: '#722F37' }}>
         <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-        
-        {/* Shopping Cart Icon */}
-        <div className="relative">
+       
+      <div className="flex items-center gap-4">
+        <button onClick={() => navigate('/signin')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Sign In</button>
+        <button onClick={() => navigate('/admin-dashboard')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Admin</button>
+        <button onClick={() => navigate('/vendor-dashboard')} className="text-white hover:text-yellow-400 transition-colors px-4 py-1 border border-white rounded-md text-sm">Vendor</button>  
+          <button
+            onClick={() => navigate('/signup')}
+            className="bg-yellow-400 text-black hover:bg-yellow-500 transition-colors px-4 py-1 rounded-md text-sm font-medium"
+          >
+            Sign Up
+          </button>
+
+          {/* Shopping Cart Icon */}
           <button 
             onClick={goToCheckout}
-            className="flex items-center text-white hover:text-yellow-400 transition-colors"
+            className="flex items-center text-white hover:text-yellow-400 transition-colors relative"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -92,6 +127,56 @@ function LandingPage() {
         <div className="w-full flex flex-col items-center py-16 px-6 text-center bg-yellow-100">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Ashesi DWA</h2>
           <p className="text-gray-700 text-lg">Ghana's Premier Student Marketplace</p>
+          {/* Search bar */}
+        <div className="w-full max-w-2xl mx-auto mt-8 relative">
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search for products, services, or vendors"
+              className="w-full p-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-md"
+            />
+            <button 
+              className="absolute right-2 p-2 text-gray-600 hover:text-yellow-500"
+              onClick={() => {/* Add search submission logic here */}}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Search Results Dropdown */}
+          {searchTerm && filteredItems.length > 0 && (
+            <div className="absolute z-10 w-full bg-white mt-2 rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+              {filteredItems.map((item, index) => (
+                <div 
+                  key={index}
+                  className="p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilteredItems([]);
+                  }}
+                >
+                  <div className="flex items-center">
+                    {typeof item === 'string' ? (
+                      <span>{item}</span>
+                    ) : (
+                      <>
+                        <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded mr-4" />
+                        <div>
+                          <p className="font-semibold">{item.name}</p>
+                          {item.price && <p className="text-sm text-gray-600">GH₵{item.price}</p>}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         </div>
 
         {/* Frequently Repurchased */}
@@ -107,15 +192,26 @@ function LandingPage() {
               <img src={item.image} alt={item.name} className="w-full h-48 object-contain mb-4" />
               <h3 className="font-bold">{item.name}</h3>
               <p className="text-gray-600 text-sm">GH₵{item.price}</p>
-              <button 
-                className="bg-yellow-400 text-black px-3 py-1 rounded mt-2 text-sm hover:bg-yellow-500 w-full"
-                onClick={() => addToCart(item.id, item.name, item.price, item.image)}
-              >
-                Add to Cart
-              </button>
+              
+              {/* Buttons container */}
+              <div className="flex gap-2 mt-2">
+                <button 
+                  className="bg-yellow-400 text-black px-3 py-1 rounded text-sm hover:bg-yellow-500 w-full"
+                  onClick={() => addToCart(item.id, item.name, item.price, item.image)}
+                >
+                  Add to Cart
+                </button>
+                <button 
+                  className="bg-gray-200 text-black px-3 py-1 rounded text-sm hover:bg-gray-300 w-full"
+                  onClick={() => navigate(`/item`)} // We would add the id of the item to know we are looking for
+                >
+                  View Item
+                </button>
+              </div>
             </div>
           ))}
         </div>
+
 
         {/* Category Sections */}
         <SectionHeader title="Shop by Category" linkText="Browse all categories" />

@@ -1,0 +1,10 @@
+type: workspace
+model: workspace
+id: wk_QjekB5v0Ow
+createdAt: 2025-02-03T22:01:37
+updatedAt: 2025-02-03T22:01:41
+name: dwa
+description: ''
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0

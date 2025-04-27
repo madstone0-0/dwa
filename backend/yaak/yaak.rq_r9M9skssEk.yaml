@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_r9M9skssEk
+createdAt: 2025-04-21T14:00:51.418498526
+updatedAt: 2025-04-25T17:11:47.787357775
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_m3gzwRkFxr
+authentication: {}
+authenticationType: null
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: iXWIVquZf2
+method: GET
+name: Info
+sortPriority: 500.0
+url: ${[ HOST ]}/buyer/info
+urlParameters: []

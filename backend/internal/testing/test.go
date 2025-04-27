@@ -2,6 +2,7 @@ package testing
 
 import (
 	"context"
+	"testing"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/mock"
@@ -76,4 +77,33 @@ func SetupTxQueryRow(mockTx *MockTx, mockRow *MockRow, sqlCmd string, ctx contex
 // also returns the mock.Call object for additional assertions
 func SetupTxOnRet(mockTx *MockTx, on string, sqlCmd string, ctx context.Context, extra []any, ret ...any) *mock.Call {
 	return SetupMock(mockTx, on, []any{ctx, sqlCmd, extra}, ret...)
+}
+
+// vendorScanExists is a helper function to setup a mock row that confirms a vendor exists on scan
+func VendorScanExists(mockRow *MockRow) {
+	SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+}
+
+// itemScanExists is a helper function to setup a mock row that confirms an item exists on scan
+func ItemScanExists(mockRow *MockRow) {
+	SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+}
+
+// vendorScanNotExists  is a helper function to setup a mock row that confirms a vendor does exists on scan returning an
+// appropriate error
+func VendorScanNotExists(mockRow *MockRow, err error) {
+	SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+}
+
+// itemScanNotExists is a helper function to setup a mock row that confirms an item does exists on scan returning an
+// appropriate error
+func ItemScanNotExists(mockRow *MockRow, err error) {
+	SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+}
+
+// printError is a helper function to print out unexpected errors
+func PrintError(err error, t *testing.T) {
+	if err != nil {
+		t.Logf("Error: %v", err)
+	}
 }

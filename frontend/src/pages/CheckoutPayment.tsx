@@ -103,10 +103,51 @@ function CheckoutPayment() {
   
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
-        <h1 className="text-white text-2xl font-bold">Ashesi DWA Checkout</h1>
-      </header>
+
+    {/* Header */}
+      <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          {/* Logo and Brand Name */}
+          <div className="flex items-center space-x-3">
+          <a href="/landing">
+            <img 
+              src="/src/assets/dwa-icon.jpg" 
+              alt="DWA Logo" 
+              className="h-10 w-10 object-cover rounded-full"
+            />
+            </a>
+            <h1 className="text-white text-2xl font-bold">Ashesi DWA - Checkout</h1>
+          </div>
+
+          {/* Profile Icon */}
+          <button 
+            onClick={() => navigate('/user-profile')}
+            className="text-white hover:text-yellow-400 transition-colors"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+              />
+            </svg>
+          </button>
+          {/* Secure checkout badge */}
+          <div className="hidden md:flex items-center text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span className="text-sm">Secure Checkout</span>
+          </div>
+        </div>
+    </header>
       
       <main className="flex-grow container mx-auto py-8 px-4">
         <div className="flex flex-col md:flex-row gap-8">
