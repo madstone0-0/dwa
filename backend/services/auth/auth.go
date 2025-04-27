@@ -170,6 +170,7 @@ type UserInfo struct {
 	Uid      pgtype.UUID `json:"uid"`
 	Email    string      `json:"email"`
 	Name     string      `json:"name"`
+	UserType string      `json:"user_type"`
 	Passhash string      `json:"-"`
 }
 
@@ -177,28 +178,6 @@ type InfoWToken struct {
 	UserInfo
 	Token string `json:"token"`
 }
-
-// TODO: Figure this out
-// func makeUserInfoWToken[T any](info T) (InfoWToken, error) {
-// 	var zero InfoWToken
-//
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-// 		"nbf": time.Now().Unix(),
-// 	})
-//
-// 	tokenString, err := token.SignedString([]byte(utils.Env("SECRET")))
-// 	if err != nil {
-// 		return zero, err
-// 	}
-//
-// 	infoWToken := InfoWToken{
-// 		UserInfo: UserInfo(info),
-// 		Token:    tokenString,
-// 	}
-//
-// 	return infoWToken, nil
-//
-// }
 
 func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceReturn[any] {
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
@@ -239,8 +218,6 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 			}
 		}
 
-		// HACK: Temp repetition cause I can't figure out how to make makeUserInfoWToken generic rn
-		// infoWToken, err := makeUserInfoWToken(info)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email":    user.Email,
 			"userType": "buyer",
@@ -253,8 +230,14 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 		}
 
 		infoWToken := InfoWToken{
-			UserInfo: UserInfo(info),
-			Token:    tokenString,
+			UserInfo: UserInfo{
+				Uid:      info.Uid,
+				Email:    info.Email,
+				Name:     info.Name,
+				Passhash: info.Passhash,
+				UserType: "buyer",
+			},
+			Token: tokenString,
 		}
 
 		return utils.ServiceReturn[any]{
@@ -277,8 +260,6 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 			}
 		}
 
-		// HACK: Temp repetition cause I can't figure out how to make makeUserInfoWToken generic rn
-		// infoWToken, err := makeUserInfoWToken(info)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email":    user.Email,
 			"userType": "vendor",
@@ -296,6 +277,7 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 				Email:    info.Email,
 				Name:     info.Name,
 				Passhash: info.Passhash,
+				UserType: "vendor",
 			}),
 			Token: tokenString,
 		}
