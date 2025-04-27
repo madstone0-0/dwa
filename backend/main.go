@@ -7,6 +7,7 @@ import (
 	"backend/internal/utils"
 	"backend/routes/auth"
 	"backend/routes/buyers"
+	"backend/routes/items"
 	"backend/routes/vendors"
 	misc "backend/services"
 	"context"
@@ -75,6 +76,7 @@ func main() {
 
 	auth.AuthRoutes(ctx, pool, app)
 
+	items.ItemsRoute(ctx, pool, app)
 	vendors.VendorRoutes(ctx, pool, app)
 	buyers.BuyerRoutes(ctx, pool, app)
 

@@ -48,7 +48,23 @@ func doesItemExistById(ctx context.Context, pool db.Pool, iid pgtype.UUID) (bool
 	return true, nil
 }
 
-func All(ctx context.Context, pool db.Pool, vid pgtype.UUID) utils.ServiceReturn[any] {
+func All(ctx context.Context, pool db.Pool) utils.ServiceReturn[any] {
+	q := repository.New(pool)
+
+	items, err := q.GetAllItems(ctx)
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	return utils.ServiceReturn[any]{
+		Status: http.StatusOK,
+		Data: utils.JMap{
+			"items": items,
+		},
+	}
+}
+
+func ByVid(ctx context.Context, pool db.Pool, vid pgtype.UUID) utils.ServiceReturn[any] {
 	exists, err := doesVendorExistById(ctx, pool, vid)
 
 	if err != nil {

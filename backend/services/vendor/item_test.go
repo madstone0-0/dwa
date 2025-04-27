@@ -176,7 +176,7 @@ func TestDoesItemExistById(t *testing.T) {
 
 }
 
-func TestAll(t *testing.T) {
+func TestByVid(t *testing.T) {
 	ctx := context.Background()
 	mockPool := &it.MockPool{}
 
@@ -226,7 +226,7 @@ func TestAll(t *testing.T) {
 		)
 		it.VendorScanExists(mockRow)
 
-		result := All(ctx, mockPool, testVid)
+		result := ByVid(ctx, mockPool, testVid)
 
 		if result.ServiceErr != nil {
 			it.PrintError(result.ServiceErr.Err, t)
@@ -254,7 +254,7 @@ func TestAll(t *testing.T) {
 		it.VendorScanNotExists(mockRow, pgx.ErrNoRows)
 		it.SetupPoolQueryRow(mockPool, mockRow, repository.GetVendorById, ctx, []any{testVid})
 
-		result := All(ctx, mockPool, testVid)
+		result := ByVid(ctx, mockPool, testVid)
 
 		assert.NotNil(t, result.ServiceErr)
 		assert.Error(t, result.ServiceErr.Err)
@@ -270,7 +270,7 @@ func TestAll(t *testing.T) {
 		it.SetupPoolQueryRow(mockPool, mockRow, repository.GetVendorById, ctx, []any{testVid})
 		it.SetupPoolOnRet(mockPool, "Query", repository.GetItemsByVendorId, ctx, []any{testVid}, mockRows, errors.New("db error"))
 
-		result := All(ctx, mockPool, testVid)
+		result := ByVid(ctx, mockPool, testVid)
 
 		assert.NotNil(t, result.ServiceErr)
 		assert.Error(t, result.ServiceErr.Err)

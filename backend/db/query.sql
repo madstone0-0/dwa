@@ -71,6 +71,9 @@ insert into "user" (email, passhash) values ($1, $2) returning uid;
 -- name: InsertBuyer :exec
 insert into buyer (uid, name) values ($1, $2);
 
+-- name: GetAllItems :many
+select * from "item";
+
 -- name: GetItemsByVendorId :many
 select * from "item" where vid = $1;
 
