@@ -163,7 +163,7 @@ func TestIsUserBuyer(t *testing.T) {
 		it.SetupScanExists(mockRow)
 		it.SetupPoolQueryRow(mockPool, mockRow, sqlCmd, ctx, []any{"buyer@test.com"})
 
-		isBuyer, err := isUserBuyer(ctx, mockPool, "buyer@test.com")
+		isBuyer, err := IsUserBuyer(ctx, mockPool, "buyer@test.com")
 		assert.NoError(t, err)
 		assert.True(t, isBuyer)
 	})
@@ -174,7 +174,7 @@ func TestIsUserBuyer(t *testing.T) {
 		it.SetupScanNotExists(mockRow, pgx.ErrNoRows)
 		it.SetupPoolQueryRow(mockPool, mockRow, sqlCmd, ctx, []any{"vendor@test.com"})
 
-		isBuyer, err := isUserBuyer(ctx, mockPool, "vendor@test.com")
+		isBuyer, err := IsUserBuyer(ctx, mockPool, "vendor@test.com")
 		assert.NoError(t, err)
 		assert.False(t, isBuyer)
 	})
@@ -185,7 +185,7 @@ func TestIsUserBuyer(t *testing.T) {
 		it.SetupScanNotExists(mockRow, errors.New("err"))
 		it.SetupPoolQueryRow(mockPool, mockRow, sqlCmd, ctx, []any{"error@test.com"})
 
-		isBuyer, err := isUserBuyer(ctx, mockPool, "error@test.com")
+		isBuyer, err := IsUserBuyer(ctx, mockPool, "error@test.com")
 		assert.Error(t, err)
 		assert.False(t, isBuyer)
 	})
@@ -224,7 +224,6 @@ func TestSignUp(t *testing.T) {
 			IsVendor: false,
 		}, false)
 
-
 		if result.ServiceErr != nil {
 			t.Logf("Result: %+v", result)
 			t.Logf("%+v", result.ServiceErr.Err)
@@ -246,7 +245,6 @@ func TestSignUp(t *testing.T) {
 			Name:     "Existing User",
 			IsVendor: false,
 		}, false)
-
 
 		if result.ServiceErr != nil {
 			t.Logf("Result: %+v", result)

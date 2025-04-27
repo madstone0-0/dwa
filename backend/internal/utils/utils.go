@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/spf13/viper"
 )
@@ -36,6 +37,12 @@ func SendData[T any](c *gin.Context, status int, data T) {
 	})
 }
 
+func SendDataAbort[T any](c *gin.Context, status int, data T) {
+	c.AbortWithStatusJSON(status, gin.H{
+		"data": data,
+	})
+}
+
 // SendMsg is a convenience function to send a string message to the client
 func SendMsg(c *gin.Context, status int, msg string) {
 	SendData(c, status, JMap{"msg": msg})
@@ -44,6 +51,10 @@ func SendMsg(c *gin.Context, status int, msg string) {
 // SendErr is a convenience function to send an error message to the client
 func SendErr(c *gin.Context, status int, err error) {
 	SendData(c, status, JMap{"err": err.Error()})
+}
+
+func SendErrAbort(c *gin.Context, status int, err error) {
+	SendDataAbort(c, status, JMap{"err": err.Error()})
 }
 
 // SendSR sends a ServiceReturn to the client accounting for errors if any
@@ -135,4 +146,10 @@ func ParseBody[T any](c *gin.Context, body *T) (err error) {
 
 func MakePointer[T any](t T) *T {
 	return &t
+}
+
+func ParseJWT(tokenString string, claims jwt.MapClaims) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (any, error) {
+		return []byte(DefaultEnv{}.Env("SECRET")), nil
+	})
 }

@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_XqtsReqgtF
 createdAt: 2025-04-21T14:02:19.005383758
-updatedAt: 2025-04-25T17:11:43.585112877
+updatedAt: 2025-04-27T16:37:04.404345981
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_aXjzo7eCah
 authentication: {}
@@ -22,6 +22,14 @@ headers:
   name: Content-Type
   value: application/json
   id: PpNNIeUP3p
+- enabled: true
+  name: Authorization
+  value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hZGliYWhxQGdtYWlsLmNvbSIsIm5iZiI6MTc0NTc3MTQ0NiwidXNlclR5cGUiOiJ2ZW5kb3IifQ.nzSd1muBPhAMgV5soASyhdho4MJDsys084f4u5GIVEU
+  id: pUZ9tfIpv5
+- enabled: true
+  name: ''
+  value: ''
+  id: RdEkD5YktM
 method: POST
 name: Init
 sortPriority: 0.0
