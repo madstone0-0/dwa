@@ -129,7 +129,16 @@ func TestDoesItemExistById(t *testing.T) {
 
 	t.Run("Item exists", func(t *testing.T) {
 		mockRow := &it.MockRow{}
-		it.SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+		it.SetupScanReturnArgs(mockRow, nil,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		)
 		testUUID := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		it.SetupPoolQueryRow(&mockPool, mockRow, repository.GetItemById, ctx, []any{testUUID})
 
@@ -142,7 +151,16 @@ func TestDoesItemExistById(t *testing.T) {
 	})
 
 	scanNotExists := func(mockRow *it.MockRow, err error) {
-		it.SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+		it.SetupScanReturnArgs(mockRow, err,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		)
 	}
 
 	t.Run("Item not found", func(t *testing.T) {
@@ -192,6 +210,8 @@ func TestByVid(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategoryBOOKSSUPPLIES,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
 		}
 
@@ -202,7 +222,16 @@ func TestByVid(t *testing.T) {
 		it.SetupMock(mockRows, "Next", []any{}, false).Once()
 		it.SetupMock(mockRows, "Err", []any{}, nil)
 		// Assign values to the pointers passed to Scan when a select operation is performed
-		it.SetupMock(mockRows, "Scan", []any{mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything}, nil).Run(
+		it.SetupMock(mockRows, "Scan", []any{
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		}, nil).Run(
 			func(args mock.Arguments) {
 				if dest, ok := args.Get(0).(*pgtype.UUID); ok {
 					*dest = testItem.Iid
@@ -219,7 +248,13 @@ func TestByVid(t *testing.T) {
 				if dest, ok := args.Get(4).(**string); ok {
 					*dest = testItem.Description
 				}
-				if dest, ok := args.Get(5).(*pgtype.Numeric); ok {
+				if dest, ok := args.Get(5).(*repository.Category); ok {
+					*dest = testItem.Category
+				}
+				if dest, ok := args.Get(6).(*int32); ok {
+					*dest = testItem.Quantity
+				}
+				if dest, ok := args.Get(7).(*pgtype.Numeric); ok {
 					*dest = testItem.Cost
 				}
 			},
@@ -297,6 +332,8 @@ func TestAdd(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategorySERVICES,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
 		}
 
@@ -305,6 +342,8 @@ func TestAdd(t *testing.T) {
 			testItem.Name,
 			testItem.Pictureurl,
 			testItem.Description,
+			testItem.Category,
+			testItem.Quantity,
 			testItem.Cost,
 		})
 		it.SetupPoolQueryRow(mockPool, vendorRow, repository.GetVendorById, ctx, []any{testVid})
@@ -316,6 +355,8 @@ func TestAdd(t *testing.T) {
 				mock.AnythingOfType("*string"),
 				mock.AnythingOfType("**string"),
 				mock.AnythingOfType("**string"),
+				mock.AnythingOfType("*repository.Category"),
+				mock.AnythingOfType("*int32"),
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			pgx.ErrNoRows)
@@ -411,6 +452,8 @@ func TestAdd(t *testing.T) {
 			testItem.Name,
 			testItem.Pictureurl,
 			testItem.Description,
+			testItem.Category,
+			testItem.Quantity,
 			testItem.Cost,
 		})
 		it.SetupPoolQueryRow(mockPool, vendorRow, repository.GetVendorById, ctx, []any{testVid})
@@ -422,6 +465,8 @@ func TestAdd(t *testing.T) {
 				mock.AnythingOfType("*string"),
 				mock.AnythingOfType("**string"),
 				mock.AnythingOfType("**string"),
+				mock.AnythingOfType("*repository.Category"),
+				mock.AnythingOfType("*int32"),
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			pgx.ErrNoRows)
@@ -457,6 +502,8 @@ func TestUpdate(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategoryBOOKSSUPPLIES,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100)},
 		}
 
@@ -477,6 +524,8 @@ func TestUpdate(t *testing.T) {
 				mock.AnythingOfType("*string"),
 				mock.AnythingOfType("**string"),
 				mock.AnythingOfType("**string"),
+				mock.AnythingOfType("*repository.Category"),
+				mock.AnythingOfType("*int32"),
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			nil)
@@ -587,6 +636,8 @@ func TestUpdate(t *testing.T) {
 				mock.AnythingOfType("*string"),
 				mock.AnythingOfType("**string"),
 				mock.AnythingOfType("**string"),
+				mock.AnythingOfType("*repository.Category"),
+				mock.AnythingOfType("*int32"),
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			nil)
@@ -664,6 +715,8 @@ func TestDelete(t *testing.T) {
 				mock.AnythingOfType("*string"),
 				mock.AnythingOfType("**string"),
 				mock.AnythingOfType("**string"),
+				mock.AnythingOfType("*repository.Category"),
+				mock.AnythingOfType("*int32"),
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			pgx.ErrNoRows)
@@ -690,10 +743,14 @@ func TestDelete(t *testing.T) {
 				mock.AnythingOfType("*string"),
 				mock.AnythingOfType("**string"),
 				mock.AnythingOfType("**string"),
+				mock.AnythingOfType("*repository.Category"),
+				mock.AnythingOfType("*int32"),
 				mock.AnythingOfType("*pgtype.Numeric"),
 			},
 			nil)
 		it.SetupMock(mockPool, "Exec", []any{
+			mock.Anything,
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

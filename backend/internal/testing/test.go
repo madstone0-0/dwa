@@ -86,7 +86,7 @@ func VendorScanExists(mockRow *MockRow) {
 
 // itemScanExists is a helper function to setup a mock row that confirms an item exists on scan
 func ItemScanExists(mockRow *MockRow) {
-	SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+	SetupScanReturnArgs(mockRow, nil, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 }
 
 // vendorScanNotExists  is a helper function to setup a mock row that confirms a vendor does exists on scan returning an
@@ -98,7 +98,7 @@ func VendorScanNotExists(mockRow *MockRow, err error) {
 // itemScanNotExists is a helper function to setup a mock row that confirms an item does exists on scan returning an
 // appropriate error
 func ItemScanNotExists(mockRow *MockRow, err error) {
-	SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+	SetupScanReturnArgs(mockRow, err, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 }
 
 // printError is a helper function to print out unexpected errors

@@ -39,6 +39,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategoryFASHION,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100), Valid: true},
 		}
 
@@ -60,6 +62,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			mock.AnythingOfType("*string"),
 			mock.AnythingOfType("**string"),
 			mock.AnythingOfType("**string"),
+			mock.AnythingOfType("*repository.Category"),
+			mock.AnythingOfType("*int32"),
 			mock.AnythingOfType("*pgtype.Numeric")}, nil).Run(
 			func(args mock.Arguments) {
 				if dest, ok := args.Get(0).(*pgtype.UUID); ok {
@@ -77,7 +81,13 @@ func TestCreateTransactionRecord(t *testing.T) {
 				if dest, ok := args.Get(4).(**string); ok {
 					*dest = testItem.Description
 				}
-				if dest, ok := args.Get(5).(*pgtype.Numeric); ok {
+				if dest, ok := args.Get(5).(*repository.Category); ok {
+					*dest = testItem.Category
+				}
+				if dest, ok := args.Get(6).(*int32); ok {
+					*dest = testItem.Quantity
+				}
+				if dest, ok := args.Get(7).(*pgtype.Numeric); ok {
 					*dest = testItem.Cost
 				}
 			},
@@ -149,6 +159,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategoryBOOKSSUPPLIES,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100), Valid: true},
 		}
 
@@ -164,6 +176,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			mock.AnythingOfType("*string"),
 			mock.AnythingOfType("**string"),
 			mock.AnythingOfType("**string"),
+			mock.AnythingOfType("*repository.Category"),
+			mock.AnythingOfType("*int32"),
 			mock.AnythingOfType("*pgtype.Numeric")}, nil).Run(
 			func(args mock.Arguments) {
 				if dest, ok := args.Get(0).(*pgtype.UUID); ok {
@@ -181,7 +195,13 @@ func TestCreateTransactionRecord(t *testing.T) {
 				if dest, ok := args.Get(4).(**string); ok {
 					*dest = testItem.Description
 				}
-				if dest, ok := args.Get(5).(*pgtype.Numeric); ok {
+				if dest, ok := args.Get(5).(*repository.Category); ok {
+					*dest = testItem.Category
+				}
+				if dest, ok := args.Get(6).(*int32); ok {
+					*dest = testItem.Quantity
+				}
+				if dest, ok := args.Get(7).(*pgtype.Numeric); ok {
 					*dest = testItem.Cost
 				}
 			},
@@ -219,6 +239,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategoryBOOKSSUPPLIES,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100), Valid: true},
 		}
 
@@ -234,6 +256,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			mock.AnythingOfType("*string"),
 			mock.AnythingOfType("**string"),
 			mock.AnythingOfType("**string"),
+			mock.AnythingOfType("*repository.Category"),
+			mock.AnythingOfType("*int32"),
 			mock.AnythingOfType("*pgtype.Numeric")}, nil).Run(
 			func(args mock.Arguments) {
 				if dest, ok := args.Get(0).(*pgtype.UUID); ok {
@@ -251,7 +275,13 @@ func TestCreateTransactionRecord(t *testing.T) {
 				if dest, ok := args.Get(4).(**string); ok {
 					*dest = testItem.Description
 				}
-				if dest, ok := args.Get(5).(*pgtype.Numeric); ok {
+				if dest, ok := args.Get(5).(*repository.Category); ok {
+					*dest = testItem.Category
+				}
+				if dest, ok := args.Get(6).(*int32); ok {
+					*dest = testItem.Quantity
+				}
+				if dest, ok := args.Get(7).(*pgtype.Numeric); ok {
 					*dest = testItem.Cost
 				}
 			},
@@ -288,6 +318,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			Name:        "Schrodinger's Cat 1",
 			Pictureurl:  utils.MakePointer("https://example.com/cat.jpg"),
 			Description: utils.MakePointer("Probably dead"),
+			Category:    repository.CategoryBOOKSSUPPLIES,
+			Quantity:    10,
 			Cost:        pgtype.Numeric{Int: big.NewInt(100), Valid: true},
 		}
 
@@ -305,6 +337,8 @@ func TestCreateTransactionRecord(t *testing.T) {
 			mock.AnythingOfType("*string"),
 			mock.AnythingOfType("**string"),
 			mock.AnythingOfType("**string"),
+			mock.AnythingOfType("*repository.Category"),
+			mock.AnythingOfType("*int32"),
 			mock.AnythingOfType("*pgtype.Numeric")}, nil).Run(
 			func(args mock.Arguments) {
 				if dest, ok := args.Get(0).(*pgtype.UUID); ok {
@@ -322,7 +356,13 @@ func TestCreateTransactionRecord(t *testing.T) {
 				if dest, ok := args.Get(4).(**string); ok {
 					*dest = testItem.Description
 				}
-				if dest, ok := args.Get(5).(*pgtype.Numeric); ok {
+				if dest, ok := args.Get(5).(*repository.Category); ok {
+					*dest = testItem.Category
+				}
+				if dest, ok := args.Get(6).(*int32); ok {
+					*dest = testItem.Quantity
+				}
+				if dest, ok := args.Get(7).(*pgtype.Numeric); ok {
 					*dest = testItem.Cost
 				}
 			},
