@@ -41,12 +41,15 @@ create table if not exists buyer (
         cascade
 );
 
+create type CATEGORY as enum('FASHION', 'ELECTRONICS', 'SERVICES', 'BOOKS_SUPPLIES');
 create table if not exists item (
     iid uuid default gen_random_uuid() primary key,
     vid uuid default gen_random_uuid() not null,
     name varchar(255) unique not null,
     pictureUrl varchar(255),
     description varchar(255),
+    category CATEGORY not null,
+    quantity integer default 1 not null check (quantity >= 0),
     cost decimal( 12, 2) not null check (cost >= 0),
     constraint fk_item_vendor foreign key (vid) references vendor(uid) on
     delete

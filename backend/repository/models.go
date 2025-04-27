@@ -53,6 +53,50 @@ func (ns NullAccType) Value() (driver.Value, error) {
 	return string(ns.AccType), nil
 }
 
+type Category string
+
+const (
+	CategoryFASHION       Category = "FASHION"
+	CategoryELECTRONICS   Category = "ELECTRONICS"
+	CategorySERVICES      Category = "SERVICES"
+	CategoryBOOKSSUPPLIES Category = "BOOKS_SUPPLIES"
+)
+
+func (e *Category) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Category(s)
+	case string:
+		*e = Category(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Category: %T", src)
+	}
+	return nil
+}
+
+type NullCategory struct {
+	Category Category `json:"category"`
+	Valid    bool     `json:"valid"` // Valid is true if Category is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCategory) Scan(value interface{}) error {
+	if value == nil {
+		ns.Category, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Category.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCategory) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Category), nil
+}
+
 type Account struct {
 	Uid          pgtype.UUID `json:"uid"`
 	Accounttype  AccType     `json:"accounttype"`
@@ -71,6 +115,8 @@ type Item struct {
 	Name        string         `json:"name"`
 	Pictureurl  *string        `json:"pictureurl"`
 	Description *string        `json:"description"`
+	Category    Category       `json:"category"`
+	Quantity    int32          `json:"quantity"`
 	Cost        pgtype.Numeric `json:"cost"`
 }
 

@@ -87,10 +87,12 @@ select * from item where iid = $1;
 insert into vendor (uid, name) values ($1, $2);
 
 -- name: InsertItem :one
-insert into item (vid, name, pictureurl, description, cost) values ($1, $2, $3, $4, $5) returning iid;
+insert into item (vid, name, pictureurl, description, category, quantity, cost) values ($1, $2, $3, $4, $5, $6, $7) returning iid;
 
 -- name: UpdateItem :exec
-update item set name = $1,  description = $2, cost = $3, pictureurl = $4 where iid = $5 and vid = $6;
+update item set name = $1,  description = $2, cost = $3, pictureurl = $4, category = $5, quantity = $6 
+where iid = $7
+and vid = $8;
 
 -- name: DeleteItem :exec
 delete from item where iid = $1;

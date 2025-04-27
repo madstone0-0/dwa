@@ -55,7 +55,7 @@ func (q *Queries) DeleteItem(ctx context.Context, iid pgtype.UUID) error {
 }
 
 const GetAllItems = `-- name: GetAllItems :many
-select iid, vid, name, pictureurl, description, cost from "item"
+select iid, vid, name, pictureurl, description, category, quantity, cost from "item"
 `
 
 func (q *Queries) GetAllItems(ctx context.Context) ([]Item, error) {
@@ -73,6 +73,8 @@ func (q *Queries) GetAllItems(ctx context.Context) ([]Item, error) {
 			&i.Name,
 			&i.Pictureurl,
 			&i.Description,
+			&i.Category,
+			&i.Quantity,
 			&i.Cost,
 		); err != nil {
 			return nil, err
@@ -154,7 +156,7 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerBy
 }
 
 const GetItemById = `-- name: GetItemById :one
-select iid, vid, name, pictureurl, description, cost from item where iid = $1
+select iid, vid, name, pictureurl, description, category, quantity, cost from item where iid = $1
 `
 
 func (q *Queries) GetItemById(ctx context.Context, iid pgtype.UUID) (Item, error) {
@@ -166,13 +168,15 @@ func (q *Queries) GetItemById(ctx context.Context, iid pgtype.UUID) (Item, error
 		&i.Name,
 		&i.Pictureurl,
 		&i.Description,
+		&i.Category,
+		&i.Quantity,
 		&i.Cost,
 	)
 	return i, err
 }
 
 const GetItemByName = `-- name: GetItemByName :one
-select iid, vid, name, pictureurl, description, cost from item where name like $1
+select iid, vid, name, pictureurl, description, category, quantity, cost from item where name like $1
 `
 
 func (q *Queries) GetItemByName(ctx context.Context, name string) (Item, error) {
@@ -184,13 +188,15 @@ func (q *Queries) GetItemByName(ctx context.Context, name string) (Item, error) 
 		&i.Name,
 		&i.Pictureurl,
 		&i.Description,
+		&i.Category,
+		&i.Quantity,
 		&i.Cost,
 	)
 	return i, err
 }
 
 const GetItemsByVendorId = `-- name: GetItemsByVendorId :many
-select iid, vid, name, pictureurl, description, cost from "item" where vid = $1
+select iid, vid, name, pictureurl, description, category, quantity, cost from "item" where vid = $1
 `
 
 func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]Item, error) {
@@ -208,6 +214,8 @@ func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]It
 			&i.Name,
 			&i.Pictureurl,
 			&i.Description,
+			&i.Category,
+			&i.Quantity,
 			&i.Cost,
 		); err != nil {
 			return nil, err
@@ -403,7 +411,7 @@ func (q *Queries) InsertBuyer(ctx context.Context, arg InsertBuyerParams) error 
 }
 
 const InsertItem = `-- name: InsertItem :one
-insert into item (vid, name, pictureurl, description, cost) values ($1, $2, $3, $4, $5) returning iid
+insert into item (vid, name, pictureurl, description, category, quantity, cost) values ($1, $2, $3, $4, $5, $6, $7) returning iid
 `
 
 type InsertItemParams struct {
@@ -411,6 +419,8 @@ type InsertItemParams struct {
 	Name        string         `json:"name"`
 	Pictureurl  *string        `json:"pictureurl"`
 	Description *string        `json:"description"`
+	Category    Category       `json:"category"`
+	Quantity    int32          `json:"quantity"`
 	Cost        pgtype.Numeric `json:"cost"`
 }
 
@@ -420,6 +430,8 @@ func (q *Queries) InsertItem(ctx context.Context, arg InsertItemParams) (pgtype.
 		arg.Name,
 		arg.Pictureurl,
 		arg.Description,
+		arg.Category,
+		arg.Quantity,
 		arg.Cost,
 	)
 	var iid pgtype.UUID
@@ -458,7 +470,9 @@ func (q *Queries) InsertVendor(ctx context.Context, arg InsertVendorParams) erro
 }
 
 const UpdateItem = `-- name: UpdateItem :exec
-update item set name = $1,  description = $2, cost = $3, pictureurl = $4 where iid = $5 and vid = $6
+update item set name = $1,  description = $2, cost = $3, pictureurl = $4, category = $5, quantity = $6 
+where iid = $7
+and vid = $8
 `
 
 type UpdateItemParams struct {
@@ -466,6 +480,8 @@ type UpdateItemParams struct {
 	Description *string        `json:"description"`
 	Cost        pgtype.Numeric `json:"cost"`
 	Pictureurl  *string        `json:"pictureurl"`
+	Category    Category       `json:"category"`
+	Quantity    int32          `json:"quantity"`
 	Iid         pgtype.UUID    `json:"iid"`
 	Vid         pgtype.UUID    `json:"vid"`
 }
@@ -476,6 +492,8 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
 		arg.Description,
 		arg.Cost,
 		arg.Pictureurl,
+		arg.Category,
+		arg.Quantity,
 		arg.Iid,
 		arg.Vid,
 	)
