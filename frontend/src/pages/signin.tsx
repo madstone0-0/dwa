@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetch } from '../utils/Fetch';
 
 function Signin() {
     const [email, setEmail] = useState('');
@@ -7,26 +8,64 @@ function Signin() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSignin = (e: React.FormEvent) => {
+    const handleSignin = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Request payload:', { email, password });
+    
+        // Validate that both fields are filled in
         if (!email || !password) {
             setError('Both fields are required.');
             return;
         }
-        console.log('Signin details:', { email, password });
-        setError('');
-        
-        // Redirect to Vendor Dashboard upon successful login
-        navigate('/vendor-dashboard');
+    
+        // Validate email format
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+    
+        // Validate password length
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            return;
+        }
+    
+        try {
+            // Send login request
+            const response = await fetch.post('auth/user/login', { email, password });
+    
+            console.log('User logged in successfully:', response.data);
+    
+            // Handle user type and navigate accordingly
+            const { user_type } = response.data;
+    
+            if (user_type === 'vendor') {
+                navigate('/vendor-dashboard');
+            } else if (user_type === 'buyer') {
+                navigate('/landing');
+            } else if (user_type === 'admin') {
+                navigate('/admin-dashboard');
+            } else {
+                setError('Unknown user type.');
+            }
+    
+            // Clear error
+            setError('');
+            
+        } catch (error) {
+            console.error('Signin error:', error);
+        }
     };
-
+    
+    
     return (
         <div className="flex flex-col min-h-screen bg-white">
             {/* Header Section */}
             <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
                 <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
             </header>
-            
+
             {/* Main Content */}
             <div className="flex flex-grow justify-center items-center py-10">
                 <div className="bg-wine p-8 rounded-lg shadow-lg w-96 border border-gray-300" style={{ backgroundColor: '#722F37' }}>
@@ -34,23 +73,23 @@ function Signin() {
                     {error && <p className="bg-yellow-300 text-black p-2 rounded mb-4">{error}</p>}
                     <form onSubmit={handleSignin} className="flex flex-col">
                         <label className="text-white text-sm font-bold mb-1">Email</label>
-                        <input 
-                            type="email" 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
-                            required 
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
                             className="p-2 mb-4 border rounded w-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         />
                         <label className="text-white text-sm font-bold mb-1">Password</label>
-                        <input 
-                            type="password" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            required 
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
                             className="p-2 mb-4 border rounded w-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         />
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className="bg-yellow-400 text-black py-2 rounded font-bold hover:bg-yellow-500 w-full"
                         >
                             Sign In
@@ -61,7 +100,7 @@ function Signin() {
                     </p>
                     <hr className="my-4 border-yellow-300" />
                     <p className="text-white text-sm text-center">New to Ashesi DWA?</p>
-                    <button 
+                    <button
                         className="bg-black text-white py-2 rounded font-bold hover:bg-gray-800 w-full mt-2"
                         onClick={() => navigate('/signup')}
                     >
@@ -69,7 +108,7 @@ function Signin() {
                     </button>
                 </div>
             </div>
-            
+
             {/* Footer Section */}
             <footer className="bg-wine text-white text-center py-5 text-xs border-t border-gray-300" style={{ backgroundColor: '#722F37' }}>
                 <p className="mb-1">
