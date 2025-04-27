@@ -12,7 +12,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,6 +44,14 @@ func main() {
 	defer closeFunc()
 
 	app := gin.Default()
+
+	if Enver.Env("GIN_MODE") == "debug" {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{"http://localhost:5173"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 
 	app.Use(gin.Recovery())
 
