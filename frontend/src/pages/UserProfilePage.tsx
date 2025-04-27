@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 // This design is tentative and will be improved in the future.
 // Header Component
 const Header = () => {
@@ -34,6 +35,14 @@ const isEmailValid = (email: string) => {
 };
 
 const UserProfilePage = () => {
+  const navigate = useNavigate();
+  const isUserLoggedIn = Boolean(localStorage.getItem('user'));
+    
+      useEffect(() => {
+        if (!isUserLoggedIn) {
+          navigate('/signin');
+        }
+      }, [isUserLoggedIn, navigate]);
   // State for user information
   const [userName, setUserName] = useState<string>("John Doe");
   const [userEmail, setUserEmail] = useState<string>("johndoe@example.com");

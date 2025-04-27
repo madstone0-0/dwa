@@ -1,14 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Header Component
-const Header = () => {
-  return (
-    <header className="bg-wine py-4 shadow-md flex justify-center" style={{ backgroundColor: '#722F37' }}>
-      <h1 className="text-white text-2xl font-bold">Ashesi DWA</h1>
-    </header>
-  );
-};
+import { fetch } from "../utils/Fetch";
 
 interface Product {
   id: number;
@@ -17,10 +9,19 @@ interface Product {
   price: number;
   quantity: number;
   category: string;
-  images: string[]; // Array of image URLs
+  images: string[]; 
 }
 const InventoryManagementPage = () => {
   const navigate = useNavigate();
+  const isUserLoggedIn = Boolean(localStorage.getItem('user'));
+  console.log('User logged in:', isUserLoggedIn);
+  
+    useEffect(() => {
+      if (!isUserLoggedIn) {
+        navigate('/signin');
+      }
+    }, [isUserLoggedIn, navigate]);
+
   const [products, setProducts] = useState<Product[]>([
     {
       id: 1,

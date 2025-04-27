@@ -11,36 +11,41 @@ function Signin() {
     const handleSignin = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Request payload:', { email, password });
-    
+
         // Validate that both fields are filled in
         if (!email || !password) {
             setError('Both fields are required.');
             return;
         }
-    
+
         // Validate email format
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailPattern.test(email)) {
             setError('Please enter a valid email address.');
             return;
         }
-    
+
         // Validate password length
         if (password.length < 6) {
             setError('Password must be at least 6 characters long.');
             return;
         }
-    
+
         try {
             // Send login request
             const response = await fetch.post('auth/user/login', { email, password });
-    
+
             console.log('User logged in successfully:', response.data);
-    
+
+            // Save the user data to localStorage to persist the session
+            const userData = response.data;
+            localStorage.setItem('user', JSON.stringify(userData));
+
             // Handle user type and navigate accordingly
-            const { user_type } = response.data;
-    
+            const { user_type } = userData;
+
             if (user_type === 'vendor') {
+                console.log('Navigating to vendor dashboard');
                 navigate('/vendor-dashboard');
             } else if (user_type === 'buyer') {
                 navigate('/landing');
@@ -49,16 +54,15 @@ function Signin() {
             } else {
                 setError('Unknown user type.');
             }
-    
+
             // Clear error
             setError('');
-            
         } catch (error) {
             console.error('Signin error:', error);
+            setError('An error occurred while signing in.');
         }
     };
-    
-    
+
     return (
         <div className="flex flex-col min-h-screen bg-white">
             {/* Header Section */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
  
 // Header Component
@@ -75,6 +75,13 @@ interface Sale {
 }
 
 const SalesAndEarningsPage = () => {
+  const navigate = useNavigate();
+  const isUserLoggedIn = Boolean(localStorage.getItem('user'));    
+      useEffect(() => {
+        if (!isUserLoggedIn) {
+          navigate('/signin');
+        }
+      }, [isUserLoggedIn, navigate]);
   const [sales, setSales] = useState<Sale[]>([
     {
       id: 1,
