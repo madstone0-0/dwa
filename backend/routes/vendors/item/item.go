@@ -24,7 +24,7 @@ func ItemRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 			return
 		}
 
-		sr := vendor.All(ctx, pool, vIdUUID)
+		sr := vendor.ByVid(ctx, pool, vIdUUID)
 		utils.SendSR(c, sr)
 	})
 

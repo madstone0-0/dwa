@@ -54,6 +54,37 @@ func (q *Queries) DeleteItem(ctx context.Context, iid pgtype.UUID) error {
 	return err
 }
 
+const GetAllItems = `-- name: GetAllItems :many
+select iid, vid, name, pictureurl, description, cost from "item"
+`
+
+func (q *Queries) GetAllItems(ctx context.Context) ([]Item, error) {
+	rows, err := q.db.Query(ctx, GetAllItems)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Item{}
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.Iid,
+			&i.Vid,
+			&i.Name,
+			&i.Pictureurl,
+			&i.Description,
+			&i.Cost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const GetBuyerByEmail = `-- name: GetBuyerByEmail :one
 select
     "user".uid,
