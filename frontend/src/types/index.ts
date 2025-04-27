@@ -6,3 +6,12 @@ export interface IFetch {
 	delete: (url: string) => Promise<any>;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export type Item = {
+	iid: string;
+	vid: string;
+	name: string;
+	pictureUrl: string;
+	description: string;
+	cost: number;
+};
