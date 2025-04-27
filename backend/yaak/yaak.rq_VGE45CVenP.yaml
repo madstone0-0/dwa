@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_VGE45CVenP
+createdAt: 2025-04-27T17:08:10.383336021
+updatedAt: 2025-04-27T17:08:17.131549854
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_EFELbFkDrK
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: ''
+sortPriority: 3000.001
+url: ${[ HOST ]}/items/all
+urlParameters: []
