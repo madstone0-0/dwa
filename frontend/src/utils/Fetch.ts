@@ -11,8 +11,10 @@ class Fetch implements IFetch {
 	private instance: AxiosInstance;
 
 	handleSuccess(res: AxiosResponse) {
-		res.data = res.data.data;
-		return res;
+		if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+			res.data = res.data.data;
+		  }
+		  return res;
 	}
 
 	handleError(error: AxiosError) {
