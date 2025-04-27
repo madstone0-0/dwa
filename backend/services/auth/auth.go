@@ -53,7 +53,7 @@ func doesUserExistByEmail(ctx context.Context, pool db.Pool, email string) (bool
 	return true, nil
 }
 
-func isUserBuyer(ctx context.Context, pool db.Pool, email string) (bool, error) {
+func IsUserBuyer(ctx context.Context, pool db.Pool, email string) (bool, error) {
 	q := repository.New(pool)
 	_, err := q.GetBuyerByEmail(ctx, email)
 	if err != nil {
@@ -213,7 +213,7 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 
 	q := repository.New(pool)
 
-	isBuyer, err := isUserBuyer(ctx, pool, user.Email)
+	isBuyer, err := IsUserBuyer(ctx, pool, user.Email)
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
@@ -242,7 +242,9 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 		// HACK: Temp repetition cause I can't figure out how to make makeUserInfoWToken generic rn
 		// infoWToken, err := makeUserInfoWToken(info)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"nbf": time.Now().Unix(),
+			"email":    user.Email,
+			"userType": "buyer",
+			"nbf":      time.Now().Unix(),
 		})
 
 		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
@@ -278,7 +280,9 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 		// HACK: Temp repetition cause I can't figure out how to make makeUserInfoWToken generic rn
 		// infoWToken, err := makeUserInfoWToken(info)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"nbf": time.Now().Unix(),
+			"email":    user.Email,
+			"userType": "vendor",
+			"nbf":      time.Now().Unix(),
 		})
 
 		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
