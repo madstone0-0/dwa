@@ -13,7 +13,15 @@ const isEmailValid = (email: string) => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(email);
 };
-
+const userType = localStorage.getItem("user_type");
+let dashboardLink = "/landing"; // default
+if (userType === "vendor") {
+  dashboardLink = "/vendor-dashboard";
+} else if (userType === "admin") {
+  dashboardLink = "/admin-dashboard";
+} else if (userType === "buyer") {
+  dashboardLink = "/landing"; // or you can keep it as default
+}
 const UserProfilePage = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -154,7 +162,7 @@ const UserProfilePage = () => {
     <div className="container mx-auto px-4 flex justify-between items-center">
       {/* Logo and Brand Name */}
       <div className="flex items-center space-x-3">
-      <a href="/landing">
+      <a href={dashboardLink}>
         <img 
           src="/src/assets/dwa-icon.jpg" 
           alt="DWA Logo" 
