@@ -17,11 +17,19 @@ const VendorDashboard: React.FC = () => {
 	});
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [formError, setFormError] = useState<string | null>(null);
-
+	const handleLogout = () => {
+		localStorage.removeItem("user");
+		localStorage.removeItem("user_type");
+		localStorage.removeItem("token");
+		navigate("/signin");
+	  };
+	  
 	const isUserLoggedIn = Boolean(localStorage.getItem("user"));
+	// Get the user type from localStorage
+	const userType = localStorage.getItem("user_type");
 
 	useEffect(() => {
-		if (!isUserLoggedIn) {
+		if (!isUserLoggedIn&& userType !== "vendor") {
 			navigate("/signin");
 		}
 	}, [isUserLoggedIn, navigate]);
@@ -228,6 +236,27 @@ const VendorDashboard: React.FC = () => {
 									/>
 								</svg>
 								<span className="mt-1 text-xs">Profile</span>
+							</button>
+							{/* Logout */}
+							<button
+								onClick={handleLogout}
+								className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+								>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="w-6 h-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M17 16l4-4m0 0l-4-4m4 4H7"
+									/>
+								</svg>
+								<span className="mt-1 text-xs">Logout</span>
 							</button>
 						</div>
 					</div>

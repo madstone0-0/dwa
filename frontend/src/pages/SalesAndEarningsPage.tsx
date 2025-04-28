@@ -53,6 +53,18 @@ const Header: FC = () => {
 							path="/user-profile"
 							onClick={() => navigate("/user-profile")}
 						/>
+						<NavButton
+							icon="logout"
+							label="Logout"
+							path="/signin"
+							onClick={() => {
+								localStorage.removeItem("user");
+								localStorage.removeItem("user_type");
+								localStorage.removeItem("token");
+								navigate("/signin");
+							}}
+						/>
+
 					</div>
 				</div>
 			</div>
@@ -62,7 +74,7 @@ const Header: FC = () => {
 
 // Navigation button component for cleaner code
 interface NavButtonProps {
-	icon: "inventory" | "earnings" | "orders" | "profile";
+	icon: "inventory" | "earnings" | "orders" | "profile"| "logout";
 	label: string;
 	path: string;
 	onClick: () => void;
@@ -103,6 +115,15 @@ const NavButton: FC<NavButtonProps> = ({ icon, label, onClick }) => {
 				d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
 			/>
 		),
+		logout: (
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M17 16l4-4m0 0l-4-4m4 4H7"
+    		/>
+		),
+
 	};
 
 	return (

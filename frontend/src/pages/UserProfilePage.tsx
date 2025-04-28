@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// This design is tentative and will be improved in the future.
-// Header Component
-const Header = () => {
-  return (
-    <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
-    <div className="container mx-auto px-4 flex justify-between items-center">
-      {/* Logo and Brand Name */}
-      <div className="flex items-center space-x-3">
-      <a href="/landing">
-        <img 
-          src="/src/assets/dwa-icon.jpg" 
-          alt="DWA Logo" 
-          className="h-10 w-10 object-cover rounded-full"
-        />
-        </a>
-        <h1 className="text-white text-2xl font-bold">Ashesi DWA - Profile</h1>
-      </div>
-    </div>
-</header>
-  );
-};
+// This design is tentative and will be improved in the future
 
 // Password validation function
 const isPasswordValid = (password: string) => {
@@ -36,6 +16,12 @@ const isEmailValid = (email: string) => {
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("user_type");
+    localStorage.removeItem("token");
+    navigate("/signin");
+    };
   const isUserLoggedIn = Boolean(localStorage.getItem('user'));
     
       useEffect(() => {
@@ -132,8 +118,42 @@ const UserProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header Component */}
-      <Header />
+    <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
+    <div className="container mx-auto px-4 flex justify-between items-center">
+      {/* Logo and Brand Name */}
+      <div className="flex items-center space-x-3">
+      <a href="/landing">
+        <img 
+          src="/src/assets/dwa-icon.jpg" 
+          alt="DWA Logo" 
+          className="h-10 w-10 object-cover rounded-full"
+        />
+        </a>
+        <h1 className="text-white text-2xl font-bold">Ashesi DWA - Profile</h1>
+      </div>
+      {/* Navigation Links */}
+      <button
+        onClick={handleLogout}
+        className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M17 16l4-4m0 0l-4-4m4 4H7"
+          />
+        </svg>
+        <span className="mt-1 text-xs">Logout</span>
+      </button>
+    </div>
+  </header>
 
       <main className="flex-grow p-4">
         <h1 className="text-2xl font-semibold text-center mb-6">User Profile</h1>

@@ -44,6 +44,8 @@ function Signin() {
 
 			// Handle user type and navigate accordingly
 			const { user_type } = userData;
+			//Save the user type to localStorage for later use
+			localStorage.setItem("user_type", user_type);
 
 			if (user_type === "vendor") {
 				console.log("Navigating to vendor dashboard");
