@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -149,7 +150,8 @@ func MakePointer[T any](t T) *T {
 }
 
 func ParseJWT(tokenString string, claims jwt.MapClaims) (*jwt.Token, error) {
-	return jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (any, error) {
+	wobearer := strings.TrimPrefix(tokenString, "Bearer ")
+	return jwt.ParseWithClaims(wobearer, claims, func(t *jwt.Token) (any, error) {
 		return []byte(DefaultEnv{}.Env("SECRET")), nil
 	})
 }
