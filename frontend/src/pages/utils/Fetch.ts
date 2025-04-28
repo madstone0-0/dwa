@@ -4,45 +4,80 @@ import axios, {
 	AxiosRequestConfig,
 	AxiosResponse,
 } from "axios";
-import { IFetch } from "../types";
+import { IFetch, User } from "../types";
+import { getLocalStorage } from ".";
+import { AxiosHeaders } from "node_modules/axios/index.d.cts";
 const API_BASE = import.meta.env.VITE_API_BASE;
+
+type ErrorHandlers = Map<number, (error: AxiosError) => void>;
 
 class Fetch implements IFetch {
 	private instance: AxiosInstance;
+	private static errorHandlers: ErrorHandlers = new Map<
+		number,
+		(error: AxiosError) => void
+	>();
 
 	handleSuccess(res: AxiosResponse) {
-		if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+		if (res.data && typeof res.data === "object" && "data" in res.data) {
 			res.data = res.data.data;
-		  }
-		  return res;
+		}
+		return res;
 	}
 
 	handleError(error: AxiosError) {
-		const requestDetails = error.config
-			? {
-					url: error.config.url,
-					method: error.config.method,
-					headers: error.config.headers,
-					data: error.config.data,
-				}
-			: null;
-
 		console.error("AxiosError: ", {
 			error: error.message,
-			response: error.response ? error.response.data : null,
-			request: requestDetails,
 		});
+
+		if (error.response) {
+			const status = error.response.status;
+			if (Fetch.errorHandlers.has(status)) {
+				const handler = Fetch.errorHandlers.get(status)!;
+				handler(error);
+			}
+		}
 
 		return Promise.reject(error);
 	}
 
+	static registerErrorHandler(
+		status: number,
+		handler: (error: AxiosError) => void,
+	) {
+		if (Fetch.errorHandlers.has(status)) {
+			Fetch.errorHandlers.delete(status);
+		}
+		Fetch.errorHandlers.set(status, handler);
+	}
+
+	static clearErrorHandler(status?: number) {
+		if (status) {
+			Fetch.errorHandlers.delete(status);
+		} else {
+			Fetch.errorHandlers.clear();
+		}
+	}
+
+	static hasErrorHandler(status: number) {
+		return Fetch.errorHandlers.has(status);
+	}
+
 	constructor() {
+		const headers: AxiosHeaders = {
+			"Content-Type": "application/json",
+		};
+		const userJSON = getLocalStorage("user");
+		if (userJSON !== null) {
+			const user: User = userJSON as unknown as User;
+			console.log("User", user);
+			headers["Authorization"] = `Bearer ${user.token}`;
+		}
+
 		const instance = axios.create({
 			baseURL: API_BASE,
-			headers: {
-				Accept: "application/json",
-			},
-			withCredentials: true,
+			headers: headers,
+			withCredentials: false,
 		});
 
 		instance.interceptors.response.use(

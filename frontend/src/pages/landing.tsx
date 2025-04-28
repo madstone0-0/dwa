@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllItems } from "../utils/api";
-import { Item } from "types";
+import { getAllItems } from "./utils/api.js";
+import { Item } from "./types";
+import Fetch from "./utils/Fetch.js";
 
 interface SectionHeaderProps {
 	title: string;
@@ -16,7 +17,7 @@ interface CartItem {
 	image: string;
 }
 
-// Categories
+// CATEGORIES
 const CATEGORIES = {
 	FASHION: "Fashion",
 	ELECTRONICS: "Electronics",
@@ -343,7 +344,7 @@ type ItemCardProps = {
 	onClick: (item: Item) => void;
 };
 const ItemCard = ({ item, addToCart, onClick }: ItemCardProps) => {
-	const { iid, pictureUrl, name, cost } = item;
+	const { iid, pictureurl: pictureUrl, name, cost } = item;
 	return (
 		<div
 			key={iid}

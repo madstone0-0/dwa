@@ -41,7 +41,7 @@
 /* Content area */
 .content-area {
   flex: 1;
-  padding: 2rem;
+  /* padding: 2rem; */
 }
 
 /* Responsive styles for smaller screens */
