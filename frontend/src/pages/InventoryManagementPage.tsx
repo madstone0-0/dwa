@@ -14,6 +14,7 @@ interface Product {
 const InventoryManagementPage = () => {
   const navigate = useNavigate();
   const isUserLoggedIn = Boolean(localStorage.getItem('user'));
+  console.log('User data:', localStorage.getItem('user'));
   console.log('User logged in:', isUserLoggedIn);
   
     useEffect(() => {

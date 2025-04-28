@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetch } from '../utils/Fetch';
 
+
 function Signin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -39,6 +40,7 @@ function Signin() {
 
             // Save the user data to localStorage to persist the session
             const userData = response.data;
+            
             localStorage.setItem('user', JSON.stringify(userData));
 
             // Handle user type and navigate accordingly
