@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// This design is tentative and will be improved in the future
+import { fetch} from "./utils/Fetch"; 
 
 // Password validation function
 const isPasswordValid = (password: string) => {
@@ -70,12 +70,29 @@ const UserProfilePage = () => {
     isEmailValid(newEmail);
 
   // Handle form submission (updating profile)
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isFormValid) {
+      const token = localStorage.getItem("token");
+      // Waitimg for path
+      const response = await fetch.put("", {
+        fullName: newFullName,
+        email: newEmail,
+        password: newPassword,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        alert("Failed to update profile. Please try again.");
+        return;
+      }
+      const data = await response.json();
       // Normally, here we would update the user information in the backend
-      setUserName(newFullName);
-      setUserEmail(newEmail);
-      setUserPassword(newPassword);
+      setUserName(data.fullName);
+      setUserEmail(data.email);
+      setUserPassword("");
       alert("Profile updated successfully!");
       // Clear fields after update
       setNewFullName("");
@@ -100,21 +117,36 @@ const UserProfilePage = () => {
   };
 
   // Handle account deletion
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     const confirmation = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
     if (confirmation) {
-      // Normally, you would make a request to your backend to delete the account.
-      alert("Your account has been deleted.");
-      // For now, we'll clear the profile data as a placeholder.
-      setUserName("");
-      setUserEmail("");
-      setUserPassword("");
-      setNewFullName("");
-      setNewEmail("");
-      setNewPassword("");
-      setConfirmPassword("");
+      try {
+        const token = localStorage.getItem("token");
+        // Waitimg for path
+        const response = await fetch.delete("", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to delete account.");
+        }
+  
+        alert("Your account has been deleted.");
+  
+        // Clear local data and redirect to sign-in
+        localStorage.removeItem("user");
+        localStorage.removeItem("user_type");
+        localStorage.removeItem("token");
+        navigate("/signin");
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        alert("Something went wrong while deleting your account.");
+      }
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
