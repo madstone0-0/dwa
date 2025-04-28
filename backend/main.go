@@ -50,6 +50,7 @@ func main() {
 		app.Use(cors.New(cors.Config{
 			AllowOrigins:     []string{"http://localhost:5173", "*"},
 			AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+			AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"},
 			AllowCredentials: true,
 			MaxAge:           12 * time.Hour,
 		}))
