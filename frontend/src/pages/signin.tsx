@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetch } from "./utils/Fetch";
+import { login } from "./utils/api";
 
 function Signin() {
 	const [email, setEmail] = useState("");
@@ -33,12 +33,12 @@ function Signin() {
 
 		try {
 			// Send login request
-			const response = await fetch.post("auth/user/login", { email, password });
+			const response = await login({ email, password });
 
-			console.log("User logged in successfully:", response.data);
+			console.log("User logged in successfully:", response);
 
 			// Save the user data to localStorage to persist the session
-			const userData = response.data;
+			const userData = response;
 
 			localStorage.setItem("user", JSON.stringify(userData));
 

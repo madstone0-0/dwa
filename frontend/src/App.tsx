@@ -23,26 +23,19 @@ import ManageProductsPage from "./pages/ManageProductPage";
 import "./App.css";
 import { useEffect } from "react";
 import { ping } from "./pages/utils/api";
-import Fetch from "./pages/utils/Fetch";
+import { useAuthErrorHandler } from "./pages/utils/hooks";
 
 // Header Component
 
 // AppContent component to use useLocation hook (required for conditional rendering)
 const AppContent = () => {
-	const navigate = useNavigate();
 	useEffect(() => {
 		ping()
 			.then((data) => console.log(data))
 			.catch((e) => console.error({ e }));
 	}, []);
 
-	if (!Fetch.hasErrorHandler(401)) {
-		Fetch.registerErrorHandler(401, (error) => {
-			navigate("/signin");
-			// localStorage.removeItem("user");
-			// sessionStorage.removeItem("user");
-		});
-	}
+	useAuthErrorHandler();
 
 	return (
 		<div className="app-container">

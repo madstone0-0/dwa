@@ -3,10 +3,11 @@ import axios, {
 	AxiosInstance,
 	AxiosRequestConfig,
 	AxiosResponse,
+	RawAxiosRequestHeaders,
 } from "axios";
 import { IFetch, User } from "../types";
 import { getLocalStorage } from ".";
-import { AxiosHeaders } from "node_modules/axios/index.d.cts";
+
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 type ErrorHandlers = Map<number, (error: AxiosError) => void>;
@@ -18,16 +19,25 @@ class Fetch implements IFetch {
 		(error: AxiosError) => void
 	>();
 
-	handleSuccess(res: AxiosResponse) {
+	/**
+	 * Process successful responses
+	 */
+	private handleSuccess(res: AxiosResponse) {
 		if (res.data && typeof res.data === "object" && "data" in res.data) {
 			res.data = res.data.data;
 		}
 		return res;
 	}
 
-	handleError(error: AxiosError) {
-		console.error("AxiosError: ", {
-			error: error.message,
+	/**
+	 * Handle errors and invoke registered error handlers
+	 */
+	private handleError(error: AxiosError) {
+		console.error("API Request Failed:", {
+			url: error.config?.url,
+			method: error.config?.method,
+			status: error.response?.status,
+			message: error.message,
 		});
 
 		if (error.response) {
@@ -41,87 +51,123 @@ class Fetch implements IFetch {
 		return Promise.reject(error);
 	}
 
+	/**
+	 * Register a handler for a specific HTTP status code
+	 */
 	static registerErrorHandler(
 		status: number,
 		handler: (error: AxiosError) => void,
 	) {
-		if (Fetch.errorHandlers.has(status)) {
-			Fetch.errorHandlers.delete(status);
-		}
 		Fetch.errorHandlers.set(status, handler);
 	}
 
+	/**
+	 * Clear error handlers for a specific status or all statuses
+	 */
 	static clearErrorHandler(status?: number) {
-		if (status) {
+		if (status !== undefined) {
 			Fetch.errorHandlers.delete(status);
 		} else {
 			Fetch.errorHandlers.clear();
 		}
 	}
 
+	/**
+	 * Check if a handler exists for a specific status
+	 */
 	static hasErrorHandler(status: number) {
 		return Fetch.errorHandlers.has(status);
 	}
 
+	/**
+	 * Create a new Fetch instance
+	 */
 	constructor() {
-		const headers: AxiosHeaders = {
-			"Content-Type": "application/json",
-		};
+		this.instance = this.createAxiosInstance();
+	}
+
+	/**
+	 * Get a fresh authorization token from localStorage
+	 */
+	private getAuthToken(): string | undefined {
 		const userJSON = getLocalStorage("user");
 		if (userJSON !== null) {
-			const user: User = userJSON as unknown as User;
-			console.log("User", user);
-			headers["Authorization"] = `Bearer ${user.token}`;
+			const user = userJSON as unknown as User;
+			return user.token;
 		}
+		return undefined;
+	}
 
+	/**
+	 * Create a configured Axios instance with interceptors
+	 */
+	private createAxiosInstance(): AxiosInstance {
 		const instance = axios.create({
 			baseURL: API_BASE,
-			headers: headers,
+			headers: {
+				"Content-Type": "application/json",
+			},
 			withCredentials: false,
 		});
 
+		// Add response interceptors
 		instance.interceptors.response.use(
 			this.handleSuccess.bind(this),
 			this.handleError.bind(this),
 		);
 
-		this.instance = instance;
+		// Add request interceptor to add the latest auth token
+		instance.interceptors.request.use((config) => {
+			const token = this.getAuthToken();
+			if (token) {
+				config.headers = config.headers || {};
+				(config.headers as RawAxiosRequestHeaders).Authorization =
+					`Bearer ${token}`;
+			}
+			return config;
+		});
+
+		return instance;
 	}
 
-	async get<T = never, R = AxiosResponse<T>>(
-		url: string,
-		options?: AxiosRequestConfig<T>,
-	) {
-		const res = await this.instance.get<T, R>(url, { ...options });
-		return res;
+	/**
+	 * Perform a GET request
+	 */
+	async get<T = any>(url: string, options?: AxiosRequestConfig): Promise<T> {
+		const response = await this.instance.get<T>(url, options);
+		return response.data;
 	}
 
-	/* eslint-disable @typescript-eslint/no-explicit-any */
-	async post<T = never, R = AxiosResponse<T>>(
-		url: string,
-		data: any,
-		options?: AxiosRequestConfig<T>,
-	) {
-		const res = await this.instance.post<T, R>(url, data, { ...options });
-		return res;
-	}
-
-	async put<T = never, R = AxiosResponse<T>>(
+	/**
+	 * Perform a POST request
+	 */
+	async post<T = any>(
 		url: string,
 		data: any,
 		options?: AxiosRequestConfig,
-	) {
-		const res = await this.instance.put<T, R>(url, data, { ...options });
-		return res;
+	): Promise<T> {
+		const response = await this.instance.post<T>(url, data, options);
+		return response.data;
 	}
-	/* eslint-enable @typescript-eslint/no-explicit-any */
 
-	async delete<T = never, R = AxiosResponse<T>>(
+	/**
+	 * Perform a PUT request
+	 */
+	async put<T = any>(
 		url: string,
-		options?: AxiosRequestConfig<T>,
-	) {
-		const res = await this.instance.delete<T, R>(url, { ...options });
-		return res;
+		data: any,
+		options?: AxiosRequestConfig,
+	): Promise<T> {
+		const response = await this.instance.put<T>(url, data, options);
+		return response.data;
+	}
+
+	/**
+	 * Perform a DELETE request
+	 */
+	async delete<T = any>(url: string, options?: AxiosRequestConfig): Promise<T> {
+		const response = await this.instance.delete<T>(url, options);
+		return response.data;
 	}
 }
 

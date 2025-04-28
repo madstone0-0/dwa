@@ -5,6 +5,7 @@ import { getLocalStorage } from "./utils";
 import { deleteItem, getVendorItems, updateItem } from "./utils/api";
 import { withLoading, WithLoadingProps, LoadingSpinner } from "./withLoading";
 import placeholder from "../assets/dwa-icon.jpg";
+import { useForm } from "@tanstack/react-form";
 
 const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 	isLoading,
@@ -15,6 +16,8 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 	const [filteredItems, setFilteredItems] = useState<Item[]>([]);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const isUserLoggedIn = Boolean(localStorage.getItem("user"));
+	const [editItem, setEditItem] = useState<Item | null>(null);
+	const [showEditDialog, setShowEditDialog] = useState(false);
 
 	// Check authentication once on mount
 	useEffect(() => {
@@ -55,6 +58,11 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 							item.iid === updatedItem.iid ? updatedItem : item,
 						),
 					);
+					setFilteredItems((prevItems) =>
+						prevItems.map((item) =>
+							item.iid === updatedItem.iid ? updatedItem : item,
+						),
+					);
 				})
 				.catch((e) => console.error({ e })),
 		);
@@ -67,6 +75,9 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 				.then(() => {
 					// Update local state to avoid unnecessary refetch
 					setItems((prevItems) =>
+						prevItems.filter((item) => item.iid !== itemId),
+					);
+					setFilteredItems((prevItems) =>
 						prevItems.filter((item) => item.iid !== itemId),
 					);
 				})
@@ -85,6 +96,18 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 			setFilteredItems(filtered);
 		}
 	}, [searchQuery, items]);
+
+	// Open edit dialog
+	const openEditDialog = (item: Item) => {
+		setEditItem(item);
+		setShowEditDialog(true);
+	};
+
+	// Close edit dialog
+	const closeEditDialog = () => {
+		setEditItem(null);
+		setShowEditDialog(false);
+	};
 
 	return (
 		<div className="flex flex-col min-h-screen bg-gray-50">
@@ -254,6 +277,7 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 									item={product}
 									onUpdateItem={handleUpdateItem}
 									onDeleteItem={handleDeleteItem}
+									onEditItem={openEditDialog}
 								/>
 							))
 						) : (
@@ -266,6 +290,18 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({
 					</div>
 				)}
 			</main>
+
+			{/* Edit Dialog */}
+			{showEditDialog && editItem && (
+				<EditItemDialog
+					item={editItem}
+					onClose={closeEditDialog}
+					onSave={(updatedItem) => {
+						handleUpdateItem(updatedItem);
+						closeEditDialog();
+					}}
+				/>
+			)}
 
 			{/* Footer Component */}
 			<footer
@@ -298,9 +334,15 @@ type ItemCardProps = {
 	item: Item;
 	onUpdateItem: (item: Item) => void;
 	onDeleteItem: (itemId: string) => void;
+	onEditItem: (item: Item) => void;
 };
 
-const ItemCard = ({ item, onUpdateItem, onDeleteItem }: ItemCardProps) => {
+const ItemCard = ({
+	item,
+	onUpdateItem,
+	onDeleteItem,
+	onEditItem,
+}: ItemCardProps) => {
 	const {
 		iid,
 		name,
@@ -377,6 +419,25 @@ const ItemCard = ({ item, onUpdateItem, onDeleteItem }: ItemCardProps) => {
 						- Stock
 					</button>
 					<button
+						onClick={() => onEditItem(item)}
+						className="p-2 text-white bg-gray-600 rounded-md transition-colors hover:bg-gray-700"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							className="w-5 h-5"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+							/>
+						</svg>
+					</button>
+					<button
 						onClick={() => onDeleteItem(iid)}
 						className="p-2 text-white bg-black rounded-md transition-colors hover:bg-gray-800"
 					>
@@ -396,6 +457,189 @@ const ItemCard = ({ item, onUpdateItem, onDeleteItem }: ItemCardProps) => {
 						</svg>
 					</button>
 				</div>
+			</div>
+		</div>
+	);
+};
+
+type EditItemDialogProps = {
+	item: Item;
+	onClose: () => void;
+	onSave: (updatedItem: Item) => void;
+};
+
+const EditItemDialog = ({ item, onClose, onSave }: EditItemDialogProps) => {
+	// Create form hook with validation
+	const form = useForm({
+		defaultValues: {
+			name: item.name,
+			description: item.description,
+			cost: item.cost,
+			quantity: item.quantity,
+		},
+		onSubmit: async ({ value }) => {
+			const updatedItem: Item = {
+				...item,
+				name: value.name,
+				description: value.description,
+				cost: value.cost,
+				quantity: value.quantity,
+			};
+			onSave(updatedItem);
+		},
+	});
+
+	return (
+		<div className="flex fixed inset-0 z-50 justify-center items-center bg-black bg-opacity-50">
+			<div className="p-6 m-4 w-full max-w-lg bg-white rounded-lg shadow-xl">
+				<div className="flex justify-between items-center mb-4">
+					<h2 className="text-xl font-bold text-gray-800">Edit Product</h2>
+					<button
+						onClick={onClose}
+						className="p-1 text-gray-600 rounded-full hover:bg-gray-100"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							className="w-6 h-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M6 18L18 6M6 6l12 12"
+							/>
+						</svg>
+					</button>
+				</div>
+
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
+					}}
+				>
+					<div className="mb-4">
+						<label
+							htmlFor="name"
+							className="block mb-2 text-sm font-medium text-gray-700"
+						>
+							Product Name
+						</label>
+						<form.Field
+							name="name"
+							children={(field) => (
+								<input
+									id="name"
+									type="text"
+									className="py-2 px-3 w-full bg-gray-50 rounded-md border border-gray-300 focus:border-transparent focus:ring-2 focus:outline-none focus:ring-wine"
+									name={field.name}
+									value={field.state.value}
+									onChange={(e) => {
+										field.handleChange(e.target.value);
+									}}
+								/>
+							)}
+						/>
+					</div>
+
+					<div className="mb-4">
+						<label
+							htmlFor="description"
+							className="block mb-2 text-sm font-medium text-gray-700"
+						>
+							Description
+						</label>
+						<form.Field
+							name="description"
+							children={(field) => (
+								<textarea
+									name={field.name}
+									id="description"
+									rows={3}
+									className="py-2 px-3 w-full bg-gray-50 rounded-md border border-gray-300 focus:border-transparent focus:ring-2 focus:outline-none focus:ring-wine"
+									value={field.state.value}
+									onChange={(e) => {
+										field.handleChange(e.target.value);
+									}}
+								/>
+							)}
+						/>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4 mb-4">
+						<div>
+							<label
+								htmlFor="price"
+								className="block mb-2 text-sm font-medium text-gray-700"
+							>
+								Price (GH₵)
+							</label>
+							<form.Field
+								name="cost"
+								children={(field) => (
+									<input
+										id="price"
+										type="number"
+										min="0"
+										step="0.01"
+										className="py-2 px-3 w-full bg-gray-50 rounded-md border border-gray-300 focus:border-transparent focus:ring-2 focus:outline-none focus:ring-wine"
+										value={field.state.value}
+										name={field.name}
+										onChange={(e) => {
+											field.handleChange(e.target.valueAsNumber);
+										}}
+									/>
+								)}
+							/>
+						</div>
+						<div>
+							<label
+								htmlFor="quantity"
+								className="block mb-2 text-sm font-medium text-gray-700"
+							>
+								Quantity
+							</label>
+							<form.Field
+								name="quantity"
+								children={(field) => (
+									<input
+										id="quantity"
+										type="number"
+										min="0"
+										className="py-2 px-3 w-full bg-gray-50 rounded-md border border-gray-300 focus:border-transparent focus:ring-2 focus:outline-none focus:ring-wine"
+										name={field.name}
+										value={field.state.value}
+										onChange={(e) => {
+											field.handleChange(e.target.valueAsNumber);
+										}}
+									/>
+								)}
+							/>
+						</div>
+					</div>
+
+					<div className="flex gap-3 justify-end mt-6">
+						<button
+							type="button"
+							onClick={onClose}
+							className="py-2 px-4 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							className="py-2 px-4 text-white rounded-md bg-wine hover:bg-wine-dark"
+							style={{ backgroundColor: "#722F37" }}
+							disabled={form.state.canSubmit === false}
+						>
+							Save Changes
+						</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	);
