@@ -39,6 +39,7 @@ var (
 	Hasher   hashing.Hasher = hashing.BcryptHash{}
 	Enver    utils.Enver    = utils.DefaultEnv{}
 	verifier                = emailverifier.NewVerifier().EnableSMTPCheck().DisableCatchAllCheck()
+	TTL                     = time.Hour * 5
 )
 
 func doesUserExistByEmail(ctx context.Context, pool db.Pool, email string) (bool, error) {
@@ -221,7 +222,7 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email":    user.Email,
 			"userType": "buyer",
-			"nbf":      time.Now().Unix(),
+			"exp":      time.Now().Add(TTL).Unix(),
 		})
 
 		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
@@ -263,7 +264,7 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email":    user.Email,
 			"userType": "vendor",
-			"nbf":      time.Now().Unix(),
+			"exp":      time.Now().Add(TTL).Unix(),
 		})
 
 		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
