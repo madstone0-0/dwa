@@ -2,11 +2,12 @@ type: http_request
 model: http_request
 id: rq_J6F3bybuAN
 createdAt: 2025-04-21T14:01:59.886011373
-updatedAt: 2025-04-27T18:16:55.572077892
+updatedAt: 2025-04-28T13:56:57.534900134
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_ztwBvkZbSS
-authentication: {}
-authenticationType: null
+authentication:
+  token: ${[ TOKEN ]}
+authenticationType: bearer
 body: {}
 bodyType: null
 description: ''

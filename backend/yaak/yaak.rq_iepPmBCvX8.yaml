@@ -2,15 +2,20 @@ type: http_request
 model: http_request
 id: rq_iepPmBCvX8
 createdAt: 2025-04-21T14:04:27.073696072
-updatedAt: 2025-04-25T17:11:21.827756556
+updatedAt: 2025-04-28T13:58:00.244829650
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_7wmxxsU6eZ
-authentication: {}
-authenticationType: null
+authentication:
+  token: ${[ TOKEN ]}
+authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
-headers: []
+headers:
+- enabled: true
+  name: ''
+  value: ''
+  id: CkCBxY2Rjn
 method: GET
 name: TotalByItem
 sortPriority: 3000.003
@@ -18,13 +23,13 @@ url: ${[ HOST ]}/vendor/transactions/total/:vid/:iid
 urlParameters:
 - enabled: true
   name: :vid
-  value: 0502b91d-f747-4e94-b0a5-85dcc2b49d7b
+  value: ${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}
   id: VHy74CtRII
 - enabled: true
   name: :iid
-  value: 45c2bea7-bef4-4092-9abc-c3cc7a6f896c
+  value: ${[ response.body.path(request='rq_J6F3bybuAN', path='$.data.items.*.iid', behavior='smart') ]}
   id: BNfPbUhccq
 - enabled: true
   name: ''
   value: ''
-  id: 0YxwIitPCW
+  id: A07Gk4keIp

@@ -2,18 +2,19 @@ type: http_request
 model: http_request
 id: rq_XqtsReqgtF
 createdAt: 2025-04-21T14:02:19.005383758
-updatedAt: 2025-04-27T16:37:04.404345981
+updatedAt: 2025-04-28T14:02:17.381959234
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_aXjzo7eCah
-authentication: {}
-authenticationType: null
+authentication:
+  token: ${[ TOKEN_BUYER ]}
+authenticationType: bearer
 body:
   text: |-
     {
-      "bid": "74e8825e-5308-4636-a824-ed304c356b54",
-      "vid": "0502b91d-f747-4e94-b0a5-85dcc2b49d7b",
-      "iid": "45c2bea7-bef4-4092-9abc-c3cc7a6f896c",
-      "amt": 140.99
+      "bid": "${[ response.body.path(request='rq_6PN6gXLqrL', path='$.data.uid', behavior='smart') ]}",
+      "vid": "${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}",
+      "iid": "${[ response.body.path(request='rq_J6F3bybuAN', path='$.data.items.*.iid', behavior='smart') ]}",
+      "amt": ${[ response.body.path(request='rq_J6F3bybuAN', path='$.data.items.*.cost', behavior='smart') ]}
     }
 bodyType: application/json
 description: ''
@@ -23,13 +24,9 @@ headers:
   value: application/json
   id: PpNNIeUP3p
 - enabled: true
-  name: Authorization
-  value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hZGliYWhxQGdtYWlsLmNvbSIsIm5iZiI6MTc0NTc3MTQ0NiwidXNlclR5cGUiOiJ2ZW5kb3IifQ.nzSd1muBPhAMgV5soASyhdho4MJDsys084f4u5GIVEU
-  id: pUZ9tfIpv5
-- enabled: true
   name: ''
   value: ''
-  id: RdEkD5YktM
+  id: MGWFeAARY8
 method: POST
 name: Init
 sortPriority: 0.0

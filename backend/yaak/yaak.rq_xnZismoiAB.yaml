@@ -2,11 +2,12 @@ type: http_request
 model: http_request
 id: rq_xnZismoiAB
 createdAt: 2025-04-21T14:01:59.831493141
-updatedAt: 2025-04-27T18:25:52.753552207
+updatedAt: 2025-04-28T13:57:17.942727084
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_ztwBvkZbSS
-authentication: {}
-authenticationType: null
+authentication:
+  token: ${[ TOKEN ]}
+authenticationType: bearer
 body:
   text: |-
     {
@@ -27,13 +28,9 @@ headers:
   value: application/json
   id: 6vd0NSxFxR
 - enabled: true
-  name: Authorization
-  value: ${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.token', behavior='smart') ]}
-  id: 8P2AAzM6FI
-- enabled: true
   name: ''
   value: ''
-  id: qfkpbmxMzI
+  id: nDFfFfKR7n
 method: PUT
 name: Update
 sortPriority: 0.001

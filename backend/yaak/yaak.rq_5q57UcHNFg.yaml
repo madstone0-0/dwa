@@ -2,15 +2,20 @@ type: http_request
 model: http_request
 id: rq_5q57UcHNFg
 createdAt: 2025-04-21T14:04:14.680908015
-updatedAt: 2025-04-25T17:10:49.407383854
+updatedAt: 2025-04-28T13:57:50.569328039
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_7wmxxsU6eZ
-authentication: {}
-authenticationType: null
+authentication:
+  token: ${[ TOKEN ]}
+authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
-headers: []
+headers:
+- enabled: true
+  name: ''
+  value: ''
+  id: PAMZpajaUz
 method: GET
 name: Total
 sortPriority: 3000.002
