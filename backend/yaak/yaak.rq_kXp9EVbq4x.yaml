@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_kXp9EVbq4x
+createdAt: 2025-04-29T01:46:10.195754340
+updatedAt: 2025-04-29T03:36:51.242548677
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_M3lw2noVeI
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: Delete User
+sortPriority: 2000.0
+url: ${[ HOST ]}/auth/user/delete/:uid
+urlParameters:
+- enabled: true
+  name: :uid
+  value: ${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}
+  id: WGnIVN8AaS
+- enabled: true
+  name: ''
+  value: ''
+  id: dDf3ff4YjD

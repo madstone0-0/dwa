@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_6PN6gXLqrL
 createdAt: 2025-04-27T18:08:17.933260186
-updatedAt: 2025-04-27T18:10:45.094669624
+updatedAt: 2025-04-29T01:47:25.516354570
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -22,6 +22,6 @@ headers:
   id: null
 method: POST
 name: Login Buyer
-sortPriority: 0.001
+sortPriority: 4000.0
 url: ${[ HOST ]}/auth/user/login
 urlParameters: []

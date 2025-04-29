@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_WLnTYj13pP
 createdAt: 2025-02-08T02:15:37
-updatedAt: 2025-04-27T18:14:12.403370866
+updatedAt: 2025-04-29T03:24:08.834701698
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -22,6 +22,6 @@ headers:
   id: null
 method: POST
 name: Login Vendor
-sortPriority: 0.0
+sortPriority: 3000.0
 url: ${[ HOST ]}/auth/user/login
 urlParameters: []

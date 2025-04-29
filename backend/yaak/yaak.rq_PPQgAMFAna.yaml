@@ -1,0 +1,36 @@
+type: http_request
+model: http_request
+id: rq_PPQgAMFAna
+createdAt: 2025-04-29T01:46:21.499121288
+updatedAt: 2025-04-29T02:53:05.941795949
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_M3lw2noVeI
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "user": {
+        "user_type": "vendor",
+        "email": "vendor@gmail.com"
+      },
+      "user_types": {
+        "vendor": {
+          "uid": "${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}",
+          "name": "Madiba Hudson-Quansah Vendor",
+          "logo":"https://fastly.picsum.photos/id/116/200/200.jpg?hmac=l2LJ3qOoccUXmVmIcUqVK6Xjr3cIyS-Be89ySMCyTQQ"
+        }
+      }
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 2e6SzNKA9i
+method: PUT
+name: Update Vendor
+sortPriority: 0.0
+url: ${[ HOST ]}/auth/user/update
+urlParameters: []

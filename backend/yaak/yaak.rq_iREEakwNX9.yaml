@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_iREEakwNX9
 createdAt: 2025-04-27T17:55:35.425562766
-updatedAt: 2025-04-27T17:57:21.379473609
+updatedAt: 2025-04-29T01:47:25.515194012
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -24,6 +24,6 @@ headers:
   id: null
 method: POST
 name: SignUp Buyer
-sortPriority: 2000.0
+sortPriority: 6000.0
 url: ${[ HOST ]}/auth/user/signup
 urlParameters: []

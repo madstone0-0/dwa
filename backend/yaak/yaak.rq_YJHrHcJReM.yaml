@@ -1,0 +1,35 @@
+type: http_request
+model: http_request
+id: rq_YJHrHcJReM
+createdAt: 2025-04-29T01:47:14.353915820
+updatedAt: 2025-04-29T02:00:35.226815676
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_M3lw2noVeI
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "user": {
+        "user_type": "buyer",
+        "email": "${[ response.body.path(request='rq_6PN6gXLqrL', path='$.data.email', behavior='smart') ]}"
+      },
+      "user_types": {
+        "buyer": {
+          "uid": "${[ response.body.path(request='rq_6PN6gXLqrL', path='$.data.uid', behavior='smart') ]}",
+          "name": "Madiba Hudson-Quansah Buyer"
+        }
+      }
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: QrBjJ64d5G
+method: PUT
+name: Update Buyer
+sortPriority: 1000.0
+url: ${[ HOST ]}/auth/user/update
+urlParameters: []
