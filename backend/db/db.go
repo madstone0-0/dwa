@@ -3,6 +3,7 @@ package db
 import (
 	"backend/config"
 	"backend/internal/logging"
+	"backend/internal/utils"
 	"context"
 	"errors"
 
@@ -19,6 +20,8 @@ type Pool interface {
 	Close()
 }
 
+var tracer pgx.QueryTracer = LogTracer{}
+
 func NewPool(ctx context.Context, dbConfig config.Database) (Pool, func(), error) {
 	f := func() {}
 
@@ -33,6 +36,10 @@ func NewPool(ctx context.Context, dbConfig config.Database) (Pool, func(), error
 	if err != nil {
 		logging.Errorf("Error parsing connection string -> %v", err)
 		return nil, f, err
+	}
+
+	if (utils.DefaultEnv{}.Env("GIN_MODE") == "debug") {
+		cfg.ConnConfig.Tracer = tracer
 	}
 
 	logging.Infof("Config -> %v", cfg.ConnString())
