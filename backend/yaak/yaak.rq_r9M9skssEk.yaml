@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_r9M9skssEk
 createdAt: 2025-04-21T14:00:51.418498526
-updatedAt: 2025-04-28T14:02:03.256605317
+updatedAt: 2025-04-29T16:41:31.569720371
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_m3gzwRkFxr
 authentication:
@@ -19,6 +19,6 @@ headers:
   id: iXWIVquZf2
 method: GET
 name: Info
-sortPriority: 500.0
+sortPriority: 0.0
 url: ${[ HOST ]}/buyer/info
 urlParameters: []
