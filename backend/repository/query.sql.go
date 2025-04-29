@@ -230,7 +230,7 @@ func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]It
 }
 
 const GetTotalSales = `-- name: GetTotalSales :one
-select coalesce(sum(amt)::bigint, 0) from transaction
+select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1
 `
 
@@ -242,7 +242,7 @@ func (q *Queries) GetTotalSales(ctx context.Context, vid pgtype.UUID) (interface
 }
 
 const GetTotalSalesForItem = `-- name: GetTotalSalesForItem :one
-select coalesce(sum(amt)::bigint, 0) from transaction
+select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1 and iid = $2
 `
 
