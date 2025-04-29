@@ -45,9 +45,9 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 	qtx := q.WithTx(tx)
 
 	params := repository.ReduceQuantityOfItemParams{Iid: item.Iid, Vid: item.Vid, Quantity: transactionObj.QtyBought}
-	_err := qtx.ReduceQuantityOfItem(ctx, params)
+	err = qtx.ReduceQuantityOfItem(ctx, params)
 
-	if _err != nil {
+	if err != nil {
 		logging.Errorf("There was an error reducing the quantity of items")
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
