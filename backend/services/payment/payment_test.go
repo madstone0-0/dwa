@@ -28,10 +28,11 @@ func TestCreateTransactionRecord(t *testing.T) {
 		testIid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTrans := repository.CreateTransactionParams{
-			Bid: testBid,
-			Vid: testVid,
-			Iid: testIid,
-			Amt: pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			Bid:       testBid,
+			Vid:       testVid,
+			Iid:       testIid,
+			Amt:       pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			QtyBought: 1,
 		}
 		testItem := repository.Item{
 			Iid:         testIid,
@@ -50,6 +51,7 @@ func TestCreateTransactionRecord(t *testing.T) {
 			testTrans.Iid,
 			testTrans.Vid,
 			testTrans.Amt,
+			testTrans.QtyBought,
 		})
 		it.SetupMock(itemRow, "Scan", []any{mock.AnythingOfType("*pgtype.UUID")}, nil).Run(func(args mock.Arguments) {
 			if dest, ok := args.Get(0).(*pgtype.UUID); ok {
@@ -116,10 +118,11 @@ func TestCreateTransactionRecord(t *testing.T) {
 		testBid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testIid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTrans := repository.CreateTransactionParams{
-			Bid: testBid,
-			Vid: testVid,
-			Iid: testIid,
-			Amt: pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			Bid:       testBid,
+			Vid:       testVid,
+			Iid:       testIid,
+			Amt:       pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			QtyBought: 1,
 		}
 		testItem := repository.Item{
 			Iid: testIid,
@@ -148,10 +151,11 @@ func TestCreateTransactionRecord(t *testing.T) {
 		testIid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTrans := repository.CreateTransactionParams{
-			Bid: testBid,
-			Vid: testVid1,
-			Iid: testIid,
-			Amt: pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			Bid:       testBid,
+			Vid:       testVid1,
+			Iid:       testIid,
+			Amt:       pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			QtyBought: 1,
 		}
 		testItem := repository.Item{
 			Iid:         testIid,
@@ -228,10 +232,11 @@ func TestCreateTransactionRecord(t *testing.T) {
 		testIid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTrans := repository.CreateTransactionParams{
-			Bid: testBid,
-			Vid: testVid,
-			Iid: testIid,
-			Amt: pgtype.Numeric{Int: big.NewInt(20), Valid: true},
+			Bid:       testBid,
+			Vid:       testVid,
+			Iid:       testIid,
+			Amt:       pgtype.Numeric{Int: big.NewInt(20), Valid: true},
+			QtyBought: 1,
 		}
 		testItem := repository.Item{
 			Iid:         testIid,
@@ -307,10 +312,11 @@ func TestCreateTransactionRecord(t *testing.T) {
 		testBid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testIid := pgtype.UUID{Bytes: [16]byte{1}, Valid: true}
 		testTrans := repository.CreateTransactionParams{
-			Bid: testBid,
-			Vid: testVid,
-			Iid: testIid,
-			Amt: pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			Bid:       testBid,
+			Vid:       testVid,
+			Iid:       testIid,
+			Amt:       pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			QtyBought: 1,
 		}
 		testItem := repository.Item{
 			Iid:         testIid,
