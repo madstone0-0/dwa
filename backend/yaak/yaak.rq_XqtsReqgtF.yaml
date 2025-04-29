@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_XqtsReqgtF
 createdAt: 2025-04-21T14:02:19.005383758
-updatedAt: 2025-04-28T14:02:17.381959234
+updatedAt: 2025-04-29T15:40:56.458711032
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_aXjzo7eCah
 authentication:
@@ -14,7 +14,8 @@ body:
       "bid": "${[ response.body.path(request='rq_6PN6gXLqrL', path='$.data.uid', behavior='smart') ]}",
       "vid": "${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}",
       "iid": "${[ response.body.path(request='rq_J6F3bybuAN', path='$.data.items.*.iid', behavior='smart') ]}",
-      "amt": ${[ response.body.path(request='rq_J6F3bybuAN', path='$.data.items.*.cost', behavior='smart') ]}
+      "amt": ${[ response.body.path(request='rq_J6F3bybuAN', path='$.data.items.*.cost', behavior='smart') ]},
+      "qty_bought": 2
     }
 bodyType: application/json
 description: ''

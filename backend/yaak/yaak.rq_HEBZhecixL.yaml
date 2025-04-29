@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_HEBZhecixL
 createdAt: 2025-04-21T14:01:59.872191767
-updatedAt: 2025-04-28T13:57:27.572824607
+updatedAt: 2025-04-29T15:41:55.795557897
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_ztwBvkZbSS
 authentication:
@@ -32,6 +32,6 @@ headers:
   id: aFQgdTWq07
 method: POST
 name: Add
-sortPriority: 2000.001
+sortPriority: 1250.001
 url: ${[ HOST ]}/vendor/item/add
 urlParameters: []

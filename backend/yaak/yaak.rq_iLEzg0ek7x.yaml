@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_iLEzg0ek7x
 createdAt: 2025-02-08T01:46:15
-updatedAt: 2025-04-29T03:28:20.217499398
+updatedAt: 2025-04-29T15:41:25.603596115
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_M3lw2noVeI
 authentication: {}
@@ -10,8 +10,8 @@ authenticationType: null
 body:
   text: |-
     {
-      "email": "vendor",
-      "password": "123",
+      "email": "vendor@gmail.com",
+      "password": "#MTS#@#test",
       "name": "Vendor",
       "isVendor": true
     }
