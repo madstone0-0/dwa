@@ -65,6 +65,7 @@ create table if not exists transaction (
         12,
         2
     ) not null,
+    qty_bought integer not null check(qty_bought > 0),
     t_time timestamp default current_timestamp,
     constraint fk_trans_buyer foreign key (bid) references buyer(uid) on
     delete

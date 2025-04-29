@@ -129,7 +129,7 @@ and vid = $8;
 delete from item where iid = $1;
 
 -- name: CreateTransaction :one
-insert into transaction (bid, vid, iid, amt, t_time) values($1, $2, $3, $4, now()) returning tid;
+insert into transaction (bid, vid, iid, amt, qty_bought, t_time) values($1, $2, $3, $4, $5, now()) returning tid;
 
 -- name: GetTransactionsForVendor :many
 select item.name, amt, t_time from transaction 
@@ -145,3 +145,8 @@ where vid = $1;
 -- name: GetTotalSalesForItem :one
 select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1 and iid = $2;
+
+-- name: ReduceQuantityOfItem :exec
+update item set quantity = quantity - $3
+where iid = $1
+and vid = $2;

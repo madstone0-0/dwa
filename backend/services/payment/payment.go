@@ -31,6 +31,20 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 		return utils.MakeError(err, http.StatusBadRequest)
 	}
 
+	if item.Quantity-transactionObj.QtyBought < 0 {
+		logging.Errorf("You have bought more than is allowed")
+		err = errors.New("bought more than the quantity available")
+		return utils.MakeError(err, http.StatusBadRequest)
+	}
+
+	params := repository.ReduceQuantityOfItemParams{Iid: item.Iid, Vid: item.Vid, Quantity: transactionObj.QtyBought}
+	_err := q.ReduceQuantityOfItem(ctx, params)
+
+	if _err != nil {
+		logging.Errorf("There was an error reducing the quantity of items")
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
 	tid, err := q.CreateTransaction(ctx, transactionObj)
 	if err != nil {
 		logging.Errorf("There was an error creating the transaction record")

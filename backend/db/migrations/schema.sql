@@ -49,7 +49,7 @@ create table if not exists item (
     pictureUrl varchar(255),
     description varchar(255),
     category CATEGORY not null,
-    quantity integer not null check (quantity >= 0),
+    quantity integer default 1 not null check (quantity >= 0),
     cost decimal( 12, 2) not null check (cost >= 0),
     constraint fk_item_vendor foreign key (vid) references vendor(uid) on
     delete
@@ -65,6 +65,7 @@ create table if not exists transaction (
         12,
         2
     ) not null,
+    qty_bought integer not null check(qty_bought > 0),
     t_time timestamp default current_timestamp,
     constraint fk_trans_buyer foreign key (bid) references buyer(uid) on
     delete
