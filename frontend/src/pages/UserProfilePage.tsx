@@ -1,150 +1,127 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetch} from "./utils/Fetch"; 
+import { fetch } from "./utils/Fetch";
 
-// Password validation function
-const isPasswordValid = (password: string) => {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-  return passwordRegex.test(password);
-};
-
-// Email validation function
-const isEmailValid = (email: string) => {
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
-};
 const userType = localStorage.getItem("user_type");
-let dashboardLink = "/landing"; // default
+let dashboardLink = "/landing";
 if (userType === "vendor") {
   dashboardLink = "/vendor-dashboard";
 } else if (userType === "admin") {
   dashboardLink = "/admin-dashboard";
-} else if (userType === "buyer") {
-  dashboardLink = "/landing"; // or you can keep it as default
 }
+
 const UserProfilePage = () => {
   const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("user_type");
     localStorage.removeItem("token");
     navigate("/signin");
-    };
-  const isUserLoggedIn = Boolean(localStorage.getItem('user'));
-    
-      useEffect(() => {
-        if (!isUserLoggedIn) {
-          navigate('/signin');
-        }
-      }, [isUserLoggedIn, navigate]);
-  // State for user information
-  const [userName, setUserName] = useState<string>("John Doe");
-  const [userEmail, setUserEmail] = useState<string>("johndoe@example.com");
-  const [userPassword, setUserPassword] = useState<string>(""); 
-  const [newFullName, setNewFullName] = useState<string>("");
-  const [newEmail, setNewEmail] = useState<string>("");
-  const [newPassword, setNewPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [passwordError, setPasswordError] = useState<string>("");
-  const [emailError, setEmailError] = useState<string>("");
+  };
 
-  // Handle changes to input fields
+  const isUserLoggedIn = Boolean(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (!isUserLoggedIn) navigate("/signin");
+  }, [isUserLoggedIn, navigate]);
+
+  // Load data from user data saved in local storage
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log("userData", userData);
+  const userId = userData.uid;
+  const fullNameFromProfile =
+    userType === "vendor"
+      ? userData.user_type?.vendor?.name || ""
+      : userData.user_type?.buyer?.name || "";
+
+  const emailFromProfile = userData.email;
+
+  // State setup
+  const [userName, setUserName] = useState<string>(fullNameFromProfile);
+  const [userEmail] = useState<string>(emailFromProfile);
+  const [newFullName, setNewFullName] = useState<string>("");
+  const [logoUrl, setLogoUrl] = useState<string>(
+    userData.user_types?.vendor?.logo || ""
+  );
+
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewFullName(e.target.value);
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewEmail(e.target.value);
-    // Clear email error when the user starts typing
-    setEmailError("");
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLogoUrl(e.target.value);
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewPassword(e.target.value);
-  };
+  const isFormValid = newFullName.trim().length > 0;
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmPassword(e.target.value);
-  };
-
-  // Check if form is valid (all fields must be filled, passwords must match, and email must be valid)
-  const isFormValid =
-    newFullName &&
-    newEmail &&
-    newPassword &&
-    confirmPassword &&
-    newPassword === confirmPassword &&
-    isPasswordValid(newPassword) &&
-    isEmailValid(newEmail);
-
-  // Handle form submission (updating profile)
   const handleSubmit = async () => {
-    if (isFormValid) {
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-			const token = userData.token.trim().replace(/\s/g, "");
-      // Waitimg for path
-      const response = await fetch.put("", {
-        fullName: newFullName,
-        email: newEmail,
-        password: newPassword,
-      }, {
+    if (!isFormValid) {
+      alert("Please fill in all fields correctly.");
+      return;
+    }
+
+    const token = localStorage.getItem("token")?.trim().replace(/\s/g, "");
+
+    const updatedProfile: any = {
+      user: {
+        user_type: userType,
+        email: userEmail,
+      },
+      user_types: {},
+    };
+
+    if (userType === "vendor") {
+      updatedProfile.user_types["vendor"] = {
+        uid: userId,
+        name: newFullName,
+        logo: logoUrl,
+      };
+    } else if (userType === "buyer") {
+      updatedProfile.user_types["buyer"] = {
+        uid: userId,
+        name: newFullName,
+      };
+    }
+
+    const response = await fetch.put(
+      "/auth/user/update",
+      updatedProfile,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      });
-      if (!response.ok) {
-        alert("Failed to update profile. Please try again.");
-        return;
       }
-      const data = await response.json();
-      // Normally, here we would update the user information in the backend
-      setUserName(data.fullName);
-      setUserEmail(data.email);
-      setUserPassword("");
-      alert("Profile updated successfully!");
-      // Clear fields after update
-      setNewFullName("");
-      setNewEmail("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } else {
-      if (!isPasswordValid(newPassword)) {
-        setPasswordError("Password must be at least 8 characters long, with one uppercase letter, one lowercase letter, one number, and one special character.");
-      } else {
-        setPasswordError("");
-      }
+    );
 
-      if (!isEmailValid(newEmail)) {
-        setEmailError("Please enter a valid email address.");
-      } else {
-        setEmailError("");
-      }
-
-      alert("Please fill in all fields correctly and make sure passwords match.");
+    if (!response.ok) {
+      alert("Failed to update profile. Please try again.");
+      return;
     }
+
+    localStorage.setItem("structured_profile", JSON.stringify(updatedProfile));
+    setUserName(newFullName);
+    alert("Profile updated successfully!");
+    setNewFullName("");
   };
 
-  // Handle account deletion
   const handleDeleteAccount = async () => {
-    const confirmation = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    const confirmation = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone."
+    );
     if (confirmation) {
       try {
         const token = localStorage.getItem("token");
-        // Waitimg for path
         const response = await fetch.delete("", {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
-  
-        if (!response.ok) {
-          throw new Error("Failed to delete account.");
-        }
-  
+
+        if (!response.ok) throw new Error("Failed to delete account.");
+
         alert("Your account has been deleted.");
-  
-        // Clear local data and redirect to sign-in
         localStorage.removeItem("user");
         localStorage.removeItem("user_type");
         localStorage.removeItem("token");
@@ -155,58 +132,44 @@ const UserProfilePage = () => {
       }
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-    <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
-    <div className="container mx-auto px-4 flex justify-between items-center">
-      {/* Logo and Brand Name */}
-      <div className="flex items-center space-x-3">
-      <a href={dashboardLink}>
-        <img 
-          src="/src/assets/dwa-icon.jpg" 
-          alt="DWA Logo" 
-          className="h-10 w-10 object-cover rounded-full"
-        />
-        </a>
-        <h1 className="text-white text-2xl font-bold">Ashesi DWA - Profile</h1>
-      </div>
-      {/* Navigation Links */}
-      <button
-        onClick={handleLogout}
-        className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17 16l4-4m0 0l-4-4m4 4H7"
-          />
-        </svg>
-        <span className="mt-1 text-xs">Logout</span>
-      </button>
-    </div>
-  </header>
+      <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: "#722F37" }}>
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <a href={dashboardLink}>
+              <img
+                src="/src/assets/dwa-icon.jpg"
+                alt="DWA Logo"
+                className="h-10 w-10 object-cover rounded-full"
+              />
+            </a>
+            <h1 className="text-white text-2xl font-bold">Ashesi DWA - Profile</h1>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" />
+            </svg>
+            <span className="mt-1 text-xs">Logout</span>
+          </button>
+        </div>
+      </header>
 
       <main className="flex-grow p-4">
         <h1 className="text-2xl font-semibold text-center mb-6">User Profile</h1>
 
-        {/* Profile Edit Form */}
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Full Name</label>
             <input
               type="text"
-              value={newFullName || userName} // Display current full name
+              value={newFullName || userName}
               onChange={handleFullNameChange}
               className="p-2 border border-gray-300 rounded-md w-full mt-1"
               placeholder="Enter your full name"
@@ -217,36 +180,31 @@ const UserProfilePage = () => {
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
-              value={newEmail || userEmail} // Display current email
-              onChange={handleEmailChange}
-              className="p-2 border border-gray-300 rounded-md w-full mt-1"
-              placeholder="Enter your email"
+              value={userEmail}
+              readOnly
+              className="p-2 border border-gray-300 rounded-md w-full mt-1 bg-gray-100 cursor-not-allowed"
             />
-            {emailError && <p className="text-red-500 text-sm mt-2">{emailError}</p>}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={handlePasswordChange}
-              className="p-2 border border-gray-300 rounded-md w-full mt-1"
-              placeholder="Enter your new password"
-            />
-            {passwordError && <p className="text-red-500 text-sm mt-2">{passwordError}</p>}
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              className="p-2 border border-gray-300 rounded-md w-full mt-1"
-              placeholder="Confirm your new password"
-            />
-          </div>
+          {userType === "vendor" && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Logo URL</label>
+              <input
+                type="text"
+                value={logoUrl}
+                onChange={handleLogoChange}
+                className="p-2 border border-gray-300 rounded-md w-full mt-1"
+                placeholder="Enter logo image URL"
+              />
+              {logoUrl && (
+                <img
+                  src={logoUrl}
+                  alt="Logo Preview"
+                  className="w-20 h-20 object-cover mt-2 rounded-full"
+                />
+              )}
+            </div>
+          )}
 
           <button
             onClick={handleSubmit}
@@ -257,7 +215,6 @@ const UserProfilePage = () => {
           </button>
         </div>
 
-        {/* Delete Account Section */}
         <div className="max-w-3xl mx-auto mt-6 bg-white rounded-xl shadow-md p-6 text-center">
           <h2 className="text-xl font-semibold mb-4 text-red-600">Delete Account</h2>
           <p className="text-sm mb-6 text-gray-600">
@@ -272,8 +229,7 @@ const UserProfilePage = () => {
         </div>
       </main>
 
-      {/* Footer Component */}
-      <footer className="bg-wine text-white text-center py-5 text-xs border-t border-gray-300" style={{ backgroundColor: '#722F37' }}>
+      <footer className="bg-wine text-white text-center py-5 text-xs border-t border-gray-300" style={{ backgroundColor: "#722F37" }}>
         <p className="mb-1">
           <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp; | &nbsp;
           <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; | &nbsp;

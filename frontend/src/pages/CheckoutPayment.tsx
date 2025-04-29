@@ -114,7 +114,9 @@ function CheckoutPayment() {
           bid: userData.bid,        // assuming userData has bid
           vid: item.seller,          // assuming 'seller' is the vendor id
           iid: item.id.toString(),   // item id as string
-          amt: item.price * item.quantity, // amount = price * quantity
+          amt: item.price ,
+          qty_bought: item.quantity,
+          
         };
   
         const response = await fetch.post('buyer/pay/initialize', {
