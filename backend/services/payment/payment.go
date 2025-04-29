@@ -37,19 +37,28 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 		return utils.MakeError(err, http.StatusBadRequest)
 	}
 
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+	defer tx.Rollback(ctx)
+	qtx := q.WithTx(tx)
+
 	params := repository.ReduceQuantityOfItemParams{Iid: item.Iid, Vid: item.Vid, Quantity: transactionObj.QtyBought}
-	_err := q.ReduceQuantityOfItem(ctx, params)
+	_err := qtx.ReduceQuantityOfItem(ctx, params)
 
 	if _err != nil {
 		logging.Errorf("There was an error reducing the quantity of items")
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	tid, err := q.CreateTransaction(ctx, transactionObj)
+	tid, err := qtx.CreateTransaction(ctx, transactionObj)
 	if err != nil {
 		logging.Errorf("There was an error creating the transaction record")
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
+
+	tx.Commit(ctx)
 
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
