@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetch } from "./utils/Fetch"; 
 
 interface PaymentMethod {
   id: string;
@@ -30,7 +31,15 @@ interface CartItem {
 
 function CheckoutPayment() {
   const navigate = useNavigate();
-  
+  useEffect(() => {
+    const isLoggedIn = Boolean(localStorage.getItem("user")); 
+    const userType = localStorage.getItem("userType");
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token.trim().replace(/\s/g, "");
+    if (!isLoggedIn && userType != "buyer") {    
+      navigate('/signin'); 
+    }
+  }, [navigate]);
   // Sample data for now but we have to fetch from API
   const [addresses] = useState<Address[]>([
     {
@@ -88,18 +97,52 @@ function CheckoutPayment() {
   const deliveryFee = 5.00;
   const tax = subtotal * 0.05; // 5% tax
   const total = subtotal + deliveryFee + tax;
-  
-  const handlePlaceOrder = () => {
+  // mock function to simulate placing an order
+  const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    
-    // Simulate processing
-    setTimeout(() => {
+  
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token?.trim().replace(/\s/g, "");
+  
+    // get cart from local storage
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+  
+    try {
+      // Need cart table to make this work
+      for (const item of cartItems) {
+        const paymentBody = {
+          bid: userData.bid,        // assuming userData has bid
+          vid: item.seller,          // assuming 'seller' is the vendor id
+          iid: item.id.toString(),   // item id as string
+          amt: item.price * item.quantity, // amount = price * quantity
+        };
+  
+        const response = await fetch.post('buyer/pay/initialize', {
+          body: JSON.stringify(paymentBody),
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Payment failed for item ${item.name}`);
+        }
+      }
+  
+      // If all payments succeed
       setIsProcessing(false);
-
-      // Submission of the order to the backend to be done here when we do the backend integration
+      localStorage.removeItem('cart'); // clear the cart
       navigate('/order-confirmation');
-    }, 2000);
+  
+    } catch (error) {
+      console.error('Error placing order:', error);
+      setIsProcessing(false);
+      alert('Failed to place your order. Please try again.');
+    }
   };
+  
+  
   
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">

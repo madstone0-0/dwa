@@ -80,7 +80,8 @@ const UserProfilePage = () => {
   // Handle form submission (updating profile)
   const handleSubmit = async () => {
     if (isFormValid) {
-      const token = localStorage.getItem("token");
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+			const token = userData.token.trim().replace(/\s/g, "");
       // Waitimg for path
       const response = await fetch.put("", {
         fullName: newFullName,

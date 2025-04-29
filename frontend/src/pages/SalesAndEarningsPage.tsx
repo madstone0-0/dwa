@@ -60,7 +60,6 @@ const Header: FC = () => {
 							onClick={() => {
 								localStorage.removeItem("user");
 								localStorage.removeItem("user_type");
-								localStorage.removeItem("token");
 								navigate("/signin");
 							}}
 						/>
