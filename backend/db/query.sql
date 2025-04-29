@@ -71,6 +71,20 @@ insert into "user" (email, passhash) values ($1, $2) returning uid;
 -- name: InsertBuyer :exec
 insert into buyer (uid, name) values ($1, $2);
 
+-- name: UpdateBuyer :exec
+with updated_user as (
+    update "user"
+    set 
+    email = $2
+    where "user".uid = $3
+    returning uid
+)
+update buyer
+set
+name = $1
+where uid in (select uid from updated_user);
+
+
 -- name: GetAllItems :many
 select * from "item";
 
@@ -85,6 +99,23 @@ select * from item where iid = $1;
 
 -- name: InsertVendor :exec
 insert into vendor (uid, name) values ($1, $2);
+
+-- name: DeleteUser :exec
+delete from "user" where uid = $1;
+
+-- name: UpdateVendor :exec
+with updated_user as (
+    update "user"
+    set 
+    email = $3
+    where "user".uid = $4
+    returning uid
+)
+update vendor
+set
+name = $1,
+logo = $2
+where uid in (select uid from updated_user);
 
 -- name: InsertItem :one
 insert into item (vid, name, pictureurl, description, category, quantity, cost) values ($1, $2, $3, $4, $5, $6, $7) returning iid;
@@ -108,9 +139,9 @@ order by t_time desc;
 
 
 -- name: GetTotalSales :one
-select coalesce(sum(amt)::bigint, 0) from transaction
+select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1;
 
 -- name: GetTotalSalesForItem :one
-select coalesce(sum(amt)::bigint, 0) from transaction
+select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1 and iid = $2;

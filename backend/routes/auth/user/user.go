@@ -40,4 +40,29 @@ func UserAuthRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 		sr := auth.Login(ctx, pool, body)
 		utils.SendSR(c, sr)
 	})
+
+	user.PUT("/update", func(c *gin.Context) {
+		var body auth.UpdateUser
+		err := utils.ParseBody(c, &body)
+
+		if err != nil {
+			return
+		}
+
+		sr := auth.Update(ctx, pool, body)
+		utils.SendSR(c, sr)
+	})
+
+	user.DELETE("/delete/:uid", func(c *gin.Context) {
+		uid := c.Params.ByName("uid")
+		uidUUID, err := utils.ParseUUID(uid)
+
+		if err != nil {
+			utils.SendErr(c, http.StatusBadRequest, err)
+			return
+		}
+
+		sr := auth.Delete(ctx, pool, uidUUID)
+		utils.SendSR(c, sr)
+	})
 }

@@ -51,7 +51,21 @@ func SendMsg(c *gin.Context, status int, msg string) {
 
 // SendErr is a convenience function to send an error message to the client
 func SendErr(c *gin.Context, status int, err error) {
-	SendData(c, status, JMap{"err": err.Error()})
+	switch err := err.(type) {
+	case interface{ Unwrap() string }:
+		SendData(c, status, JMap{"err": err.Unwrap()})
+	case interface{ Unwrap() []error }:
+		errs := err.Unwrap()
+
+		errsList := make([]string, len(errs))
+		for i, e := range errs {
+			errsList[i] = e.Error()
+		}
+
+		SendData(c, status, JMap{"err": errsList})
+	default:
+		SendData(c, status, JMap{"err": err.Error()})
+	}
 }
 
 func SendErrAbort(c *gin.Context, status int, err error) {
@@ -154,4 +168,37 @@ func ParseJWT(tokenString string, claims jwt.MapClaims) (*jwt.Token, error) {
 	return jwt.ParseWithClaims(wobearer, claims, func(t *jwt.Token) (any, error) {
 		return []byte(DefaultEnv{}.Env("SECRET")), nil
 	})
+}
+
+type UserType int
+
+const (
+	VENDOR UserType = iota
+	BUYER
+)
+
+func ParseUserType(userString string) UserType {
+	lower := strings.ToLower(userString)
+	if lower == "vendor" {
+		return VENDOR
+	} else {
+		return BUYER
+	}
+}
+
+func StringifyUserType(ut UserType) string {
+	if ut == VENDOR {
+		return "vendor"
+	} else {
+		return "buyer"
+	}
+}
+
+func FillPlaceholders(sql string, args []any) string {
+	n := len(args)
+	for i := range n {
+		placeholderText := fmt.Sprintf("$%d", i+1)
+		sql = strings.Replace(sql, placeholderText, fmt.Sprintf("%v", args[i]), 1)
+	}
+	return sql
 }

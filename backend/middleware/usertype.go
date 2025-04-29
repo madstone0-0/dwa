@@ -6,37 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type UserType int
-
-const (
-	VENDOR UserType = iota
-	BUYER
-)
-
-func parseUserType(userString string) UserType {
-	lower := strings.ToLower(userString)
-	if lower == "vendor" {
-		return VENDOR
-	} else {
-		return BUYER
-	}
-}
-
-func stringifyUserType(ut UserType) string {
-	if ut == VENDOR {
-		return "vendor"
-	} else {
-		return "buyer"
-	}
-}
-
-func UserTypeMiddleware(userType UserType) gin.HandlerFunc {
+func UserTypeMiddleware(userType utils.UserType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if authHeaders, ok := c.Request.Header["Authorization"]; ok {
 			logging.Infof("AuthHeaders: %v", authHeaders)
@@ -54,8 +29,8 @@ func UserTypeMiddleware(userType UserType) gin.HandlerFunc {
 				return
 			}
 
-			if parseUserType(uType.(string)) != userType {
-				utils.SendErrAbort(c, http.StatusUnauthorized, fmt.Errorf("must be a %s to access this route", stringifyUserType(userType)))
+			if utils.ParseUserType(uType.(string)) != userType {
+				utils.SendErrAbort(c, http.StatusUnauthorized, fmt.Errorf("must be a %s to access this route", utils.StringifyUserType(userType)))
 				return
 			}
 

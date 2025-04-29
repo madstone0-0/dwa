@@ -54,6 +54,15 @@ func (q *Queries) DeleteItem(ctx context.Context, iid pgtype.UUID) error {
 	return err
 }
 
+const DeleteUser = `-- name: DeleteUser :exec
+delete from "user" where uid = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, uid pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, DeleteUser, uid)
+	return err
+}
+
 const GetAllItems = `-- name: GetAllItems :many
 select iid, vid, name, pictureurl, description, category, quantity, cost from "item"
 `
@@ -229,7 +238,7 @@ func (q *Queries) GetItemsByVendorId(ctx context.Context, vid pgtype.UUID) ([]It
 }
 
 const GetTotalSales = `-- name: GetTotalSales :one
-select coalesce(sum(amt)::bigint, 0) from transaction
+select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1
 `
 
@@ -241,7 +250,7 @@ func (q *Queries) GetTotalSales(ctx context.Context, vid pgtype.UUID) (interface
 }
 
 const GetTotalSalesForItem = `-- name: GetTotalSalesForItem :one
-select coalesce(sum(amt)::bigint, 0) from transaction
+select coalesce(sum(amt)::decimal(12, 2), 0) from transaction
 where vid = $1 and iid = $2
 `
 
@@ -469,6 +478,31 @@ func (q *Queries) InsertVendor(ctx context.Context, arg InsertVendorParams) erro
 	return err
 }
 
+const UpdateBuyer = `-- name: UpdateBuyer :exec
+with updated_user as (
+    update "user"
+    set 
+    email = $2
+    where "user".uid = $3
+    returning uid
+)
+update buyer
+set
+name = $1
+where uid in (select uid from updated_user)
+`
+
+type UpdateBuyerParams struct {
+	Name  string      `json:"name"`
+	Email string      `json:"email"`
+	Uid   pgtype.UUID `json:"uid"`
+}
+
+func (q *Queries) UpdateBuyer(ctx context.Context, arg UpdateBuyerParams) error {
+	_, err := q.db.Exec(ctx, UpdateBuyer, arg.Name, arg.Email, arg.Uid)
+	return err
+}
+
 const UpdateItem = `-- name: UpdateItem :exec
 update item set name = $1,  description = $2, cost = $3, pictureurl = $4, category = $5, quantity = $6 
 where iid = $7
@@ -496,6 +530,38 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
 		arg.Quantity,
 		arg.Iid,
 		arg.Vid,
+	)
+	return err
+}
+
+const UpdateVendor = `-- name: UpdateVendor :exec
+with updated_user as (
+    update "user"
+    set 
+    email = $3
+    where "user".uid = $4
+    returning uid
+)
+update vendor
+set
+name = $1,
+logo = $2
+where uid in (select uid from updated_user)
+`
+
+type UpdateVendorParams struct {
+	Name  string      `json:"name"`
+	Logo  *string     `json:"logo"`
+	Email string      `json:"email"`
+	Uid   pgtype.UUID `json:"uid"`
+}
+
+func (q *Queries) UpdateVendor(ctx context.Context, arg UpdateVendorParams) error {
+	_, err := q.db.Exec(ctx, UpdateVendor,
+		arg.Name,
+		arg.Logo,
+		arg.Email,
+		arg.Uid,
 	)
 	return err
 }
