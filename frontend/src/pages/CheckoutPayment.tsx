@@ -31,11 +31,16 @@ interface CartItem {
 
 function CheckoutPayment() {
   const navigate = useNavigate();
+  const handleLogout = () => {
+		localStorage.removeItem("user");
+		localStorage.removeItem("user_type");
+		localStorage.removeItem("token");
+		navigate("/signin");
+	  };
   useEffect(() => {
     const isLoggedIn = Boolean(localStorage.getItem("user")); 
     const userType = localStorage.getItem("userType");
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const token = userData.token.trim().replace(/\s/g, "");
+
     if (!isLoggedIn && userType != "buyer") {    
       navigate('/signin'); 
     }
@@ -184,13 +189,34 @@ function CheckoutPayment() {
               />
             </svg>
           </button>
+          {/* Logout Icon */}
+          <button
+								onClick={handleLogout}
+								className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+								>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="w-6 h-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M17 16l4-4m0 0l-4-4m4 4H7"
+									/>
+								</svg>
+								<span className="mt-1 text-xs">Logout</span>
+					</button>
           {/* Secure checkout badge */}
-          <div className="hidden md:flex items-center text-white">
+          {/* <div className="hidden md:flex items-center text-white">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             <span className="text-sm">Secure Checkout</span>
-          </div>
+          </div> */}
         </div>
     </header>
       

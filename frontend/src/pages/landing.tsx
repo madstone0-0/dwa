@@ -9,14 +9,6 @@ interface SectionHeaderProps {
 	linkText: string;
 }
 
-interface CartItem {
-	id: number;
-	name: string;
-	price: number;
-	quantity: number;
-	image: string;
-}
-
 // CATEGORIES
 const CATEGORIES = {
 	FASHION: "Fashion",
@@ -27,12 +19,23 @@ const CATEGORIES = {
 
 function LandingPage() {
 	const navigate = useNavigate();
+	const handleLogout = () => {
+		localStorage.removeItem("user");
+		localStorage.removeItem("user_type");
+		localStorage.removeItem("token");
+		navigate("/signin");
+	  };
 	const [items, setItems] = useState<Item[]>([]);
 	const [cartItems, setCartItems] = useState<Item[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [filteredItems, setFilteredItems] = useState<any[]>([]);
-
+	const isUserLoggedIn = Boolean(localStorage.getItem("user"));
+	const userType = localStorage.getItem("user_type");
+	
 	useEffect(() => {
+		if (!isUserLoggedIn && userType !== "buyer") {
+			navigate("/signin");
+		}
 		getAllItems()
 			.then((items) => setItems(items))
 			.catch((e) => console.error({ e }));
@@ -120,31 +123,6 @@ function LandingPage() {
 				<h1 className="text-2xl font-bold text-white">Ashesi DWA</h1>
 
 				<div className="flex gap-4 items-center">
-					<button
-						onClick={() => navigate("/signin")}
-						className="py-1 px-4 text-sm text-white rounded-md border border-white transition-colors hover:text-yellow-400"
-					>
-						Sign In
-					</button>
-					<button
-						onClick={() => navigate("/admin-dashboard")}
-						className="py-1 px-4 text-sm text-white rounded-md border border-white transition-colors hover:text-yellow-400"
-					>
-						Admin
-					</button>
-					<button
-						onClick={() => navigate("/vendor-dashboard")}
-						className="py-1 px-4 text-sm text-white rounded-md border border-white transition-colors hover:text-yellow-400"
-					>
-						Vendor
-					</button>
-					<button
-						onClick={() => navigate("/signup")}
-						className="py-1 px-4 text-sm font-medium text-black bg-yellow-400 rounded-md transition-colors hover:bg-yellow-500"
-					>
-						Sign Up
-					</button>
-
 					{/* Shopping Cart Icon */}
 					<button
 						onClick={goToCheckout}
@@ -170,6 +148,26 @@ function LandingPage() {
 							</span>
 						)}
 					</button>
+					<button
+							onClick={handleLogout}
+							className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+								>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="w-6 h-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+							>
+									<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M17 16l4-4m0 0l-4-4m4 4H7"
+								/>
+							</svg>
+						<span className="mt-1 text-xs">Logout</span>
+					</button>					
 				</div>
 			</header>
 
