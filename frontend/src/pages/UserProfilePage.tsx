@@ -94,7 +94,7 @@ const UserProfilePage = () => {
 				updatedProfile,
 			);
 
-			setLocalStorage("structured_profile", updatedProfile);
+			setLocalStorage("user", updatedProfile);
 			setUserName(newFullName);
 			alert("Profile updated successfully!");
 			setNewFullName("");
@@ -107,19 +107,23 @@ const UserProfilePage = () => {
 
 	const handleDeleteAccount = async () => {
 		const confirmation = window.confirm(
-			"Are you sure you want to delete your account? This action cannot be undone.",
+			"Are you sure you want to delete your account? This action cannot be undone."
 		);
+	
 		if (confirmation) {
 			try {
-				const token = localStorage.getItem("token");
-				const response = await fetch.delete("", {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
-
-				if (!response.ok) throw new Error("Failed to delete account.");
-
+				const token = userData.token;
+				const userId = userData.uid; 
+	
+				await fetch.delete(
+					`/auth/user/delete/${userId}`, 
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					}
+				);
+	
 				alert("Your account has been deleted.");
 				localStorage.removeItem("user");
 				localStorage.removeItem("user_type");
@@ -131,6 +135,7 @@ const UserProfilePage = () => {
 			}
 		}
 	};
+	
 
 	return (
 		<div className="flex flex-col min-h-screen bg-gray-100">
