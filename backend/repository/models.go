@@ -109,6 +109,14 @@ type Buyer struct {
 	Name string      `json:"name"`
 }
 
+type Cart struct {
+	Bid       pgtype.UUID      `json:"bid"`
+	Iid       pgtype.UUID      `json:"iid"`
+	Vid       pgtype.UUID      `json:"vid"`
+	Quantity  int32            `json:"quantity"`
+	AddedTime pgtype.Timestamp `json:"added_time"`
+}
+
 type Item struct {
 	Iid         pgtype.UUID    `json:"iid"`
 	Vid         pgtype.UUID    `json:"vid"`

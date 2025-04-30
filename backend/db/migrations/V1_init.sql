@@ -74,3 +74,17 @@ create table if not exists transaction (
         delete
             cascade
 );
+
+create table if not exists cart (
+    bid uuid default gen_random_uuid() not null, 
+    iid uuid default gen_random_uuid() not null,
+    vid uuid default gen_random_uuid() not null,
+    quantity integer not null check(quantity > 0),
+    added_time timestamp default current_timestamp,
+    constraint fk_cart_buyer foreign key (bid) references buyer(uid) on 
+    delete cascade,
+    constraint fk_cart_item foreign key (iid) references item(iid) on
+    delete cascade,
+    constraint fk_cart_item_vendor foreign key(vid) references vendor(uid)
+    on delete cascade
+);

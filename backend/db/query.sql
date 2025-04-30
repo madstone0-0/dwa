@@ -150,3 +150,27 @@ where vid = $1 and iid = $2;
 update item set quantity = quantity - $3
 where iid = $1
 and vid = $2;
+
+-- name: GetCartItemsForBuyer :many
+select vendor.name, item.name, item.cost, cart.quantity, cart.added_time from cart
+left join vendor on vendor.uid = cart.vid
+left join item on item.iid = cart.iid
+where cart.bid = $1
+order by added_time desc;
+
+-- name: AddToCart :exec
+insert into cart (bid, iid, vid, quantity) values($1, $2, $3, $4);
+
+-- name: GetCartItem :one
+select bid, iid, vid from cart
+where bid = $1 and iid = $2 and vid = $3;
+
+-- name: DeleteCartItem :exec
+delete from cart where bid = $1 and iid = $2 and vid = $3;
+
+-- name: UpdateQuantityOfCartItem :exec
+update cart set quantity = $4
+where bid = $1 and iid = $2 and vid = $3;
+
+-- name: ClearCart :exec
+delete from cart where bid = $1;

@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const AddToCart = `-- name: AddToCart :exec
+insert into cart (bid, iid, vid, quantity) values($1, $2, $3, $4)
+`
+
+type AddToCartParams struct {
+	Bid      pgtype.UUID `json:"bid"`
+	Iid      pgtype.UUID `json:"iid"`
+	Vid      pgtype.UUID `json:"vid"`
+	Quantity int32       `json:"quantity"`
+}
+
+func (q *Queries) AddToCart(ctx context.Context, arg AddToCartParams) error {
+	_, err := q.db.Exec(ctx, AddToCart,
+		arg.Bid,
+		arg.Iid,
+		arg.Vid,
+		arg.Quantity,
+	)
+	return err
+}
+
+const ClearCart = `-- name: ClearCart :exec
+delete from cart where bid = $1
+`
+
+func (q *Queries) ClearCart(ctx context.Context, bid pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, ClearCart, bid)
+	return err
+}
+
 const CreateTransaction = `-- name: CreateTransaction :one
 insert into transaction (bid, vid, iid, amt, qty_bought, t_time) values($1, $2, $3, $4, $5, now()) returning tid
 `
@@ -45,6 +75,21 @@ func (q *Queries) DbVersion(ctx context.Context) (string, error) {
 	var version string
 	err := row.Scan(&version)
 	return version, err
+}
+
+const DeleteCartItem = `-- name: DeleteCartItem :exec
+delete from cart where bid = $1 and iid = $2 and vid = $3
+`
+
+type DeleteCartItemParams struct {
+	Bid pgtype.UUID `json:"bid"`
+	Iid pgtype.UUID `json:"iid"`
+	Vid pgtype.UUID `json:"vid"`
+}
+
+func (q *Queries) DeleteCartItem(ctx context.Context, arg DeleteCartItemParams) error {
+	_, err := q.db.Exec(ctx, DeleteCartItem, arg.Bid, arg.Iid, arg.Vid)
+	return err
 }
 
 const DeleteItem = `-- name: DeleteItem :exec
@@ -164,6 +209,72 @@ func (q *Queries) GetBuyerById(ctx context.Context, uid pgtype.UUID) (GetBuyerBy
 		&i.Passhash,
 	)
 	return i, err
+}
+
+const GetCartItem = `-- name: GetCartItem :one
+select bid, iid, vid from cart
+where bid = $1 and iid = $2 and vid = $3
+`
+
+type GetCartItemParams struct {
+	Bid pgtype.UUID `json:"bid"`
+	Iid pgtype.UUID `json:"iid"`
+	Vid pgtype.UUID `json:"vid"`
+}
+
+type GetCartItemRow struct {
+	Bid pgtype.UUID `json:"bid"`
+	Iid pgtype.UUID `json:"iid"`
+	Vid pgtype.UUID `json:"vid"`
+}
+
+func (q *Queries) GetCartItem(ctx context.Context, arg GetCartItemParams) (GetCartItemRow, error) {
+	row := q.db.QueryRow(ctx, GetCartItem, arg.Bid, arg.Iid, arg.Vid)
+	var i GetCartItemRow
+	err := row.Scan(&i.Bid, &i.Iid, &i.Vid)
+	return i, err
+}
+
+const GetCartItemsForBuyer = `-- name: GetCartItemsForBuyer :many
+select vendor.name, item.name, item.cost, cart.quantity, cart.added_time from cart
+left join vendor on vendor.uid = cart.vid
+left join item on item.iid = cart.iid
+where cart.bid = $1
+order by added_time desc
+`
+
+type GetCartItemsForBuyerRow struct {
+	Name      *string          `json:"name"`
+	Name_2    *string          `json:"name_2"`
+	Cost      pgtype.Numeric   `json:"cost"`
+	Quantity  int32            `json:"quantity"`
+	AddedTime pgtype.Timestamp `json:"added_time"`
+}
+
+func (q *Queries) GetCartItemsForBuyer(ctx context.Context, bid pgtype.UUID) ([]GetCartItemsForBuyerRow, error) {
+	rows, err := q.db.Query(ctx, GetCartItemsForBuyer, bid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetCartItemsForBuyerRow{}
+	for rows.Next() {
+		var i GetCartItemsForBuyerRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.Name_2,
+			&i.Cost,
+			&i.Quantity,
+			&i.AddedTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const GetItemById = `-- name: GetItemById :one
@@ -549,6 +660,28 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
 		arg.Quantity,
 		arg.Iid,
 		arg.Vid,
+	)
+	return err
+}
+
+const UpdateQuantityOfCartItem = `-- name: UpdateQuantityOfCartItem :exec
+update cart set quantity = $4
+where bid = $1 and iid = $2 and vid = $3
+`
+
+type UpdateQuantityOfCartItemParams struct {
+	Bid      pgtype.UUID `json:"bid"`
+	Iid      pgtype.UUID `json:"iid"`
+	Vid      pgtype.UUID `json:"vid"`
+	Quantity int32       `json:"quantity"`
+}
+
+func (q *Queries) UpdateQuantityOfCartItem(ctx context.Context, arg UpdateQuantityOfCartItemParams) error {
+	_, err := q.db.Exec(ctx, UpdateQuantityOfCartItem,
+		arg.Bid,
+		arg.Iid,
+		arg.Vid,
+		arg.Quantity,
 	)
 	return err
 }
