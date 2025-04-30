@@ -64,7 +64,6 @@ const UserProfilePage = () => {
 		}
 
 		const user = getLocalStorage("user") as unknown as User;
-		const token = user.token;
 		const userType = user.user_type;
 
 		const updatedProfile: any = {
@@ -89,7 +88,7 @@ const UserProfilePage = () => {
 		}
 
 		try {
-			const response = await fetch.put<ResponseMsg>(
+			await fetch.put<ResponseMsg>(
 				"auth/user/update",
 				updatedProfile,
 			);
