@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/internal/utils"
 	"backend/middleware"
+	"backend/routes/buyers/cart"
 	"backend/routes/buyers/payment"
 	"context"
 	"net/http"
@@ -21,4 +22,5 @@ func BuyerRoutes(ctx context.Context, pool db.Pool, rg *gin.Engine) {
 	})
 
 	payment.PaymentRoutes(ctx, pool, buyer)
+	cart.CartRoutes(ctx, pool, buyer)
 }

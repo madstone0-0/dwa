@@ -21,6 +21,7 @@ func CartRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 		if err != nil {
 			return
 		}
+
 		sr := cart.AddToCart(ctx, pool, body)
 		utils.SendSR(c, sr)
 	})

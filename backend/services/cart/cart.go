@@ -6,26 +6,23 @@ import (
 	"backend/internal/utils"
 	"backend/repository"
 	"context"
-	"database/sql"
 	"errors"
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func IsItemInCart(q *repository.Queries, ctx context.Context, args repository.GetCartItemParams) (error, bool) {
-	_, _err := q.GetCartItem(ctx, args)
+func IsItemInCart(q *repository.Queries, ctx context.Context, args repository.GetCartItemParams) (bool, error) {
+	_, err := q.GetCartItem(ctx, args)
 
-	if _err == sql.ErrNoRows {
-		logging.Debugf("The cart item does not exist")
-		return nil, false
-	} else if _err != nil {
-
-		return _err, false
-	} else {
-		//there was no error and a cart item was found
-		return errors.New("cart already in item"), true
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return false, nil
+		}
+		return false, err
 	}
+	return true, nil
 }
 
 func AddToCart(ctx context.Context, pool db.Pool, addToCartObj repository.AddToCartParams) utils.ServiceReturn[any] {
@@ -35,17 +32,20 @@ func AddToCart(ctx context.Context, pool db.Pool, addToCartObj repository.AddToC
 		Bid: addToCartObj.Bid, Iid: addToCartObj.Iid, Vid: addToCartObj.Vid,
 	}
 
-	_err, itemInCart := IsItemInCart(q, ctx, getCartItemArgs)
+	itemInCart, err := IsItemInCart(q, ctx, getCartItemArgs)
+	logging.Infof("Item in cart: %v", itemInCart)
 
-	if _err != nil && !itemInCart {
+	if err != nil {
 		logging.Errorf("There was an error in checking whether the item is already in the cart")
-		return utils.MakeError(_err, http.StatusInternalServerError)
-	} else if _err != nil && itemInCart {
-		logging.Errorf("Item already in cart")
-		return utils.MakeError(_err, http.StatusBadRequest)
+		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	err := q.AddToCart(ctx, addToCartObj)
+	if itemInCart {
+		logging.Errorf("Item already in cart")
+		return utils.MakeError(errors.New("item already in cart"), http.StatusBadRequest)
+	}
+
+	err = q.AddToCart(ctx, addToCartObj)
 
 	if err != nil {
 		logging.Errorf("There was an error adding to cart")
@@ -63,21 +63,20 @@ func AddToCart(ctx context.Context, pool db.Pool, addToCartObj repository.AddToC
 func RemoveFromCart(ctx context.Context, pool db.Pool, args repository.DeleteCartItemParams) utils.ServiceReturn[any] {
 	q := repository.New(pool)
 
-	getCartItemArgs := repository.GetCartItemParams{
-		Bid: args.Bid, Iid: args.Iid, Vid: args.Vid,
-	}
-	_err, itemInCart := IsItemInCart(q, ctx, getCartItemArgs)
+	getCartItemArgs := repository.GetCartItemParams(args)
 
-	if _err != nil && !itemInCart {
+	itemInCart, err := IsItemInCart(q, ctx, getCartItemArgs)
+
+	if err != nil {
 		logging.Errorf("There was an error in checking whether the item is already in the cart")
-		return utils.MakeError(_err, http.StatusInternalServerError)
+		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	if _err == nil {
+	if !itemInCart {
 		return utils.MakeError(errors.New("item is not in cart"), http.StatusBadRequest)
 	}
 
-	err := q.DeleteCartItem(ctx, args)
+	err = q.DeleteCartItem(ctx, args)
 	if err != nil {
 		logging.Errorf("There was an error deleting the cart item")
 		return utils.MakeError(err, http.StatusInternalServerError)
@@ -97,18 +96,19 @@ func UpdateCartItemQuantity(ctx context.Context, pool db.Pool, args repository.U
 	getCartItemArgs := repository.GetCartItemParams{
 		Bid: args.Bid, Iid: args.Iid, Vid: args.Vid,
 	}
-	_err, itemInCart := IsItemInCart(q, ctx, getCartItemArgs)
 
-	if _err != nil && !itemInCart {
+	itemInCart, err := IsItemInCart(q, ctx, getCartItemArgs)
+
+	if err != nil {
 		logging.Errorf("There was an error in checking whether the item is already in the cart")
-		return utils.MakeError(_err, http.StatusInternalServerError)
+		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
-	if _err == nil {
+	if !itemInCart {
 		return utils.MakeError(errors.New("item is not in cart"), http.StatusBadRequest)
 	}
 
-	err := q.UpdateQuantityOfCartItem(ctx, args)
+	err = q.UpdateQuantityOfCartItem(ctx, args)
 	if err != nil {
 		logging.Errorf("There was an error updateing quantity of cart item")
 		return utils.MakeError(err, http.StatusInternalServerError)
