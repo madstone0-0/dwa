@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_UG93XhDHrN
+createdAt: 2025-04-30T22:12:11.052041531
+updatedAt: 2025-04-30T22:14:02.005125348
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_uNL8nk7dZ2
+authentication:
+  token: ${[ TOKEN_BUYER ]}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get Cart
+sortPriority: 3000.0
+url: ${[ HOST ]}/buyer/cart/:bid
+urlParameters:
+- enabled: true
+  name: :bid
+  value: ${[ response.body.path(request='rq_6PN6gXLqrL', path='$.data.uid', behavior='smart') ]}
+  id: eTwgWBWMe7
+- enabled: true
+  name: ''
+  value: ''
+  id: Q38UX6R2Bf

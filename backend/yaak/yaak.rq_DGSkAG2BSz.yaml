@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_DGSkAG2BSz
+createdAt: 2025-04-30T22:13:04.002370859
+updatedAt: 2025-04-30T22:37:58.967008284
+workspaceId: wk_QjekB5v0Ow
+folderId: fl_uNL8nk7dZ2
+authentication:
+  token: ${[ TOKEN_BUYER ]}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: Clear Cart
+sortPriority: 4000.0
+url: ${[ HOST ]}/buyer/cart/:bId/clear
+urlParameters:
+- enabled: true
+  name: :bId
+  value: ${[ response.body.path(request='rq_6PN6gXLqrL', path='$.data.uid', behavior='smart') ]}
+  id: kavb30Vq3T
+- enabled: true
+  name: ''
+  value: ''
+  id: cbzpfKFVSa
