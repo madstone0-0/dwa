@@ -51,29 +51,20 @@ function LandingPage() {
 	);
 
 	const addToCart = (item: Item) => {
-		// Check if item is already in cart
 		const existingItem = cartItems.find((i) => i.iid === item.iid);
 
 		if (existingItem) {
-			// // Increase quantity if item already exists
-			// setCartItems(
-			// 	cartItems.map((item) =>
-			// 		item.id === iid ? { ...item, quantity: item.quantity + 1 } : item,
-			// 	),
-			// );
+			// Logic for increasing quantity can be added here later
 		} else {
-			// Add new item to cart
 			setCartItems([...cartItems, item]);
 		}
 	};
 
 	const goToCheckout = () => {
-		// We have to save cart state to context/localStorage (TODO)
 		navigate("/checkout-payment");
 	};
 
 	const getTotalItems = () => {
-		// return cartItems.reduce((total, item) => total + item.quantity, 0);
 		return 3;
 	};
 
@@ -83,32 +74,30 @@ function LandingPage() {
 
 		const allItems = [
 			...Object.values(CATEGORIES),
-			...[
-				{
-					id: 1,
-					name: "Essential Item 1",
-					price: 12.99,
-					image: "/images/repurchase-1.jpg",
-				},
-				{
-					id: 2,
-					name: "Essential Item 2",
-					price: 12.99,
-					image: "/images/repurchase-2.jpg",
-				},
-				{
-					id: 3,
-					name: "Essential Item 3",
-					price: 12.99,
-					image: "/images/repurchase-3.jpg",
-				},
-				{
-					id: 4,
-					name: "Essential Item 4",
-					price: 12.99,
-					image: "/images/repurchase-4.jpg",
-				},
-			],
+			...[{
+				id: 1,
+				name: "Essential Item 1",
+				price: 12.99,
+				image: "/images/repurchase-1.jpg",
+			},
+			{
+				id: 2,
+				name: "Essential Item 2",
+				price: 12.99,
+				image: "/images/repurchase-2.jpg",
+			},
+			{
+				id: 3,
+				name: "Essential Item 3",
+				price: 12.99,
+				image: "/images/repurchase-3.jpg",
+			},
+			{
+				id: 4,
+				name: "Essential Item 4",
+				price: 12.99,
+				image: "/images/repurchase-4.jpg",
+			}],
 			...["Hair Styling", "Tutoring", "Graphic Design"],
 		];
 
@@ -205,9 +194,6 @@ function LandingPage() {
 							/>
 							<button
 								className="absolute right-2 p-2 text-gray-600 hover:text-yellow-500"
-								onClick={() => {
-									/* Add search submission logic here */
-								}}
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -274,11 +260,9 @@ function LandingPage() {
 				<div className="grid grid-cols-1 gap-4 py-6 px-8 w-full md:grid-cols-4">
 					{items.map((item) => (
 						<ItemCard
+							key={item.iid}
 							item={item}
 							addToCart={addToCart}
-							onClick={(item: Item) => {
-								navigate(`item/${item.iid}`);
-							}}
 						/>
 					))}
 				</div>
@@ -341,9 +325,9 @@ function LandingPage() {
 type ItemCardProps = {
 	item: Item;
 	addToCart: (item: Item) => void;
-	onClick: (item: Item) => void;
 };
-const ItemCard = ({ item, addToCart, onClick }: ItemCardProps) => {
+
+const ItemCard = ({ item, addToCart }: ItemCardProps) => {
 	const { iid, pictureurl: pictureUrl, name, cost } = item;
 	return (
 		<div
@@ -355,22 +339,16 @@ const ItemCard = ({ item, addToCart, onClick }: ItemCardProps) => {
 				alt={name}
 				className="object-contain mb-4 w-full h-48"
 			/>
-			<h3 className="font-bold">{item.name}</h3>
+			<h3 className="font-bold">{name}</h3>
 			<p className="text-sm text-gray-600">GH₵{cost}</p>
 
-			{/* Buttons container */}
-			<div className="flex gap-2 mt-2">
+			{/* Only Add to Cart button */}
+			<div className="flex mt-2">
 				<button
 					className="py-1 px-3 w-full text-sm text-black bg-yellow-400 rounded hover:bg-yellow-500"
 					onClick={() => addToCart(item)}
 				>
 					Add to Cart
-				</button>
-				<button
-					className="py-1 px-3 w-full text-sm text-black bg-gray-200 rounded hover:bg-gray-300"
-					onClick={() => onClick(item)} // We would add the id of the item to know we are looking for
-				>
-					View Item
 				</button>
 			</div>
 		</div>

@@ -10,7 +10,6 @@ import Signin from "./pages/signin";
 import LandingPage from "./pages/landing";
 import VendorDashboard from "./pages/VendorDashboard";
 import CheckoutPayment from "./pages/CheckoutPayment";
-import ItemPage from "./pages/ItemPage";
 import OrdersPage from "./pages/OrdersPage";
 import SalesAndEarningsPage from "./pages/SalesAndEarningsPage";
 import InventoryManagementPage from "./pages/InventoryManagementPage";
@@ -48,7 +47,6 @@ const AppContent = () => {
 					<Route path="/signin" element={<Signin />} />
 					<Route path="/vendor-dashboard" element={<VendorDashboard />} />
 					<Route path="/checkout-payment" element={<CheckoutPayment />} />
-					<Route path="/item" element={<ItemPage />} />
 					<Route path="/orders" element={<OrdersPage />} />
 					<Route
 						path="/sales-and-earnings"
