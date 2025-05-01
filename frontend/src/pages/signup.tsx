@@ -48,17 +48,6 @@ function Signup() {
 				  });
 			  
 				  console.log("Signup response:", response.data);
-			  
-				  // Save user data to localStorage
-				  const userData = response.data;
-			  
-				  // Save bid or vid based on user type
-				  if (isVendor) {
-					localStorage.setItem("vid", userData.uid); // Save Vendor ID
-				  } else {
-					localStorage.setItem("bid", userData.uid); // Save Buyer ID
-				  }
-			  
 				  navigate("/signin");
 		} catch (err: any) {
 		  console.error("Signup error:", err);

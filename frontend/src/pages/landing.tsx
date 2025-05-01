@@ -15,7 +15,7 @@ function LandingPage() {
     localStorage.removeItem("user");
     localStorage.removeItem("userType"); // Ensure consistency with signin.tsx
     localStorage.removeItem("token");
-    localStorage.removeItem("cart"); // Add this line
+    localStorage.removeItem("cart");
     navigate("/signin");
   };
   
