@@ -4,6 +4,7 @@ import (
 	"backend/internal/logging"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"net/http"
 	"os"
 	"strings"
@@ -201,4 +202,65 @@ func FillPlaceholders(sql string, args []any) string {
 		sql = strings.Replace(sql, placeholderText, fmt.Sprintf("%v", args[i]), 1)
 	}
 	return sql
+}
+
+func NumericEqual(a, b pgtype.Numeric) bool {
+	// Check if both are valid or both are invalid
+	if a.Valid != b.Valid {
+		return false
+	}
+
+	// If both are invalid, they're considered equal
+	if !a.Valid {
+		return true
+	}
+
+	// Check if both are NaN
+	if a.NaN && b.NaN {
+		return true
+	}
+
+	// Check if one is NaN but the other isn't
+	if a.NaN != b.NaN {
+		return false
+	}
+
+	// Check InfinityModifier
+	if a.InfinityModifier != b.InfinityModifier {
+		return false
+	}
+
+	// If both are infinity of the same sign, they're equal
+	if a.InfinityModifier == pgtype.Infinity {
+		return true
+	}
+
+	// Check if the values are numerically equal
+	// This needs to account for different representations of the same number
+	// (e.g., 1.23 can be represented as 123 with Exp -2)
+
+	// If both Int and Exp are the same, they're equal
+	if a.Int.Cmp(b.Int) == 0 && a.Exp == b.Exp {
+		return true
+	}
+
+	// Normalize both numbers to the same exponent and compare
+	aExp := a.Exp
+	bExp := b.Exp
+	aInt := new(big.Int).Set(a.Int)
+	bInt := new(big.Int).Set(b.Int)
+
+	// Adjust the numbers to have the same exponent
+	if aExp < bExp {
+		// Scale bInt down
+		scale := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(bExp-aExp)), nil)
+		bInt.Mul(bInt, scale)
+	} else if bExp < aExp {
+		// Scale aInt down
+		scale := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(aExp-bExp)), nil)
+		aInt.Mul(aInt, scale)
+	}
+
+	// Compare the adjusted integers
+	return aInt.Cmp(bInt) == 0
 }

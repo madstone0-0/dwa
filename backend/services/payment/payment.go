@@ -30,7 +30,7 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 		return utils.MakeError(err, http.StatusBadRequest)
 	}
 
-	if item.Cost.Int.Cmp(transactionObj.Amt.Int) != 0 {
+	if !utils.NumericEqual(item.Cost, transactionObj.Amt) {
 		logging.Errorf("There is an amount mismatch")
 		err = errors.New("mismatch in amount")
 		return utils.MakeError(err, http.StatusBadRequest)

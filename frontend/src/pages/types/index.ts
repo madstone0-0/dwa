@@ -102,3 +102,11 @@ export type ItemWithVendorInfo = Item & {
     vendor_logo: string;
     vendor_email: string;
 };
+
+export type Icon = React.FC<React.SVGProps<SVGSVGElement>>;
+
+export type HeaderItem = {
+    name: string;
+    link: string;
+    icon?: Icon;
+};

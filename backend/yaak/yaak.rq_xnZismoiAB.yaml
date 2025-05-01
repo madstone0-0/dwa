@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_xnZismoiAB
 createdAt: 2025-04-21T14:01:59.831493141
-updatedAt: 2025-04-28T13:57:17.942727084
+updatedAt: 2025-05-01T19:09:03.347208569
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_ztwBvkZbSS
 authentication:
@@ -13,12 +13,12 @@ body:
     {
       "iid": "${[ response.body.path(request='rq_HEBZhecixL', path='$.data.iid', behavior='smart') ]}",
       "vid": "${[ response.body.path(request='rq_WLnTYj13pP', path='$.data.uid', behavior='smart') ]}",
-      "name": "Schrödinger's cat",
+      "name": "Schrödinger's cat 10",
       "pictureurl": "https://www.wikiwand.com/en/articles/Schr%C3%B6dinger's_cat#/media/File:Schrodingers_cat.svg",
       "description": "Probably dead",
       "category": "ELECTRONICS",
       "quantity": 10,
-      "cost": 140.99
+      "cost": 140.00
     }
 bodyType: application/json
 description: ''

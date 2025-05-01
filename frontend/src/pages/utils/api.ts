@@ -1,5 +1,5 @@
 import { setLocalStorage } from ".";
-import { CartItem, Item, LoginData, ResponseMsg, SignupResponse, Transaction } from "../types";
+import { CartItem, Item, ItemWithVendorInfo, LoginData, ResponseMsg, SignupResponse, Transaction } from "../types";
 import { fetch } from "./Fetch";
 import { User } from "pages/types";
 
@@ -27,6 +27,15 @@ export const getAllItems = async () => {
         const res = await fetch.get<{ items: Item[] }>("items/all");
         const data = res;
         return data.items;
+    } catch (e) {
+        throw e;
+    }
+};
+
+export const getItem = async (iid: string) => {
+    try {
+        const res = await fetch.get<ItemWithVendorInfo>(`items/${iid}`);
+        return res;
     } catch (e) {
         throw e;
     }
