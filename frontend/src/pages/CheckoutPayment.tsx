@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetch } from "./utils/Fetch";
-import { useLogout } from "./utils/hooks";
+import { useCart, useLogout } from "./utils/hooks";
 import useStore from "./store";
 import { CartItem } from "./types";
 import placeholder from "../assets/dwa-icon.jpg";
+import { getBuyerCart } from "./utils/api";
 
 // Define types for component props
 interface CartItemRowProps {
@@ -172,23 +173,14 @@ interface ResponseBody {
 const CheckoutPayment: React.FC = () => {
     const navigate = useNavigate();
     const handleLogout = useLogout();
-    const user = useStore((state) => state.user as User);
+    const user = useStore((state) => state.user);
     const cart = useStore((state) => state.cart as CartItem[]);
     const setCart = useStore((state) => state.setCart as (items: CartItem[]) => void);
 
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
-    // Check authentication status
-    useEffect(() => {
-        const isLoggedIn = Boolean(localStorage.getItem("user"));
-        const userType = localStorage.getItem("userType");
-
-        if (!isLoggedIn || userType !== "buyer") {
-            navigate("/signin");
-        }
-    }, [navigate]);
+    const { removeFromCart, clearCart, refreshCart } = useCart(setIsLoading);
 
     // Calculate totals
     const subtotal = cart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
@@ -198,54 +190,8 @@ const CheckoutPayment: React.FC = () => {
 
     // Fetch cart items
     useEffect(() => {
-        const fetchCartItems = async (): Promise<void> => {
-            if (!user?.uid) return;
-
-            setIsLoading(true);
-            try {
-                const cartResponse = await fetch.get<{ items: CartItem[] }>(`/buyer/cart/${user.uid}`);
-                setCart(cartResponse.items);
-                setError(null);
-            } catch (error) {
-                console.error("Error fetching cart items:", error);
-                setError("Failed to load your cart. Please try again.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchCartItems();
-    }, [user?.uid, setCart]);
-
-    // Event handlers with useCallback to prevent unnecessary re-renders
-    const handleDeleteItem = useCallback(
-        async (itemId: string, vendorId: string): Promise<void> => {
-            try {
-                await fetch.post<ResponseBody>(`/buyer/cart/remove`, {
-                    body: JSON.stringify({
-                        bid: user.uid,
-                        vid: vendorId,
-                        iid: itemId,
-                    }),
-                });
-
-                setCart((prevCart) => prevCart.filter((item) => item.iid !== itemId));
-            } catch (error) {
-                console.error("Error deleting item:", error);
-                setError("Failed to delete item. Please try again.");
-            }
-        },
-        [user?.uid, setCart],
-    );
-
-    const handleClearCart = useCallback(async (): Promise<void> => {
-        try {
-            await fetch.post<ResponseBody>(`/buyer/cart/${user.uid}/clear`);
-            setCart([]);
-            setError(null);
-        } catch (error) {
-            console.error("Error clearing cart:", error);
-            setError("Failed to clear cart. Please try again.");
+        if (user) {
+            refreshCart(user.uid).catch((e) => console.error({ e }));
         }
     }, [user?.uid, setCart]);
 
@@ -270,14 +216,14 @@ const CheckoutPayment: React.FC = () => {
             );
 
             await Promise.all(paymentPromises);
-            await handleClearCart();
+            await clearCart();
         } catch (error) {
             console.error("Error placing order:", error);
             setError("Failed to place your order. Please try again.");
         } finally {
             setIsProcessing(false);
         }
-    }, [cart, user?.uid, navigate, handleClearCart]);
+    }, [cart, user?.uid, navigate, clearCart]);
 
     const navigateToProfile = useCallback((): void => {
         navigate("/user-profile");
@@ -317,12 +263,12 @@ const CheckoutPayment: React.FC = () => {
                                         <CartItemRow
                                             key={`${item.iid}-${item.vid}`}
                                             item={item}
-                                            onDelete={() => handleDeleteItem(item.iid, item.vid)}
+                                            onDelete={() => removeFromCart(item)}
                                         />
                                     ))}
 
                                     <button
-                                        onClick={handleClearCart}
+                                        onClick={clearCart}
                                         className="py-2 mt-4 w-full text-white bg-red-500 rounded-lg hover:bg-red-600"
                                     >
                                         Clear Cart
