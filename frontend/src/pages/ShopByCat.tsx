@@ -1,16 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { FC, memo, useMemo, useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getAllItems } from "./utils/api.js";
 import { Item } from "./types";
 import useStore from "./store";
+import { HeaderItem } from "./types";
 import { useCart, useLogout } from "./utils/hooks.js";
 
-// Enum for categories matching the backend schema
+// Enum for categories
 const CATEGORY = {
   FASHION: "FASHION",
   ELECTRONICS: "ELECTRONICS",
   SERVICES: "SERVICES",
-  BOOKS_SUPPLIES: "BOOKS_SUPPLIES"
+  BOOKS_SUPPLIES: "BOOKS_SUPPLIES",
+};
+
+// Enum for sort options
+const SORT_OPTIONS = {
+  PRICE_LOW_TO_HIGH: "PRICE_LOW_TO_HIGH",
+  PRICE_HIGH_TO_LOW: "PRICE_HIGH_TO_LOW",
+  VENDOR_A_TO_Z: "VENDOR_A_TO_Z",
+  VENDOR_Z_TO_A: "VENDOR_Z_TO_A",
 };
 
 function ShopByCat() {
@@ -18,6 +27,12 @@ function ShopByCat() {
   const [items, setItems] = useState<Item[]>([]);
   const [categories, setCategories] = useState<Record<string, Item[]>>({});
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.PRICE_LOW_TO_HIGH);
+  const [vendorFilter, setVendorFilter] = useState<string>("all");
+  const [vendors, setVendors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const handleLogout = useLogout();
   const { addToCart } = useCart();
   const user = useStore((state) => state.user);
@@ -29,11 +44,16 @@ function ShopByCat() {
       return;
     }
 
-    // Fetch items from backend
-    getAllItems()
-      .then((items) => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const items = await getAllItems();
         setItems(items);
         
+        // Extract unique vendors
+        const uniqueVendors = Array.from(new Set(items.map(item => item.vendorName || item.vid)));
+        setVendors(uniqueVendors);
+
         // Group items by category
         const groupedItems = items.reduce((acc: Record<string, Item[]>, item) => {
           if (!acc[item.category]) {
@@ -49,9 +69,16 @@ function ShopByCat() {
         if (Object.keys(groupedItems).length > 0 && !selectedCategory) {
           setSelectedCategory(Object.keys(groupedItems)[0]);
         }
-      })
-      .catch((e) => console.error({ e }));
-  }, []);
+      } catch (err) {
+        console.error("Error fetching items:", err);
+        setError("Failed to load items. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user, navigate, selectedCategory]);
 
   const getTotalItems = () => {
     try {
@@ -67,12 +94,10 @@ function ShopByCat() {
   };
 
   const goToCheckout = () => {
-    // 1. Grab buyer ID from your auth store/localStorage
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const bid = user.uid;
 
     try {
-      // 2. Map down to the minimal payload your backend needs
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       if (!Array.isArray(cart)) {
         console.error("Cart is not an array");
@@ -86,14 +111,12 @@ function ShopByCat() {
         quantity: ci.quantity,
       }));
 
-      // 3. Navigate and pass payload (or send via context/POST)
       navigate("/checkout-payment", { state: { cartPayload: payload } });
     } catch (err) {
       console.error("Error preparing checkout payload:", err);
     }
   };
 
-  // Get a user-friendly category name
   const getCategoryDisplayName = (category: string) => {
     switch (category) {
       case CATEGORY.FASHION:
@@ -109,66 +132,35 @@ function ShopByCat() {
     }
   };
 
+  const getSortedItems = (items: Item[]) => {
+    if (!items) return [];
+    
+    let sortedItems = [...items];
+    
+    // Apply vendor filter first
+    if (vendorFilter !== "all") {
+      sortedItems = sortedItems.filter(item => item.vid === vendorFilter || item.vendorName === vendorFilter);
+    }
+    
+    // Then apply sort
+    switch (sortOption) {
+      case SORT_OPTIONS.PRICE_LOW_TO_HIGH:
+        return sortedItems.sort((a, b) => a.cost - b.cost);
+      case SORT_OPTIONS.PRICE_HIGH_TO_LOW:
+        return sortedItems.sort((a, b) => b.cost - a.cost);
+      case SORT_OPTIONS.VENDOR_A_TO_Z:
+        return sortedItems.sort((a, b) => (a.vendorName || "").localeCompare(b.vendorName || ""));
+      case SORT_OPTIONS.VENDOR_Z_TO_A:
+        return sortedItems.sort((a, b) => (b.vendorName || "").localeCompare(a.vendorName || ""));
+      default:
+        return sortedItems;
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* Header */}
-      <header className="flex justify-between py-4 px-8 shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
-        <h1 
-          className="text-2xl font-bold text-white cursor-pointer" 
-          onClick={() => navigate("/")}
-        >
-          Ashesi DWA
-        </h1>
-
-        <div className="flex gap-4 items-center">
-          {/* Shopping Cart Icon */}
-          <button
-            onClick={goToCheckout}
-            className="flex relative items-center text-white transition-colors hover:text-yellow-400"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            {getTotalItems() > 0 && (
-              <span className="flex absolute -top-2 -right-2 justify-center items-center w-5 h-5 text-xs font-bold text-black bg-yellow-400 rounded-full">
-                {getTotalItems()}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7"
-              />
-            </svg>
-            <span className="mt-1 text-xs">Logout</span>
-          </button>
-        </div>
-      </header>
-
+      {/* Header would be imported here in a real app */}
+      
       <div className="flex flex-col flex-grow items-center py-10">
         {/* Page Title */}
         <div className="flex flex-col items-center py-8 px-6 w-full text-center bg-yellow-100">
@@ -196,15 +188,68 @@ function ShopByCat() {
           </div>
         </div>
 
+        {/* Filter and Sort Controls */}
+        <div className="flex flex-wrap justify-center gap-4 mt-6 w-full max-w-6xl px-4">
+          <div className="flex items-center space-x-2">
+            <label htmlFor="sort" className="text-sm font-medium text-gray-700">
+              Sort by:
+            </label>
+            <select
+              id="sort"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="py-1 px-2 border border-gray-300 rounded-md text-sm"
+            >
+              <option value={SORT_OPTIONS.PRICE_LOW_TO_HIGH}>Price: Low to High</option>
+              <option value={SORT_OPTIONS.PRICE_HIGH_TO_LOW}>Price: High to Low</option>
+              <option value={SORT_OPTIONS.VENDOR_A_TO_Z}>Vendor: A to Z</option>
+              <option value={SORT_OPTIONS.VENDOR_Z_TO_A}>Vendor: Z to A</option>
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <label htmlFor="vendor" className="text-sm font-medium text-gray-700">
+              Filter by vendor:
+            </label>
+            <select
+              id="vendor"
+              value={vendorFilter}
+              onChange={(e) => setVendorFilter(e.target.value)}
+              className="py-1 px-2 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="all">All Vendors</option>
+              {vendors.map((vendor) => (
+                <option key={vendor} value={vendor}>
+                  {vendor}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* Items Grid */}
         <div className="mt-8 px-8 w-full max-w-6xl">
           <h3 className="mb-6 text-2xl font-bold">
             {selectedCategory ? getCategoryDisplayName(selectedCategory) : "All Products"}
           </h3>
           
-          {selectedCategory && categories[selectedCategory]?.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-wine"></div>
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center">
+              <p className="text-lg text-red-500">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-4 py-2 bg-wine text-white rounded hover:bg-wine-dark"
+              >
+                Retry
+              </button>
+            </div>
+          ) : selectedCategory && categories[selectedCategory]?.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {categories[selectedCategory].map((item) => (
+              {getSortedItems(categories[selectedCategory]).map((item) => (
                 <ItemCard key={item.iid} item={item} addToCart={addToCart} />
               ))}
             </div>
@@ -246,21 +291,6 @@ function ShopByCat() {
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <footer
-        className="py-5 mt-8 w-full text-xs text-center text-white border-t border-gray-300 bg-wine"
-        style={{ backgroundColor: "#722F37" }}
-      >
-        <p className="mb-1">
-          <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp;
-          | &nbsp;
-          <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; |
-          &nbsp;
-          <span className="text-yellow-400 cursor-pointer hover:underline">Help</span>
-        </p>
-        <p>&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights reserved.</p>
-      </footer>
     </div>
   );
 }
@@ -272,13 +302,21 @@ type ItemCardProps = {
 
 const ItemCard = ({ item, addToCart }: ItemCardProps) => {
   const navigate = useNavigate();
-  const { iid, pictureurl: pictureUrl, name, cost } = item;
+  const { iid, pictureurl: pictureUrl, name, cost, vendorName } = item;
   
   return (
     <div key={iid} className="p-4 bg-white rounded-lg border border-gray-200 transition-shadow hover:shadow-lg">
-      <img src={pictureUrl} alt={name} className="object-contain mb-4 w-full h-48" />
+      <img 
+        src={pictureUrl} 
+        alt={name} 
+        className="object-contain mb-4 w-full h-48"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+        }}
+      />
       <h3 className="font-bold">{name}</h3>
-      <p className="text-sm text-gray-600">GH₵{cost}</p>
+      <p className="text-sm text-gray-600">GH₵{cost.toFixed(2)}</p>
+      {vendorName && <p className="text-xs text-gray-500 mt-1">Sold by: {vendorName}</p>}
 
       {/* Add to Cart and View Item buttons */}
       <div className="flex gap-2 mt-2">
