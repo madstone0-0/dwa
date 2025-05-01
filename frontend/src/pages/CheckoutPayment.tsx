@@ -1,297 +1,352 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetch } from "./utils/Fetch"; 
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetch } from "./utils/Fetch";
+import { useLogout } from "./utils/hooks";
+import useStore from "./store";
+import { CartItem } from "./types";
+import placeholder from "../assets/dwa-icon.jpg";
 
-interface CartItem {
-  iid: number;
-  name: string;
-  cost: number;
-  quantity: number;
-  pictureUrl: string;
-  vid: string;
-  category: string;
+// Define types for component props
+interface CartItemRowProps {
+    item: CartItem;
+    onDelete: () => void;
 }
 
-function CheckoutPayment() {
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("user_type");
-    localStorage.removeItem("token");
-    navigate("/signin");
-  };
+interface HeaderProps {
+    onNavigateToProfile: () => void;
+    onLogout: () => void;
+}
 
-  useEffect(() => {
-    const isLoggedIn = Boolean(localStorage.getItem("user")); 
-    const userType = localStorage.getItem("userType");
+interface PriceBreakdownProps {
+    subtotal: number;
+    deliveryFee: number;
+    tax: number;
+    total: number;
+    onPlaceOrder: () => Promise<void>;
+    isProcessing: boolean;
+}
 
-    if (!isLoggedIn && userType !== "buyer") {    
-      navigate('/signin'); 
-    }
-  }, [navigate]);
+// Component extraction for better organization
+const CartItemRow: React.FC<CartItemRowProps> = ({ item, onDelete }) => (
+    <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center">
+            <img
+                src={item.pictureurl}
+                onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = placeholder;
+                }}
+                alt={item.name}
+                className="object-cover mr-4 w-12 h-12 rounded-md"
+            />
+            <div>
+                <p className="font-semibold">{item.name}</p>
+                <p className="text-sm text-gray-600">Seller: {item.vendor_name}</p>
+            </div>
+        </div>
+        <div className="text-sm text-gray-600">
+            {item.quantity} x ${item.cost.toFixed(2)}
+        </div>
+        <button onClick={onDelete} className="text-red-500 hover:text-red-700">
+            Delete
+        </button>
+    </div>
+);
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
+const Header: React.FC<HeaderProps> = ({ onNavigateToProfile, onLogout }) => (
+    <header className="py-4 shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
+        <div className="container flex justify-between items-center px-4 mx-auto">
+            <div className="flex items-center space-x-3">
+                <a href="/landing">
+                    <img
+                        src="/src/assets/dwa-icon.jpg"
+                        alt="DWA Logo"
+                        className="object-cover w-10 h-10 rounded-full"
+                    />
+                </a>
+                <h1 className="text-2xl font-bold text-white">Ashesi DWA - Checkout</h1>
+            </div>
 
-  useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem("user") || "{}");
-        const token = userData.token?.trim().replace(/\s/g, "");
-        const bid = userData.uid; 
+            <div className="flex items-center space-x-4">
+                <button
+                    onClick={onNavigateToProfile}
+                    className="text-white transition-colors hover:text-yellow-400"
+                    aria-label="User Profile"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-6 h-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                    </svg>
+                </button>
+                <button
+                    onClick={onLogout}
+                    className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+                    aria-label="Logout"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-6 h-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7"
+                        />
+                    </svg>
+                    <span className="mt-1 text-xs">Logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+);
 
-        // Fetch cart items from the backend using the bid
-        const cartResponse = await fetch.get(`/buyer/cart/${bid}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        setCartItems(cartResponse.data || []);
-        
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
+    subtotal,
+    deliveryFee,
+    tax,
+    total,
+    onPlaceOrder,
+    isProcessing,
+}) => (
+    <div className="p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-xl font-bold" style={{ color: "#722F37" }}>
+            Price Breakdown
+        </h3>
+        <div className="mt-4">
+            <div className="flex justify-between">
+                <p className="text-sm text-gray-600">Subtotal</p>
+                <p className="text-sm">${subtotal.toFixed(2)}</p>
+            </div>
+            <div className="flex justify-between">
+                <p className="text-sm text-gray-600">Delivery Fee</p>
+                <p className="text-sm">${deliveryFee.toFixed(2)}</p>
+            </div>
+            <div className="flex justify-between">
+                <p className="text-sm text-gray-600">Tax (5%)</p>
+                <p className="text-sm">${tax.toFixed(2)}</p>
+            </div>
+            <div className="flex justify-between mt-4 font-bold">
+                <p>Total</p>
+                <p>${total.toFixed(2)}</p>
+            </div>
+        </div>
 
-    fetchCartItems();
-  }, []);
+        <button
+            onClick={onPlaceOrder}
+            className="py-3 mt-6 w-full font-semibold text-white bg-yellow-400 rounded-lg hover:bg-yellow-500 disabled:bg-gray-400"
+            disabled={isProcessing}
+        >
+            {isProcessing ? "Processing..." : "Place Order"}
+        </button>
+    </div>
+);
 
-  // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.cost * item.quantity), 0);
-  const deliveryFee = 5.00;
-  const tax = subtotal * 0.05; // 5% tax
-  const total = subtotal + deliveryFee + tax;
+// Adding missing types that might not be available in the imported files
+interface User {
+    uid: string;
+    email: string;
+    name?: string;
+    userType: string;
+}
 
-  const handleDeleteItem = async (itemId: number, vendorId: string) => {
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const token = userData.token?.trim().replace(/\s/g, "");
-    const bid = userData.uid;
+interface ResponseBody {
+    status: number;
+    message?: string;
+    data?: any;
+}
 
-    try {
-      const response = await fetch.post(`/buyer/cart/remove`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bid,
-          vid: vendorId,
-          iid: itemId,
-        }),
-      });
+const CheckoutPayment: React.FC = () => {
+    const navigate = useNavigate();
+    const handleLogout = useLogout();
+    const user = useStore((state) => state.user as User);
+    const cart = useStore((state) => state.cart as CartItem[]);
+    const setCart = useStore((state) => state.setCart as (items: CartItem[]) => void);
 
-      if (response.ok) {
-        setCartItems(prevItems => prevItems.filter(item => item.iid !== itemId));
-      } else {
-        alert('Failed to delete item. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
-  };
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const handleClearCart = async () => {
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const token = userData.token?.trim().replace(/\s/g, "");
-    const bid = userData.uid;
+    // Check authentication status
+    useEffect(() => {
+        const isLoggedIn = Boolean(localStorage.getItem("user"));
+        const userType = localStorage.getItem("userType");
 
-    try {
-      const response = await fetch.post(`/buyer/cart/${bid}/clear`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      console.log("Clear cart response:", response);
+        if (!isLoggedIn || userType !== "buyer") {
+            navigate("/signin");
+        }
+    }, [navigate]);
 
-      if (response.ok) {
-        setCartItems([]); 
-      } else {
-        alert('Failed to clear cart. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error clearing cart:', error);
-    }
-  };
+    // Calculate totals
+    const subtotal = cart.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+    const deliveryFee = 5.0;
+    const tax = subtotal * 0.05; // 5% tax
+    const total = subtotal + deliveryFee + tax;
 
-  const handlePlaceOrder = async () => {
-    setIsProcessing(true);
+    // Fetch cart items
+    useEffect(() => {
+        const fetchCartItems = async (): Promise<void> => {
+            if (!user?.uid) return;
 
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const token = userData.token?.trim().replace(/\s/g, "");
-
-    try {
-      for (const item of cartItems) {
-        const paymentBody = {
-          bid: userData.uid,        
-          vid: item.vid,          
-          iid: item.iid,   
-          amt: item.cost,
-          qty_bought: item.quantity,
+            setIsLoading(true);
+            try {
+                const cartResponse = await fetch.get<{ items: CartItem[] }>(`/buyer/cart/${user.uid}`);
+                setCart(cartResponse.items);
+                setError(null);
+            } catch (error) {
+                console.error("Error fetching cart items:", error);
+                setError("Failed to load your cart. Please try again.");
+            } finally {
+                setIsLoading(false);
+            }
         };
 
-        const response = await fetch.post('buyer/pay/initialize', {
-          body: JSON.stringify(paymentBody),
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        fetchCartItems();
+    }, [user?.uid, setCart]);
 
-        if (!response.ok) {
-          throw new Error(`Payment failed for item ${item.name}`);
+    // Event handlers with useCallback to prevent unnecessary re-renders
+    const handleDeleteItem = useCallback(
+        async (itemId: string, vendorId: string): Promise<void> => {
+            try {
+                await fetch.post<ResponseBody>(`/buyer/cart/remove`, {
+                    body: JSON.stringify({
+                        bid: user.uid,
+                        vid: vendorId,
+                        iid: itemId,
+                    }),
+                });
+
+                setCart((prevCart) => prevCart.filter((item) => item.iid !== itemId));
+            } catch (error) {
+                console.error("Error deleting item:", error);
+                setError("Failed to delete item. Please try again.");
+            }
+        },
+        [user?.uid, setCart],
+    );
+
+    const handleClearCart = useCallback(async (): Promise<void> => {
+        try {
+            await fetch.post<ResponseBody>(`/buyer/cart/${user.uid}/clear`);
+            setCart([]);
+            setError(null);
+        } catch (error) {
+            console.error("Error clearing cart:", error);
+            setError("Failed to clear cart. Please try again.");
         }
-      }
+    }, [user?.uid, setCart]);
 
-      setIsProcessing(false);
-      handleClearCart(); 
-      // localStorage.removeItem('cart'); 
-      navigate('/checkout-payment');
-    } catch (error) {
-      console.error('Error placing order:', error);
-      setIsProcessing(false);
-      alert('Failed to place your order. Please try again.');
+    const handlePlaceOrder = useCallback(async (): Promise<void> => {
+        if (cart.length === 0) {
+            setError("Your cart is empty. Add items before placing an order.");
+            return;
+        }
+
+        setIsProcessing(true);
+        setError(null);
+
+        try {
+            const paymentPromises = cart.map((item) =>
+                fetch.post<ResponseBody>("buyer/pay/initialize", {
+                    bid: user.uid,
+                    vid: item.vid,
+                    iid: item.iid,
+                    amt: item.cost,
+                    qty_bought: item.quantity,
+                }),
+            );
+
+            await Promise.all(paymentPromises);
+            await handleClearCart();
+        } catch (error) {
+            console.error("Error placing order:", error);
+            setError("Failed to place your order. Please try again.");
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [cart, user?.uid, navigate, handleClearCart]);
+
+    const navigateToProfile = useCallback((): void => {
+        navigate("/user-profile");
+    }, [navigate]);
+
+    if (isLoading && cart.length === 0) {
+        return (
+            <div className="flex flex-col min-h-screen bg-gray-100">
+                <Header onNavigateToProfile={navigateToProfile} onLogout={handleLogout} />
+                <div className="container flex flex-grow justify-center items-center">
+                    <p className="text-xl">Loading your cart...</p>
+                </div>
+            </div>
+        );
     }
-  };
 
-  return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          {/* Logo and Brand Name */}
-          <div className="flex items-center space-x-3">
-            <a href="/landing">
-              <img 
-                src="/src/assets/dwa-icon.jpg" 
-                alt="DWA Logo" 
-                className="h-10 w-10 object-cover rounded-full"
-              />
-            </a>
-            <h1 className="text-white text-2xl font-bold">Ashesi DWA - Checkout</h1>
-          </div>
+    return (
+        <div className="flex flex-col min-h-screen bg-gray-100">
+            <Header onNavigateToProfile={navigateToProfile} onLogout={handleLogout} />
 
-          {/* Profile Icon */}
-          <button 
-            onClick={() => navigate('/user-profile')}
-            className="text-white hover:text-yellow-400 transition-colors"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-6 w-6" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
-              />
-            </svg>
-          </button>
-          {/* Logout Icon */}
-          <button
-            onClick={handleLogout}
-            className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7"
-              />
-            </svg>
-            <span className="mt-1 text-xs">Logout</span>
-          </button>
-        </div>
-      </header>
+            <main className="container flex-grow py-8 px-4 mx-auto">
+                {error && <div className="p-4 mb-6 text-red-700 bg-red-100 rounded-lg">{error}</div>}
 
-      <main className="flex-grow container mx-auto py-8 px-4">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Left Column - Order Details */}
-          <div className="md:w-2/3">
-            {/* Order Summary Section */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold text-wine mb-4" style={{ color: '#722F37' }}>My Cart</h3>
-              {cartItems.map(item => (
-                <div key={item.iid} className="flex justify-between items-center mb-4">
-                  <div className="flex items-center">
-                    <img 
-                      src={item.pictureUrl} 
-                      alt={item.name} 
-                      className="h-12 w-12 object-cover rounded-md mr-4"
-                    />
-                    <div>
-                      <p className="font-semibold">{item.name}</p>
-                      <p className="text-sm text-gray-600">Seller: {item.vid}</p>
+                <div className="flex flex-col gap-8 md:flex-row">
+                    {/* Left Column - Order Details */}
+                    <div className="md:w-2/3">
+                        <div className="p-6 bg-white rounded-lg shadow-md">
+                            <h3 className="mb-4 text-xl font-bold" style={{ color: "#722F37" }}>
+                                My Cart {cart.length > 0 ? `(${cart.length} items)` : ""}
+                            </h3>
+
+                            {cart.length === 0 ? (
+                                <p className="py-8 text-center text-gray-500">Your cart is empty.</p>
+                            ) : (
+                                <>
+                                    {cart.map((item) => (
+                                        <CartItemRow
+                                            key={`${item.iid}-${item.vid}`}
+                                            item={item}
+                                            onDelete={() => handleDeleteItem(item.iid, item.vid)}
+                                        />
+                                    ))}
+
+                                    <button
+                                        onClick={handleClearCart}
+                                        className="py-2 mt-4 w-full text-white bg-red-500 rounded-lg hover:bg-red-600"
+                                    >
+                                        Clear Cart
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {item.quantity} x ${item.cost}
-                  </div>
-                  <button 
-                    onClick={() => handleDeleteItem(item.iid, item.vid)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-              {/* Clear Cart Button */}
-              <button
-                onClick={handleClearCart}
-                className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                Clear Cart
-              </button>
-            </div>
-          </div>
 
-          {/* Right Column - Price Breakdown */}
-          <div className="md:w-1/3">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold text-wine" style={{ color: '#722F37' }}>Price Breakdown</h3>
-              <div className="mt-4">
-                <div className="flex justify-between">
-                  <p className="text-sm text-gray-600">Subtotal</p>
-                  <p className="text-sm">${subtotal.toFixed(2)}</p>
+                    {/* Right Column - Price Breakdown */}
+                    <div className="md:w-1/3">
+                        <PriceBreakdown
+                            subtotal={subtotal}
+                            deliveryFee={deliveryFee}
+                            tax={tax}
+                            total={total}
+                            onPlaceOrder={handlePlaceOrder}
+                            isProcessing={isProcessing}
+                        />
+                    </div>
                 </div>
-                <div className="flex justify-between">
-                  <p className="text-sm text-gray-600">Delivery Fee</p>
-                  <p className="text-sm">${deliveryFee.toFixed(2)}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-sm text-gray-600">Tax (5%)</p>
-                  <p className="text-sm">${tax.toFixed(2)}</p>
-                </div>
-                <div className="flex justify-between font-bold mt-4">
-                  <p>Total</p>
-                  <p>${total.toFixed(2)}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={handlePlaceOrder}
-                className="w-full mt-6 py-3 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500 disabled:bg-gray-400"
-                disabled={isProcessing}
-              >
-                {isProcessing ? 'Processing...' : 'Place Order'}
-              </button>
-            </div>
-          </div>
+            </main>
         </div>
-      </main>
-    </div>
-  );
-}
+    );
+};
 
 export default CheckoutPayment;
