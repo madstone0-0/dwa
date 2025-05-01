@@ -1,8 +1,11 @@
+-- The database schema for Ashesi Dwa
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 
+-- The table for the users of the system
+-- This table is used to store the users of the system. The uid is a unique identifier for each user.
 create table if not exists "user" (
     uid uuid default gen_random_uuid() primary key,
     email varchar(255) unique not null,
@@ -14,6 +17,8 @@ create table if not exists "user" (
     
 );
 
+-- The table for the vendors of the system
+-- This table is used to store the vendors of the system. The uid is a foreign key that references the user table.
 create table if not exists vendor (
     uid uuid default gen_random_uuid() primary key,
     name varchar(255) unique not null,
@@ -23,6 +28,8 @@ create table if not exists vendor (
         cascade
 );
 
+-- The table for accounts
+-- This table is used to store the accounts of the vendors. The uid is a foreign key that references the vendor table.
 create type ACC_TYPE as enum('MOMO', 'BANK');
 create table if not exists accounts (
     uid uuid default gen_random_uuid() primary key,
@@ -32,7 +39,8 @@ create table if not exists accounts (
     constraint fk_vendor_account foreign key (uid) references vendor(uid) on delete cascade
 );
 
-
+-- The table for the buyers of the system
+-- This table is used to store the buyers of the system. The uid is a foreign key that references the user table.
 create table if not exists buyer (
     uid uuid default gen_random_uuid() primary key,
     name varchar(255) unique not null,
@@ -41,6 +49,8 @@ create table if not exists buyer (
         cascade
 );
 
+-- The table for the category of items
+-- This table is used to store the categories of items. The uid is a foreign key that references the user table.
 create type CATEGORY as enum('FASHION', 'ELECTRONICS', 'SERVICES', 'BOOKS_SUPPLIES');
 create table if not exists item (
     iid uuid default gen_random_uuid() primary key,
@@ -56,6 +66,8 @@ create table if not exists item (
         cascade
 );
 
+-- The table for the transactions of the system
+-- This table is used to store the transactions of the system. The uid is a foreign key that references the user table.
 create table if not exists transaction (
     tid uuid default gen_random_uuid() primary key,
     bid uuid default gen_random_uuid() not null,
@@ -75,6 +87,8 @@ create table if not exists transaction (
             cascade
 );
 
+-- The table for the cart of the system
+-- This table is used to store the items in the cart of the buyer. The uid is a foreign key that references the user table.
 create table if not exists cart (
     bid uuid default gen_random_uuid() not null, 
     iid uuid default gen_random_uuid() not null,
