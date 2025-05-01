@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_fKFAoVtiXd
 createdAt: 2025-04-30T22:09:42.897759786
-updatedAt: 2025-04-30T22:52:20.698092263
+updatedAt: 2025-05-01T12:49:07.078041857
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_uNL8nk7dZ2
 authentication:
@@ -27,7 +27,7 @@ headers:
 method: POST
 name: Add To Cart
 sortPriority: 1000.0
-url: ${[ HOST ]}/buyer/cart
+url: ${[ HOST ]}/buyer/cart/add
 urlParameters:
 - enabled: true
   name: ''

@@ -64,6 +64,30 @@ func All(ctx context.Context, pool db.Pool) utils.ServiceReturn[any] {
 	}
 }
 
+func ByIid(ctx context.Context, pool db.Pool, iid pgtype.UUID) utils.ServiceReturn[any] {
+	exists, err := doesItemExistById(ctx, pool, iid)
+
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	if !exists {
+		return utils.MakeError(errors.New("item does not exist"), http.StatusNotFound)
+	}
+
+	q := repository.New(pool)
+	item, err := q.GetItemById(ctx, iid)
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	return utils.ServiceReturn[any]{
+		Status: http.StatusOK,
+		Data:   item,
+	}
+
+}
+
 func ByVid(ctx context.Context, pool db.Pool, vid pgtype.UUID) utils.ServiceReturn[any] {
 	exists, err := doesVendorExistById(ctx, pool, vid)
 

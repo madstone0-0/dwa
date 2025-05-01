@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_nGMMMZEVir
 createdAt: 2025-04-30T22:11:41.456190494
-updatedAt: 2025-04-30T22:53:16.324119695
+updatedAt: 2025-05-01T12:49:13.052955521
 workspaceId: wk_QjekB5v0Ow
 folderId: fl_uNL8nk7dZ2
 authentication:
@@ -27,7 +27,7 @@ headers:
 method: PUT
 name: Update Cart
 sortPriority: 2000.0
-url: ${[ HOST ]}/buyer/cart
+url: ${[ HOST ]}/buyer/cart/update
 urlParameters:
 - enabled: true
   name: :bid

@@ -194,114 +194,82 @@ func Login(ctx context.Context, pool db.Pool, user LoginUser) utils.ServiceRetur
 	}
 
 	exists, err := doesUserExistByEmail(ctx, pool, user.Email)
-
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
-
 	if !exists {
 		return utils.MakeError(errors.New("user does not exist"), http.StatusBadRequest)
 	}
 
 	q := repository.New(pool)
-
 	isBuyer, err := IsUserBuyer(ctx, pool, user.Email)
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
+	userType := "vendor"
 	if isBuyer {
-		logging.Infof("User is buyer")
-	} else {
-		logging.Infof("User is vendor")
+		userType = "buyer"
 	}
+	logging.Infof("User is %s", userType)
 
+	var uid pgtype.UUID
+	var name, passhash string
+
+	// Get user info based on type
 	if isBuyer {
 		info, err := q.GetBuyerByEmail(ctx, user.Email)
 		if err != nil {
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
-
-		if !Hasher.Compare(user.Password, info.Passhash) {
-			return utils.ServiceReturn[any]{
-				Status: http.StatusUnauthorized,
-				Data: utils.JMap{
-					"err": "Incorrect password",
-				},
-			}
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email":    user.Email,
-			"userType": "buyer",
-			"exp":      time.Now().Add(TTL).Unix(),
-		})
-
-		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
-		if err != nil {
-			return utils.MakeError(err, http.StatusInternalServerError)
-		}
-
-		infoWToken := InfoWToken{
-			UserInfo: UserInfo{
-				Uid:      info.Uid,
-				Email:    info.Email,
-				Name:     info.Name,
-				Passhash: info.Passhash,
-				UserType: "buyer",
-			},
-			Token: tokenString,
-		}
-
-		return utils.ServiceReturn[any]{
-			Status: http.StatusOK,
-			Data:   infoWToken,
-		}
-
+		uid, name, passhash = info.Uid, info.Name, info.Passhash
 	} else {
 		info, err := q.GetVendorByEmail(ctx, user.Email)
 		if err != nil {
 			return utils.MakeError(err, http.StatusInternalServerError)
 		}
-
-		if !Hasher.Compare(user.Password, info.Passhash) {
-			return utils.ServiceReturn[any]{
-				Status: http.StatusUnauthorized,
-				Data: utils.JMap{
-					"err": "Incorrect password",
-				},
-			}
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email":    user.Email,
-			"userType": "vendor",
-			"exp":      time.Now().Add(TTL).Unix(),
-		})
-
-		tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
-		if err != nil {
-			return utils.MakeError(err, http.StatusInternalServerError)
-		}
-
-		infoWToken := InfoWToken{
-			UserInfo: UserInfo(UserInfo{
-				Uid:      info.Uid,
-				Email:    info.Email,
-				Name:     info.Name,
-				Passhash: info.Passhash,
-				UserType: "vendor",
-			}),
-			Token: tokenString,
-		}
-
-		return utils.ServiceReturn[any]{
-			Status: http.StatusOK,
-			Data:   infoWToken,
-		}
-
+		uid, name, passhash = info.Uid, info.Name, info.Passhash
 	}
 
+	// Verify password
+	if !Hasher.Compare(user.Password, passhash) {
+		return utils.ServiceReturn[any]{
+			Status: http.StatusUnauthorized,
+			Data: utils.JMap{
+				"err": "Incorrect password",
+			},
+		}
+	}
+
+	// Generate JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"uid":      uid,
+		"email":    user.Email,
+		"userType": userType,
+		"exp":      time.Now().Add(TTL).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(Enver.Env("SECRET")))
+	if err != nil {
+		return utils.MakeError(err, http.StatusInternalServerError)
+	}
+
+	// Prepare response
+	infoWToken := InfoWToken{
+		UserInfo: UserInfo{
+			Uid:      uid,
+			Email:    user.Email,
+			Name:     name,
+			Passhash: passhash,
+			UserType: userType,
+		},
+		Token: tokenString,
+	}
+
+	return utils.ServiceReturn[any]{
+		Status: http.StatusOK,
+		Data:   infoWToken,
+	}
 }
 
 type UserTypes struct {

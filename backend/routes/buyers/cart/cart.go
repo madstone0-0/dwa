@@ -3,6 +3,7 @@ package cart
 import (
 	"backend/db"
 	"backend/internal/utils"
+	"backend/middleware"
 	"backend/repository"
 	"backend/services/cart"
 	"context"
@@ -14,7 +15,7 @@ import (
 func CartRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 	cartRoute := rg.Group("/cart")
 
-	cartRoute.POST("/", func(c *gin.Context) {
+	cartRoute.POST("/add", func(c *gin.Context) {
 		var body repository.AddToCartParams
 		err := utils.ParseBody(c, &body)
 
@@ -26,8 +27,7 @@ func CartRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 		utils.SendSR(c, sr)
 	})
 
-	cartRoute.POST("/:bId/clear", func(c *gin.Context) {
-		//need a middleware that stops people from clearing others carts
+	cartRoute.POST("/:bId/clear", middleware.CartAuthMiddleware(), func(c *gin.Context) {
 		bId := c.Param("bId")
 		bIdUUID, err := utils.ParseUUID(bId)
 
@@ -40,7 +40,7 @@ func CartRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 		utils.SendSR(c, sr)
 	})
 
-	cartRoute.GET("/:bId", func(c *gin.Context) {
+	cartRoute.GET("/:bId", middleware.CartAuthMiddleware(), func(c *gin.Context) {
 		bId := c.Param("bId")
 		bIdUUID, err := utils.ParseUUID(bId)
 
@@ -65,7 +65,7 @@ func CartRoutes(ctx context.Context, pool db.Pool, rg *gin.RouterGroup) {
 
 	})
 
-	cartRoute.PUT(".", func(c *gin.Context) {
+	cartRoute.PUT("/update", func(c *gin.Context) {
 		var body repository.UpdateQuantityOfCartItemParams
 		err := utils.ParseBody(c, &body)
 
