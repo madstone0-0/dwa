@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import ManageOrdersPage from "./pages/ManageOrdersPage";
 import ManageProductsPage from "./pages/ManageProductPage";
+import ItemPage from "./pages/ItemPage";
 
 import "./App.css";
 import { useEffect } from "react";
@@ -64,6 +65,9 @@ const AppContent = () => {
 						path="/admin-manage-products"
 						element={<ManageProductsPage />}
 					/>
+					<Route path="/item" element={<ItemPage />} />
+					{/* Add more routes as needed */}
+					{/* Fallback route for 404 Not Found */}
 					{/* Add more routes as needed */}
 					{/* Fallback route for 404 Not Found */}
 					{/* Add more routes as needed */}
