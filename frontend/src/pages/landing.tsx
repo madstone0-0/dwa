@@ -5,14 +5,16 @@ import { Item, USER_TYPE } from "./types";
 import useStore from "./store";
 import { useAuthErrorHandler, useCart, useLogout } from "./utils/hooks.js";
 
+// This interface is used to define the props for the SectionHeader component. It includes the title, link text, and an optional onLinkClick function.
 interface SectionHeaderProps {
     title: string;
     linkText: string;
 	onLinkClick?: () => void | Promise<void>;
 }
 
-
+// This component is the landing page for buyers. It displays a welcome message, a search bar, and a list of frequently repurchased items.
 function LandingPage() {
+    // The constants and hooks are defined here.
     const navigate = useNavigate();
 
     const [items, setItems] = useState<Item[]>([]);
@@ -61,12 +63,12 @@ function LandingPage() {
     };
 
     const goToCheckout = () => {
-        // 1. Grab buyer ID from your auth store/localStorage
+        //  Grab buyer ID from your auth store/localStorage
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const bid = user.uid;
 
         try {
-            // 2. Map down to the minimal payload 
+            //  Map down to the minimal payload 
             const cart = JSON.parse(localStorage.getItem("cart") || "[]");
             if (!Array.isArray(cart)) {
                 console.error("Cart is not an array");
@@ -80,7 +82,7 @@ function LandingPage() {
                 quantity: ci.quantity,
             }));
 
-            // 3. Navigate and pass payload (or send via context/POST)
+            //  Navigate and pass payload (or send via context/POST)
             navigate("/checkout-payment", { state: { cartPayload: payload } });
         } catch (err) {
             console.error("Error preparing checkout payload:", err);
@@ -204,11 +206,13 @@ function LandingPage() {
     );
 }
 
+// This component represents an individual item card in the frequently repurchased section. It displays the item's image, name, cost, and buttons to add to cart or view the item.
 type ItemCardProps = {
     item: Item;
     addToCart: (item: Item) => void;
 };
 
+// This constant defines the ItemCard component. It takes in an item and an addToCart function as props.
 const ItemCard = ({ item, addToCart }: ItemCardProps) => {
     const navigate = useNavigate();
     const { iid, pictureurl: pictureUrl, name, cost } = item;

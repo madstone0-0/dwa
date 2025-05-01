@@ -6,6 +6,7 @@ import { CATEGORIES, Item, ItemWithVendorInfo } from "./types";
 import { LoadingSpinner, withLoading, WithLoadingProps } from "./withLoading";
 import { getItem } from "./utils/api";
 
+// This component displays the details of a specific item, including its image, name, cost, description, and availability.
 const ItemPage: FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
     const navigate = useNavigate();
     const { iid } = useParams<{ iid: string }>();

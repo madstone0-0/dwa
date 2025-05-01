@@ -12,6 +12,7 @@ interface CartItemRowProps {
     onDelete: () => void;
 }
 
+// Define types for price breakdown props
 interface PriceBreakdownProps {
     subtotal: number;
     deliveryFee: number;
@@ -48,6 +49,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onDelete }) => (
     </div>
 );
 
+// Price breakdown component
 const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
     subtotal,
     deliveryFee,
@@ -89,12 +91,14 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
     </div>
 );
 
+// Define the response body type for the fetch request
 interface ResponseBody {
     status: number;
     message?: string;
     data?: any;
 }
 
+// Main component for checkout payment
 const CheckoutPayment: React.FC = () => {
     const navigate = useNavigate();
     const user = useStore((state) => state.user);

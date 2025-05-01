@@ -7,7 +7,7 @@ import { HeaderItem } from "./types";
 import Header from "./Header";
 import UserProfilePage from "./UserProfilePage";
 
-
+// This component is the main entry point for the buyer dashboard. It sets up the header and routes for the buyer pages.
 const Buyer = () => {
     const headerItems: HeaderItem[] = [
         {
@@ -36,7 +36,7 @@ const Buyer = () => {
             ),
         },
     ];
-
+    // This hook is used to handle authentication errors. It will redirect the user to the login page if they are not authenticated.
     return (
         <>
             <Header homeLink="/buyer" items={headerItems} />
