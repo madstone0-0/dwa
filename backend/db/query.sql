@@ -174,11 +174,25 @@ where iid = $1
 and vid = $2;
 
 -- name: GetCartItemsForBuyer :many
-select vendor.name, item.name, item.cost, cart.quantity, cart.added_time from cart
-left join vendor on vendor.uid = cart.vid
-left join item on item.iid = cart.iid
-where cart.bid = $1
-order by added_time desc;
+select
+    vendor.name as vendor_name,
+    item.name,
+    item.cost,
+    item.pictureurl,
+    cart.quantity,
+    cart.added_time,
+    item.iid,
+    item.vid 
+from
+    cart
+left join vendor on
+    vendor.uid = cart.vid
+left join item on
+    item.iid = cart.iid
+where
+    cart.bid = $1
+order by
+    added_time desc;
 
 -- name: AddToCart :exec
 insert into cart (bid, iid, vid, quantity) values($1, $2, $3, $4);

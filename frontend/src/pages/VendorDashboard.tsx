@@ -4,6 +4,7 @@ import { fetch } from "./utils/Fetch";
 import { AxiosError } from "axios";
 import { CATEGORIES, NewItem } from "./types";
 import placeholder from "../assets/dwa-icon.jpg";
+import { useLogout } from "./utils/hooks";
 
 const VendorDashboard: React.FC = () => {
 	const navigate = useNavigate();
@@ -17,12 +18,7 @@ const VendorDashboard: React.FC = () => {
 	});
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [formError, setFormError] = useState<string | null>(null);
-	const handleLogout = () => {
-		localStorage.removeItem("user");
-		localStorage.removeItem("user_type");
-		localStorage.removeItem("token");
-		navigate("/signin");
-	  };
+	const handleLogout = useLogout();
 	  
 	const isUserLoggedIn = Boolean(localStorage.getItem("user"));
 	// Get the user type from localStorage

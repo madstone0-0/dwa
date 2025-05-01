@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetch } from "./utils/Fetch";
 import { getLocalStorage, setLocalStorage } from "./utils";
 import { ResponseMsg, User } from "./types";
+import { useLogout } from "./utils/hooks";
 
 const userType = localStorage.getItem("user_type");
 let dashboardLink = "/landing";
@@ -15,12 +16,7 @@ if (userType === "vendor") {
 const UserProfilePage = () => {
 	const navigate = useNavigate();
 
-	const handleLogout = () => {
-		localStorage.removeItem("user");
-		localStorage.removeItem("user_type");
-		localStorage.removeItem("token");
-		navigate("/signin");
-	};
+	const handleLogout = useLogout();
 
 	const isUserLoggedIn = Boolean(localStorage.getItem("user"));
 
