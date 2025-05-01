@@ -66,7 +66,7 @@ function LandingPage() {
         const bid = user.uid;
 
         try {
-            // 2. Map down to the minimal payload your backend needs
+            // 2. Map down to the minimal payload 
             const cart = JSON.parse(localStorage.getItem("cart") || "[]");
             if (!Array.isArray(cart)) {
                 console.error("Cart is not an array");
@@ -166,7 +166,7 @@ function LandingPage() {
                 </div>
 
                 {/* Frequently Repurchased */}
-                <SectionHeader title="Frequently Repurchased" linkText="Shop By Category" onLinkClick={() => navigate('/shop-by-category')} />
+                <SectionHeader title="Frequently Repurchased" linkText="EXPLORE" onLinkClick={() => navigate('/shop-by-category')} />
                 <div className="grid grid-cols-1 gap-4 py-6 px-8 w-full md:grid-cols-4">
                     {items.map((item) => (
                         <ItemCard key={item.iid} item={item} addToCart={addToCart} />
