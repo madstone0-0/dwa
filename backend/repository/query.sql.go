@@ -297,6 +297,62 @@ func (q *Queries) GetItemById(ctx context.Context, iid pgtype.UUID) (Item, error
 	return i, err
 }
 
+const GetItemByIdWithVendorInfo = `-- name: GetItemByIdWithVendorInfo :one
+select
+    iid,
+    vid,
+    i."name" as name,
+    pictureurl,
+    description,
+    "category",
+    quantity,
+    cost,
+    v."name" as vendor_name,
+    v.logo as vendor_logo,
+    u.email as vendor_email
+from
+    item i
+join vendor v on
+    v.uid = i.vid
+join "user" u on
+    u.uid = v.uid
+where
+    iid = $1
+`
+
+type GetItemByIdWithVendorInfoRow struct {
+	Iid         pgtype.UUID    `json:"iid"`
+	Vid         pgtype.UUID    `json:"vid"`
+	Name        string         `json:"name"`
+	Pictureurl  *string        `json:"pictureurl"`
+	Description *string        `json:"description"`
+	Category    Category       `json:"category"`
+	Quantity    int32          `json:"quantity"`
+	Cost        pgtype.Numeric `json:"cost"`
+	VendorName  string         `json:"vendor_name"`
+	VendorLogo  *string        `json:"vendor_logo"`
+	VendorEmail string         `json:"vendor_email"`
+}
+
+func (q *Queries) GetItemByIdWithVendorInfo(ctx context.Context, iid pgtype.UUID) (GetItemByIdWithVendorInfoRow, error) {
+	row := q.db.QueryRow(ctx, GetItemByIdWithVendorInfo, iid)
+	var i GetItemByIdWithVendorInfoRow
+	err := row.Scan(
+		&i.Iid,
+		&i.Vid,
+		&i.Name,
+		&i.Pictureurl,
+		&i.Description,
+		&i.Category,
+		&i.Quantity,
+		&i.Cost,
+		&i.VendorName,
+		&i.VendorLogo,
+		&i.VendorEmail,
+	)
+	return i, err
+}
+
 const GetItemByName = `-- name: GetItemByName :one
 select iid, vid, name, pictureurl, description, category, quantity, cost from item where name like $1
 `
