@@ -38,27 +38,34 @@ function Signup() {
 
 		setIsLoading(true);
 
-		try {
-			const response = await fetch.post("/auth/user/signup", {
-				email: email.trim(),
-				password: password,
-				name: name.trim(),
-				isVendor: isVendor,
-			});
-
-			console.log("Signup successful:", response.data);
-			navigate("/signin");
+		  
+			try {
+				const response = await fetch.post("/auth/user/signup", {
+					email: email.trim(),
+					password: password,
+					name: name.trim(),
+					isVendor: isVendor,
+				  });
+			  
+				  console.log("Signup response:", response.data);
+			  
+				  // Save user data to localStorage
+				  const userData = response.data;
+			  
+				  // Save bid or vid based on user type
+				  if (isVendor) {
+					localStorage.setItem("vid", userData.uid); // Save Vendor ID
+				  } else {
+					localStorage.setItem("bid", userData.uid); // Save Buyer ID
+				  }
+			  
+				  navigate("/signin");
 		} catch (err: any) {
-			console.error("Detailed error:", {
-				error: err,
-				response: err.response,
-				data: err.response?.data,
-				status: err.response?.status,
-			});
+		  console.error("Signup error:", err);
+		  // Check specifically for mail server errors
+		  const errorData = err.response?.data?.data || err.response?.data;
 
-			// Check specifically for mail server errors
-			const errorData = err.response?.data?.data || err.response?.data;
-			const errorMessage =
+		  const errorMessage =
 				errorData?.err || err.response?.data?.error || err.message;
 
 			if (
