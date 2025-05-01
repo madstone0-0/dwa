@@ -55,7 +55,7 @@ func AddToCart(ctx context.Context, pool db.Pool, addToCartObj repository.AddToC
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
 		Data: utils.JMap{
-			"message": "Item added to cart!",
+			"msg": "Item added to cart!",
 		},
 	}
 }
@@ -85,7 +85,7 @@ func RemoveFromCart(ctx context.Context, pool db.Pool, args repository.DeleteCar
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
 		Data: utils.JMap{
-			"message": "item removed from cart",
+			"msg": "item removed from cart",
 		},
 	}
 }
@@ -117,7 +117,7 @@ func UpdateCartItemQuantity(ctx context.Context, pool db.Pool, args repository.U
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
 		Data: utils.JMap{
-			"message": "item quantity updated",
+			"msg": "item quantity updated",
 		},
 	}
 }
@@ -151,7 +151,7 @@ func ClearCart(ctx context.Context, pool db.Pool, bid pgtype.UUID) utils.Service
 	return utils.ServiceReturn[any]{
 		Status: http.StatusOK,
 		Data: utils.JMap{
-			"message": "Cart cleared",
+			"msg": "Cart cleared",
 		},
 	}
 }
