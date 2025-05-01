@@ -2,194 +2,136 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetch } from "./utils/Fetch"; 
 
-interface PaymentMethod {
-  id: string;
-  type: string;
-  lastFour?: string;
-  expiryDate?: string;
-}
-
 interface CartItem {
-  id: string;
-  iid: string;
+  iid: number;
   name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  seller: string;
-  vid: string;
   cost: number;
+  quantity: number;
+  pictureUrl: string;
+  vid: string;
+  category: string;
 }
 
 function CheckoutPayment() {
   const navigate = useNavigate();
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Payment methods
-  const [selectedPayment, setSelectedPayment] = useState<string>("");
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    {
-      id: "momo1",
-      type: "Mobile Money",
-      lastFour: "4321",
-      expiryDate: "N/A"
-    },
-    {
-      id: "bank1",
-      type: "Bank Account",
-      lastFour: "5678",
-      expiryDate: "06/26"
-    }
-  ]);
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("user_type");
+    localStorage.removeItem("token");
+    navigate("/signin");
+  };
 
-  // Authentication check
   useEffect(() => {
     const isLoggedIn = Boolean(localStorage.getItem("user")); 
     const userType = localStorage.getItem("userType");
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    
-    if (!userData.token) {
-      navigate('/signin');
-      return;
-    }
-    
-    if (!isLoggedIn || userType !== "buyer") {    
+
+    if (!isLoggedIn && userType !== "buyer") {    
       navigate('/signin'); 
     }
   }, [navigate]);
-  
-  // Fetch cart items from API
+
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   useEffect(() => {
     const fetchCartItems = async () => {
-      setIsLoading(true);
-      setError(null);
-      
       try {
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
-        const bid = userData.uid;
-        if (!bid) {
-          throw new Error("Buyer ID not found. Please log in again.");
-        }
-        
-        
-        const token = userData.token;
-        
-        if (!token) {
-          throw new Error("Authentication token not found. Please log in again.");
-        }
-        
-        // Fetch cart from API
-        const response = await fetch.get(`buyer/cart/${bid}`, {
+        const token = userData.token?.trim().replace(/\s/g, "");
+        const bid = userData.uid; 
+
+        // Fetch cart items from the backend using the bid
+        const cartResponse = await fetch.get(`/buyer/cart/${bid}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          }
+          },
         });
+        setCartItems(cartResponse.data || []);
         
-        if (!response.ok) {
-          throw new Error("Failed to fetch cart items.");
-        }
-        
-        const data = await response.json();
-        
-        // Map API response to our CartItem interface
-        const mappedItems = data.map((item: any) => ({
-          id: item.iid,
-          iid: item.iid,
-          vid: item.vid,
-          name: item.name || "Product",
-          price: item.cost || 0,
-          cost: item.cost || 0,
-          quantity: item.quantity || 1,
-          image: item.pictureurl || '',
-          seller: item.vid || 'Unknown Seller',
-        }));
-        
-        setCartItems(mappedItems);
-      } catch (error: any) {
-        console.error("Error fetching cart:", error);
-        setError(error.message || "Failed to load cart items");
-        
-        // Fallback to localStorage if API fails
-        const cartStr = localStorage.getItem("cart");
-        if (cartStr) {
-          try {
-            const cart = JSON.parse(cartStr);
-            const mappedItems = cart.map((item: any) => ({
-              id: item.iid,
-              iid: item.iid,
-              vid: item.vid,
-              name: item.name || "Product",
-              price: item.cost || 0,
-              cost: item.cost || 0,
-              quantity: item.quantity || 1,
-              image: item.pictureurl || '',
-              seller: item.vid || 'Unknown Seller',
-            }));
-            setCartItems(mappedItems);
-          } catch (e) {
-            console.error("Error parsing localStorage cart:", e);
-          }
-        }
-      } finally {
-        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
-    
+
     fetchCartItems();
   }, []);
-  
+
   // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => {
-    const price = item.price || 0;
-    const quantity = item.quantity || 0;
-    return sum + (price * quantity);
-  }, 0);
-  
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.cost * item.quantity), 0);
   const deliveryFee = 5.00;
-  const tax = subtotal * 0.05;
+  const tax = subtotal * 0.05; // 5% tax
   const total = subtotal + deliveryFee + tax;
-  
-  // Handle order placement
+
+  const handleDeleteItem = async (itemId: number, vendorId: string) => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token?.trim().replace(/\s/g, "");
+    const bid = userData.uid;
+
+    try {
+      const response = await fetch.post(`/buyer/cart/remove`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bid,
+          vid: vendorId,
+          iid: itemId,
+        }),
+      });
+
+      if (response.ok) {
+        setCartItems(prevItems => prevItems.filter(item => item.iid !== itemId));
+      } else {
+        alert('Failed to delete item. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  const handleClearCart = async () => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token?.trim().replace(/\s/g, "");
+    const bid = userData.uid;
+
+    try {
+      const response = await fetch.post(`/buyer/cart/${bid}/clear`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log("Clear cart response:", response);
+
+      if (response.ok) {
+        setCartItems([]); 
+      } else {
+        alert('Failed to clear cart. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
 
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token?.trim().replace(/\s/g, "");
+
     try {
-      const bid = localStorage.getItem("bid");
-      if (!bid) {
-        throw new Error("Buyer ID not found. Please log in again.");
-      }
-      
-      // Get token from user object in localStorage for consistency
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      const token = userData.token || "";
-      
-      if (!token) {
-        throw new Error("Authentication token not found. Please log in again.");
-      }
-
-      // Process each cart item
       for (const item of cartItems) {
-        // Validate item has required fields
-        if (!item.vid || !item.iid) {
-          console.error("Invalid item data:", item);
-          continue; // Skip this item
-        }
-
         const paymentBody = {
-          bid,
-          vid: item.vid,
-          iid: item.iid,
-          amt: item.cost * item.quantity,
+          bid: userData.uid,        
+          vid: item.vid,          
+          iid: item.iid,   
+          amt: item.cost,
           qty_bought: item.quantity,
         };
 
-        console.log("Sending payment body:", paymentBody);
-
-        const response = await fetch.post('buyer/pay/initialize', paymentBody, {
+        const response = await fetch.post('buyer/pay/initialize', {
+          body: JSON.stringify(paymentBody),
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -197,61 +139,23 @@ function CheckoutPayment() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(`Payment failed for item ID ${item.iid}: ${errorData.msg || response.statusText}`);
+          throw new Error(`Payment failed for item ${item.name}`);
         }
       }
 
-      // Clear cart after successful order
-      // This should be done on the server, but we'll clear local state too
-      try {
-        // Clear server-side cart (you would implement this endpoint)
-        // await fetch.delete(`buyer/cart/${bid}`, {
-        //   headers: {
-        //     'Authorization': `Bearer ${token}`,
-        //     'Content-Type': 'application/json',
-        //   },
-        // });
-        
-        // Clear local storage cart
-        localStorage.removeItem('cart');
-      } catch (clearError) {
-        console.error("Failed to clear cart:", clearError);
-        // Continue with checkout even if clearing cart fails
-      }
-
       setIsProcessing(false);
-      navigate('/order-confirmation');
-
-    } catch (error: any) {
+      handleClearCart(); 
+      // localStorage.removeItem('cart'); 
+      navigate('/checkout-payment');
+    } catch (error) {
       console.error('Error placing order:', error);
       setIsProcessing(false);
-      
-      // Enhanced error handling
-      let errorMessage = 'Failed to place your order.';
-      if (error.response) {
-        errorMessage += ` Server responded with: ${error.response.data?.msg || error.response.statusText}`;
-      } else if (error.request) {
-        errorMessage += ' No response received from server. Please check your connection.';
-      } else {
-        errorMessage += ` Error: ${error.message}`;
-      }
-      
-      alert(errorMessage);
+      alert('Failed to place your order. Please try again.');
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-gray-100 items-center justify-center">
-        <p className="text-xl">Loading your cart...</p>
-      </div>
-    );
-  }
-  
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-
       {/* Header */}
       <header className="bg-wine py-4 shadow-md" style={{ backgroundColor: '#722F37' }}>
         <div className="container mx-auto px-4 flex justify-between items-center">
@@ -287,174 +191,105 @@ function CheckoutPayment() {
               />
             </svg>
           </button>
-          {/* Secure checkout badge */}
-          <div className="hidden md:flex items-center text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          {/* Logout Icon */}
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7"
+              />
             </svg>
-            <span className="text-sm">Secure Checkout</span>
-          </div>
+            <span className="mt-1 text-xs">Logout</span>
+          </button>
         </div>
       </header>
-      
-      <main className="flex-grow container mx-auto py-8 px-4">
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <strong className="font-bold">Error:</strong>
-            <span className="block sm:inline"> {error}</span>
-          </div>
-        )}
-        
-        {cartItems.length === 0 ? (
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <h2 className="text-xl font-bold mb-4">Your cart is empty</h2>
-            <p className="mb-4">Looks like you haven't added any items to your cart yet.</p>
-            <button 
-              onClick={() => navigate('/marketplace')}
-              className="bg-yellow-400 text-black py-2 px-4 rounded font-medium hover:bg-yellow-500"
-            >
-              Continue Shopping
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Left Column - Order Details */}
-            <div className="md:w-2/3">
-              
-              {/* Payment Method Section */}
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold text-wine" style={{ color: '#722F37' }}>Payment Method</h2>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Add</button>
-                </div>
-                
-                <div className="border-b pb-4">
-                  {paymentMethods.map(method => (
-                    <div 
-                      key={method.id} 
-                      className={`border p-3 rounded mb-2 ${selectedPayment === method.id ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}
-                      onClick={() => setSelectedPayment(method.id)}
-                    >
-                      <div className="flex items-center">
-                        <input 
-                          type="radio" 
-                          name="payment" 
-                          checked={selectedPayment === method.id} 
-                          onChange={() => setSelectedPayment(method.id)}
-                          className="mr-2 accent-wine"
-                        />
-                        <div>
-                          <p className="font-semibold">{method.type}</p>
-                          <p className="text-sm text-gray-600">**** **** **** {method.lastFour}</p>
-                          {method.expiryDate && method.expiryDate !== 'N/A' && (
-                            <p className="text-sm text-gray-600">Expires: {method.expiryDate}</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <button className="mt-4 text-wine font-medium flex items-center" style={{ color: '#722F37' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Add a new payment method
-                </button>
-              </div>
-              
-              {/* Order Items Section */}
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h2 className="text-xl font-bold mb-4 text-wine" style={{ color: '#722F37' }}>Order Items</h2>
-                
-                {cartItems.map(item => (
-                  <div key={item.id} className="border-b pb-4 mb-4 last:border-b-0 last:mb-0 last:pb-0">
-                    <div className="flex items-center">
-                      <div className="h-16 w-16 bg-gray-100 rounded overflow-hidden mr-4">
-                        {item.image ? (
-                          <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="h-full w-full flex items-center justify-center text-gray-400">
-                            No image
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <p className="text-sm text-gray-600">Seller: {item.seller}</p>
-                        <div className="flex justify-between mt-2">
-                          <span>Qty: {item.quantity}</span>
-                          <span className="font-semibold">GH₵{(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Right Column - Order Summary */}
-            <div className="md:w-1/3">
-              <div className="bg-white p-6 rounded-lg shadow-md sticky top-4">
-                <h2 className="text-xl font-bold mb-4 text-wine" style={{ color: '#722F37' }}>Order Summary</h2>
-                
-                <div className="mb-4">
-                  <div className="flex justify-between py-2">
-                    <span className="text-gray-600">Items ({cartItems.reduce((sum, item) => sum + item.quantity, 0)}):</span>
-                    <span>GH₵{subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-gray-600">Shipping & Handling:</span>
-                    <span>GH₵{deliveryFee.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-gray-600">Tax:</span>
-                    <span>GH₵{tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between py-2 font-bold border-t border-gray-200 mt-2 pt-2">
-                    <span>Order Total:</span>
-                    <span className="text-wine" style={{ color: '#722F37' }}>GH₵{total.toFixed(2)}</span>
-                  </div>
-                </div>
-                
-                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-400 mb-4">
-                  <div className="flex">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div className="ml-2">
-                      <p className="font-medium">Delivery Information</p>
-                      <p className="text-sm text-gray-600">Your order will arrive in 2-3 business days.</p>
+      <main className="flex-grow container mx-auto py-8 px-4">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Left Column - Order Details */}
+          <div className="md:w-2/3">
+            {/* Order Summary Section */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-bold text-wine mb-4" style={{ color: '#722F37' }}>My Cart</h3>
+              {cartItems.map(item => (
+                <div key={item.iid} className="flex justify-between items-center mb-4">
+                  <div className="flex items-center">
+                    <img 
+                      src={item.pictureUrl} 
+                      alt={item.name} 
+                      className="h-12 w-12 object-cover rounded-md mr-4"
+                    />
+                    <div>
+                      <p className="font-semibold">{item.name}</p>
+                      <p className="text-sm text-gray-600">Seller: {item.vid}</p>
                     </div>
                   </div>
+                  <div className="text-sm text-gray-600">
+                    {item.quantity} x ${item.cost}
+                  </div>
+                  <button 
+                    onClick={() => handleDeleteItem(item.iid, item.vid)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Delete
+                  </button>
                 </div>
-                
-                <button 
-                  className={`bg-yellow-400 text-black py-3 rounded font-bold hover:bg-yellow-500 w-full ${isProcessing ? 'opacity-75 cursor-not-allowed' : ''}`}
-                  onClick={handlePlaceOrder}
-                  disabled={isProcessing || selectedPayment === "" || cartItems.length === 0}
-                >
-                  {isProcessing ? 'Processing...' : 'Place Your Order'}
-                </button>
-                
-                <p className="text-xs text-gray-500 mt-4 text-center">
-                  By placing your order, you agree to Ashesi DWA's privacy notice and conditions of use.
-                </p>
-              </div>
+              ))}
+              {/* Clear Cart Button */}
+              <button
+                onClick={handleClearCart}
+                className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Clear Cart
+              </button>
             </div>
           </div>
-        )}
+
+          {/* Right Column - Price Breakdown */}
+          <div className="md:w-1/3">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-bold text-wine" style={{ color: '#722F37' }}>Price Breakdown</h3>
+              <div className="mt-4">
+                <div className="flex justify-between">
+                  <p className="text-sm text-gray-600">Subtotal</p>
+                  <p className="text-sm">${subtotal.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-sm text-gray-600">Delivery Fee</p>
+                  <p className="text-sm">${deliveryFee.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-sm text-gray-600">Tax (5%)</p>
+                  <p className="text-sm">${tax.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between font-bold mt-4">
+                  <p>Total</p>
+                  <p>${total.toFixed(2)}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={handlePlaceOrder}
+                className="w-full mt-6 py-3 bg-yellow-400 text-white font-semibold rounded-lg hover:bg-yellow-500 disabled:bg-gray-400"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Processing...' : 'Place Order'}
+              </button>
+            </div>
+          </div>
+        </div>
       </main>
-      
-      {/* Footer */}
-      <footer className="bg-wine text-white text-center py-5 text-xs border-t border-gray-300" style={{ backgroundColor: '#722F37' }}>
-        <p className="mb-1">
-          <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp; | &nbsp;
-          <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; | &nbsp;
-          <span className="text-yellow-400 cursor-pointer hover:underline">Help</span>
-        </p>
-        <p>&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

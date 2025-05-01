@@ -43,7 +43,7 @@ function ItemPage() {
     const getItem = async () => {
       try {
         // Try to fetch from API
-        const response = await fetch.get(`http://your-api-url.com/items/${iid}`);
+        const response = await fetch.get(`/items/${iid}`);
         const data = await response.json();
         setItem(data);
       } catch (err) {
