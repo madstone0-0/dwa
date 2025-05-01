@@ -38,20 +38,24 @@ function CheckoutPayment() {
       try {
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const token = userData.token?.trim().replace(/\s/g, "");
-        const bid = userData.uid; 
-
-        // Fetch cart items from the backend using the bid
-        const cartResponse = await fetch.get(`/buyer/cart/${bid}`, {
+        const bid = userData.uid;
+    
+        const response = await fetch.get(`/buyer/cart/${bid}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
-        setCartItems(cartResponse.data || []);
-        
+    
+        console.log("Cart response:", response);
+        setCartItems(response.data || []);
+        console.log("Cart items:", response.data);
+    
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching cart items:', error);
       }
     };
+    
+    
 
     fetchCartItems();
   }, []);

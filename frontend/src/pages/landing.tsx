@@ -107,6 +107,7 @@ function LandingPage() {
             bid: buyerId,
             iid: item.iid,
             vid: item.vid,
+			amt: item.cost,
             quantity: quantity
           },
           {
@@ -129,6 +130,7 @@ function LandingPage() {
             bid: buyerId,
             iid: item.iid,
             vid: item.vid,
+			amt: item.cost,
             quantity: quantity
           },
           {
@@ -138,7 +140,7 @@ function LandingPage() {
             }
           }
         );
-        
+        console.log("Response from adding item to cart:", response);	
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           
