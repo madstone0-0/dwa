@@ -65,13 +65,7 @@ const AppContent = () => {
 						path="/admin-manage-products"
 						element={<ManageProductsPage />}
 					/>
-					<Route path="/item" element={<ItemPage />} />
-					{/* Add more routes as needed */}
-					{/* Fallback route for 404 Not Found */}
-					{/* Add more routes as needed */}
-					{/* Fallback route for 404 Not Found */}
-					{/* Add more routes as needed */}
-					{/* Fallback route for 404 Not Found */}
+					<Route path="/item/:iid" element={<ItemPage />} />
 				</Routes>
 			</main>
 		</div>
