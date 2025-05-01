@@ -28,17 +28,15 @@ const UserProfilePage = () => {
 	const userData = JSON.parse(localStorage.getItem("user") || "{}");
 	console.log("userData", userData);
 	const userId = userData.uid;
-	const fullNameFromProfile =
-		userType === "vendor"
-			? userData.user_type?.vendor?.name || ""
-			: userData.user_type?.buyer?.name || "";
+	const fullNameFromProfile = userData.name || "";
 
 	const emailFromProfile = userData.email;
 
 	// State setup
 	const [userName, setUserName] = useState<string>(fullNameFromProfile);
 	const [userEmail] = useState<string>(emailFromProfile);
-	const [newFullName, setNewFullName] = useState<string>("");
+	
+	const [newFullName, setNewFullName] = useState<string>(userData.name || "");
 	const [logoUrl, setLogoUrl] = useState<string>(
 		userData.user_types?.vendor?.logo || "",
 	);
@@ -55,50 +53,37 @@ const UserProfilePage = () => {
 
 	const handleSubmit = async () => {
 		if (!isFormValid) {
-			alert("Please fill in all fields correctly.");
-			return;
+		  alert("Please fill in all fields correctly.");
+		  return;
 		}
-
-		const user = getLocalStorage("user") as unknown as User;
-		const userType = user.user_type;
-
-		const updatedProfile: any = {
-			user: {
-				user_type: userType,
-				email: userEmail,
-			},
-			user_types: {},
-		};
-
-		if (userType === "vendor") {
-			updatedProfile.user_types["vendor"] = {
-				uid: userId,
-				name: newFullName,
-				logo: logoUrl,
-			};
-		} else if (userType === "buyer") {
-			updatedProfile.user_types["buyer"] = {
-				uid: userId,
-				name: newFullName,
-			};
-		}
-
+	  
 		try {
-			await fetch.put<ResponseMsg>(
-				"auth/user/update",
-				updatedProfile,
-			);
-
-			setLocalStorage("user", updatedProfile);
-			setUserName(newFullName);
-			alert("Profile updated successfully!");
-			setNewFullName("");
+		  const endpoint = userType === "vendor" 
+			? "/vendor/update-profile" 
+			: "/buyer/update-profile";
+	  
+		  // Update request structure to match backend
+		  const updateData = userType === "vendor"
+			? { name: newFullName, logo: logoUrl }
+			: { name: newFullName };
+	  
+		  await fetch.put(endpoint, updateData);
+	  
+		  // Update local storage
+		  const updatedUser = {
+			...userData,
+			name: newFullName,
+			...(userType === "vendor" && { logo: logoUrl })
+		  };
+		  
+		  setLocalStorage("user", updatedUser);
+		  alert("Profile updated successfully!");
+		  
 		} catch (e) {
-			console.error({ e });
-			alert("Failed to update profile. Please try again.");
-			return;
+		  console.error("Update failed:", e);
+		  alert("Failed to update profile");
 		}
-	};
+	  };
 
 	const handleDeleteAccount = async () => {
 		const confirmation = window.confirm(
@@ -187,11 +172,11 @@ const UserProfilePage = () => {
 							Full Name
 						</label>
 						<input
-							type="text"
-							value={newFullName || userName}
-							onChange={handleFullNameChange}
-							className="p-2 mt-1 w-full rounded-md border border-gray-300"
-							placeholder="Enter your full name"
+							  type="text"
+							  value={newFullName}  
+							  onChange={handleFullNameChange}
+							  className="p-2 mt-1 w-full rounded-md border border-gray-300"
+							  placeholder="Enter your full name"
 						/>
 					</div>
 
