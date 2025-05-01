@@ -52,7 +52,7 @@ function Signup() {
 
             console.log("Signup response:", res);
             enqueueSnackbar(res.msg, { variant: "success" });
-            navigate("/signin");
+            navigate("/auth/signin");
         } catch (error) {
             const err = resolveError(error);
             if (err.response?.data.err) {
@@ -80,7 +80,7 @@ function Signup() {
                         >
                             <p>{error}</p>
                             <button
-                                onClick={() => navigate("/signin")}
+                                onClick={() => navigate("/auth/signin")}
                                 className="py-1 px-3 mt-2 text-sm text-white bg-yellow-500 rounded hover:bg-yellow-600"
                             >
                                 Go to Sign In
@@ -137,7 +137,7 @@ function Signup() {
                         Already have an account?
                         <span
                             className="text-yellow-300 cursor-pointer hover:underline"
-                            onClick={() => navigate("/signin")}
+                            onClick={() => navigate("/auth/signin")}
                         >
                             {" "}
                             Sign in

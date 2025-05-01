@@ -23,7 +23,7 @@ function LandingPage() {
 
     useEffect(() => {
         if (user) {
-            if (user.user_type !== USER_TYPE.BUYER) navigate("/signin");
+            if (user.user_type !== USER_TYPE.BUYER) navigate("/auth/signin");
             // Fetch cart data on initial load
             getBuyerCart(user.uid)
                 .then((cart) => setCart(cart))

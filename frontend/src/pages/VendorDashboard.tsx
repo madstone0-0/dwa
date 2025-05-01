@@ -20,16 +20,6 @@ const VendorDashboard: React.FC = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const user = useStore((state) => state.user);
 
-    const isUserLoggedIn = Boolean(localStorage.getItem("user"));
-    // Get the user type from localStorage
-    const userType = localStorage.getItem("user_type");
-
-    useEffect(() => {
-        if (!isUserLoggedIn && userType !== "vendor") {
-            navigate("/signin");
-        }
-    }, [isUserLoggedIn, navigate]);
-
     // Form validation
     const isFormValid =
         formData.name.trim() !== "" &&

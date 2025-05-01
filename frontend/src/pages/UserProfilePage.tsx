@@ -21,7 +21,7 @@ const UserProfilePage = () => {
     const isUserLoggedIn = Boolean(localStorage.getItem("user"));
 
     useEffect(() => {
-        if (!isUserLoggedIn) navigate("/signin");
+        if (!isUserLoggedIn) navigate("/auth/signin");
     }, [isUserLoggedIn, navigate]);
 
     // Load data from user data saved in local storage
@@ -108,7 +108,7 @@ const UserProfilePage = () => {
                 localStorage.removeItem("user");
                 localStorage.removeItem("user_type");
                 localStorage.removeItem("token");
-                navigate("/signin");
+                navigate("/auth/signin");
             } catch (error) {
                 console.error("Error deleting account:", error);
                 alert("Something went wrong while deleting your account.");
@@ -193,3 +193,4 @@ const UserProfilePage = () => {
 };
 
 export default UserProfilePage;
+

@@ -18,7 +18,7 @@ const AppContent = () => {
         health()
             .then((data) => console.log(data))
             .catch((e) => console.error({ e }));
-        nav("auth/signin");
+        nav("/auth/signin");
     }, []);
 
     return (

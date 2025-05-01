@@ -106,7 +106,7 @@ function Signin() {
                     <p className="text-sm text-center text-white">New to Ashesi DWA?</p>
                     <button
                         className="py-2 mt-2 w-full font-bold text-white bg-black rounded hover:bg-gray-800"
-                        onClick={() => navigate("/signup")}
+                        onClick={() => navigate("/auth/signup")}
                     >
                         Create your Ashesi DWA account
                     </button>

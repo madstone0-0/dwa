@@ -89,17 +89,8 @@ const EmptyState: FC = () => (
 
 // Main component
 const SalesAndEarningsPage: FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
-    const navigate = useNavigate();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [dateFilter, setDateFilter] = useState<string>("all");
-    const isUserLoggedIn = Boolean(localStorage.getItem("user"));
-
-    // Check authentication
-    useEffect(() => {
-        if (!isUserLoggedIn) {
-            navigate("/signin");
-        }
-    }, [isUserLoggedIn, navigate]);
 
     // Fetch transactions
     const fetchTransactions = async () => {

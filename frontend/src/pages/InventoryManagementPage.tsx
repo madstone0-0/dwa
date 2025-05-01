@@ -8,21 +8,12 @@ import { useForm } from "@tanstack/react-form";
 import useStore from "./store";
 
 const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
-    const navigate = useNavigate();
     const [items, setItems] = useState<Item[]>([]);
     const [filteredItems, setFilteredItems] = useState<Item[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const isUserLoggedIn = Boolean(localStorage.getItem("user"));
     const [editItem, setEditItem] = useState<Item | null>(null);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const user = useStore((state) => state.user);
-
-    // Check authentication once on mount
-    useEffect(() => {
-        if (!isUserLoggedIn) {
-            navigate("/signin");
-        }
-    }, [isUserLoggedIn, navigate]);
 
     // Fetch items only once on mount or when explicitly needed
     const fetchItems = async () => {

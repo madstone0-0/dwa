@@ -19,7 +19,7 @@ export const useLogout = () => {
             removeLocalStorage("cart");
             removeLocalStorage("structured_profile");
             reset();
-            navigate("/auth/signin", { replace: true });
+            navigate("/auth/signin");
             enqueueSnackbar("Logged out successfully", { variant: "success" });
             return true; // Indicate successful logout
         } catch (error) {
