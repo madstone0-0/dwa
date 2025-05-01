@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllItems, getBuyerCart } from "./utils/api.js";
-import { CartItem, Item, ResponseMsg, User, USER_TYPE } from "./types";
-import { fetch } from "./utils/Fetch";
-import { getLocalStorage, resolveError, setLocalStorage, setSessionStorage } from "./utils/index.js";
+import { Item, USER_TYPE } from "./types";
 import useStore from "./store";
-import { useCart, useLogout } from "./utils/hooks.js";
+import { useAuthErrorHandler, useCart, useLogout } from "./utils/hooks.js";
 
 interface SectionHeaderProps {
     title: string;
@@ -19,9 +17,9 @@ function LandingPage() {
     const setCart = useStore((state) => state.setCart);
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredItems, setFilteredItems] = useState<any[]>([]);
-    const isUserLoggedIn = Boolean(localStorage.getItem("user"));
-    const userType = localStorage.getItem("user_type");
     const user = useStore((state) => state.user);
+
+    useAuthErrorHandler();
 
     useEffect(() => {
         if (user) {
@@ -44,8 +42,6 @@ function LandingPage() {
             </button>
         </div>
     );
-
-    const handleLogout = useLogout();
 
     const { addToCart } = useCart();
 
@@ -103,59 +99,6 @@ function LandingPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-white">
-            {/* Header */}
-            <header className="flex justify-between py-4 px-8 shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
-                <h1 className="text-2xl font-bold text-white">Ashesi DWA</h1>
-
-                <div className="flex gap-4 items-center">
-                    {/* Shopping Cart Icon */}
-                    <button
-                        onClick={goToCheckout}
-                        className="flex relative items-center text-white transition-colors hover:text-yellow-400"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                        </svg>
-                        {getTotalItems() > 0 && (
-                            <span className="flex absolute -top-2 -right-2 justify-center items-center w-5 h-5 text-xs font-bold text-black bg-yellow-400 rounded-full">
-                                {getTotalItems()}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        onClick={handleLogout}
-                        className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M17 16l4-4m0 0l-4-4m4 4H7"
-                            />
-                        </svg>
-                        <span className="mt-1 text-xs">Logout</span>
-                    </button>
-                </div>
-            </header>
-
             <div className="flex flex-col flex-grow items-center py-10">
                 {/* Hero Section */}
                 <div className="flex flex-col items-center py-16 px-6 w-full text-center bg-yellow-100">
@@ -199,7 +142,7 @@ function LandingPage() {
                                         onClick={() => {
                                             setSearchTerm("");
                                             setFilteredItems([]);
-                                            navigate(`/item/${item.iid}`);
+                                            navigate(`/buyer/item/${item.iid}`);
                                         }}
                                     >
                                         <div className="flex items-center">
@@ -254,21 +197,6 @@ function LandingPage() {
                         </button>
                     </div>
                 )}
-
-                {/* Footer */}
-                <footer
-                    className="py-5 mt-8 w-full text-xs text-center text-white border-t border-gray-300 bg-wine"
-                    style={{ backgroundColor: "#722F37" }}
-                >
-                    <p className="mb-1">
-                        <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp;
-                        | &nbsp;
-                        <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; |
-                        &nbsp;
-                        <span className="text-yellow-400 cursor-pointer hover:underline">Help</span>
-                    </p>
-                    <p>&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights reserved.</p>
-                </footer>
             </div>
         </div>
     );
@@ -299,7 +227,7 @@ const ItemCard = ({ item, addToCart }: ItemCardProps) => {
                 <button
                     className="flex-1 py-1 px-3 text-sm text-white rounded bg-wine hover:bg-wine-dark"
                     style={{ backgroundColor: "#722F37" }}
-                    onClick={() => navigate(`/item/${iid}`)}
+                    onClick={() => navigate(`/buyer/item/${iid}`)}
                 >
                     View Item
                 </button>

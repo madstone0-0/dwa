@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Item, User } from "./types";
-import { getLocalStorage } from "./utils";
+import { Item } from "./types";
 import { deleteItem, getVendorItems, updateItem } from "./utils/api";
 import { withLoading, WithLoadingProps, LoadingSpinner } from "./withLoading";
 import placeholder from "../assets/dwa-icon.jpg";
 import { useForm } from "@tanstack/react-form";
-import { useLogout } from "./utils/hooks";
+import useStore from "./store";
 
 const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
     const navigate = useNavigate();
@@ -16,7 +15,7 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
     const isUserLoggedIn = Boolean(localStorage.getItem("user"));
     const [editItem, setEditItem] = useState<Item | null>(null);
     const [showEditDialog, setShowEditDialog] = useState(false);
-    const handleLogout = useLogout();
+    const user = useStore((state) => state.user);
 
     // Check authentication once on mount
     useEffect(() => {
@@ -27,8 +26,6 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
 
     // Fetch items only once on mount or when explicitly needed
     const fetchItems = async () => {
-        const user = getLocalStorage("user") as unknown as User;
-
         if (user) {
             await withLoading(
                 getVendorItems(user)
@@ -100,136 +97,6 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
-                <div className="container py-3 px-4 mx-auto">
-                    <div className="flex justify-between items-center">
-                        {/* Logo and Brand */}
-                        <div
-                            className="flex items-center space-x-3 cursor-pointer"
-                            onClick={() => navigate("/vendor-dashboard")}
-                        >
-                            <img
-                                src="/src/assets/dwa-icon.jpg"
-                                alt="DWA Logo"
-                                className="object-cover w-10 h-10 rounded-full"
-                            />
-                            <h1 className="text-xl font-bold text-white">Inventory</h1>
-                        </div>
-
-                        {/* Navigation Icons */}
-                        <div className="flex items-center space-x-6">
-                            <button
-                                onClick={() => navigate("/inventory-management")}
-                                className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                                    />
-                                </svg>
-                                <span className="mt-1 text-xs">Inventory</span>
-                            </button>
-                            {/* Earnings */}
-                            <button
-                                onClick={() => navigate("/sales-and-earnings")}
-                                className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                    />
-                                </svg>
-                                <span className="mt-1 text-xs">Earnings</span>
-                            </button>
-
-                            {/* Orders */}
-                            <button
-                                onClick={() => navigate("/orders")}
-                                className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 17h6M9 13h6M9 9h6M5 3h14a2 2 0 012 2v16l-3-3H6l-3 3V5a2 2 0 012-2z"
-                                    />
-                                </svg>
-                                <span className="mt-1 text-xs">Orders</span>
-                            </button>
-
-                            {/* Profile */}
-                            <button
-                                onClick={() => navigate("/user-profile")}
-                                className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                    />
-                                </svg>
-                                <span className="mt-1 text-xs">Profile</span>
-                            </button>
-                            {/* Logout */}
-                            <button
-                                onClick={handleLogout}
-                                className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M17 16l4-4m0 0l-4-4m4 4H7"
-                                    />
-                                </svg>
-                                <span className="mt-1 text-xs">Logout</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
             <main className="container flex-grow py-8 px-4 mx-auto">
                 {/* Search and Stats Bar */}
                 <div className="p-6 mb-8 bg-white rounded-lg shadow-md">
@@ -309,21 +176,6 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
                     }}
                 />
             )}
-
-            {/* Footer Component */}
-            <footer
-                className="py-5 text-xs text-center text-white border-t border-gray-300 bg-wine"
-                style={{ backgroundColor: "#722F37" }}
-            >
-                <p className="mb-1">
-                    <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp; |
-                    &nbsp;
-                    <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; |
-                    &nbsp;
-                    <span className="text-yellow-400 cursor-pointer hover:underline">Help</span>
-                </p>
-                <p>&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights reserved.</p>
-            </footer>
         </div>
     );
 };

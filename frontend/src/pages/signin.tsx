@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "./utils/api";
 import useStore from "./store";
+import { useSnackbar } from "notistack";
+import { resolveError } from "./utils";
+import { USER_TYPE } from "./types";
 
 function Signin() {
     const [email, setEmail] = useState("");
@@ -9,7 +12,30 @@ function Signin() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const setUser = useStore((state) => state.setUser);
+    const { enqueueSnackbar } = useSnackbar();
     const user = useStore((state) => state.user);
+
+    const navToHome = (userType: USER_TYPE) => {
+        switch (userType) {
+            case "vendor":
+                navigate("/vendor");
+                break;
+            case "buyer":
+                navigate("/buyer");
+                break;
+            default:
+                enqueueSnackbar("Invalid user type", { variant: "error" });
+                break;
+        }
+    };
+
+    useEffect(() => {
+        if (user.uid !== "") {
+            enqueueSnackbar("Already logged in, navigating to home", { variant: "success" });
+            console.log({ user });
+            navToHome(user.user_type);
+        }
+    }, []);
 
     const handleSignin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,47 +51,25 @@ function Signin() {
             // Save the user data to localStorage
             const userData = response;
             setUser(userData);
-            localStorage.setItem("user", JSON.stringify(userData));
-            localStorage.setItem("userType", userData.user_type); // Changed from user_type to userType for consistency
 
             // Save token directly for easier access
             if (userData.token) {
                 localStorage.setItem("token", userData.token.trim().replace(/\s/g, ""));
             }
 
-            // Save bid or vid based on user_type
-            if (userData.user_type === "buyer") {
-                localStorage.setItem("bid", userData.uid); // Save Buyer ID
-            } else if (userData.user_type === "vendor") {
-                localStorage.setItem("vid", userData.uid); // Save Vendor ID
-            }
-
-            // Navigate based on user type
-            if (userData.user_type === "vendor") {
-                navigate("/vendor-dashboard");
-            } else if (userData.user_type === "buyer") {
-                navigate("/landing");
-            } else if (userData.user_type === "admin") {
-                navigate("/admin-dashboard");
-            } else {
-                setError("Unknown user type.");
-            }
-
-            // Clear error
-            setError("");
+            enqueueSnackbar("Login successful", { variant: "success" });
+            navToHome(userData.user_type);
         } catch (error) {
+            const err = resolveError(error);
+            if (err.response?.data.err) {
+                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            }
             console.error("Signin error:", error);
-            setError("An error occurred while signing in.");
         }
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-white">
-            {/* Header Section */}
-            <header className="flex justify-center py-4 shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
-                <h1 className="text-2xl font-bold text-white">Ashesi DWA</h1>
-            </header>
-
             {/* Main Content */}
             <div className="flex flex-grow justify-center items-center py-10">
                 <div
@@ -98,14 +102,6 @@ function Signin() {
                             Sign In
                         </button>
                     </form>
-                    <p className="mt-4 text-sm text-center text-white">
-                        <span
-                            className="text-yellow-300 cursor-pointer hover:underline"
-                            onClick={() => navigate("/forgot-password")}
-                        >
-                            Forgot your password?
-                        </span>
-                    </p>
                     <hr className="my-4 border-yellow-300" />
                     <p className="text-sm text-center text-white">New to Ashesi DWA?</p>
                     <button
@@ -116,21 +112,6 @@ function Signin() {
                     </button>
                 </div>
             </div>
-
-            {/* Footer Section */}
-            <footer
-                className="py-5 text-xs text-center text-white border-t border-gray-300 bg-wine"
-                style={{ backgroundColor: "#722F37" }}
-            >
-                <p className="mb-1">
-                    <span className="text-yellow-400 cursor-pointer hover:underline">Terms of Service</span> &nbsp; |
-                    &nbsp;
-                    <span className="text-yellow-400 cursor-pointer hover:underline">Privacy Policy</span> &nbsp; |
-                    &nbsp;
-                    <span className="text-yellow-400 cursor-pointer hover:underline">Help</span>
-                </p>
-                <p>&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights reserved.</p>
-            </footer>
         </div>
     );
 }

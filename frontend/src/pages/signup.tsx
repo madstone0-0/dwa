@@ -1,205 +1,152 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetch } from "./utils/Fetch";
+import { resolveError } from "./utils";
+import { useSnackbar } from "notistack";
+import { ResponseMsg } from "./types";
 
 function Signup() {
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [isVendor, setIsVendor] = useState(false);
-	const [error, setError] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
-	const [signupPartialSuccess, setSignupPartialSuccess] = useState(false);
-	const navigate = useNavigate();
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isVendor, setIsVendor] = useState(false);
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [signupPartialSuccess, setSignupPartialSuccess] = useState(false);
+    const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
 
-	const handleSignup = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setError("");
-		setSignupPartialSuccess(false);
+    const handleSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
+        setSignupPartialSuccess(false);
 
-		// Validate all fields
-		if (!name || !email || !password) {
-			setError("All fields are required.");
-			return;
-		}
+        // Validate all fields
+        if (!name || !email || !password) {
+            setError("All fields are required.");
+            return;
+        }
 
-		// Validate Ashesi email format
-		const emailPattern = /^[a-zA-Z0-9._%+-]+@ashesi\.edu\.gh$/;
-		if (!emailPattern.test(email)) {
-			setError("Please use a valid Ashesi email address.");
-			return;
-		}
+        // Validate Ashesi email format
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@ashesi\.edu\.gh$/;
+        if (!emailPattern.test(email)) {
+            setError("Please use a valid Ashesi email address.");
+            return;
+        }
 
-		// Validate password length
-		if (password.length < 6) {
-			setError("Password must be at least 6 characters long.");
-			return;
-		}
+        // Validate password length
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            return;
+        }
 
-		setIsLoading(true);
+        setIsLoading(true);
 
-		  
-			try {
-				const response = await fetch.post("/auth/user/signup", {
-					email: email.trim(),
-					password: password,
-					name: name.trim(),
-					isVendor: isVendor,
-				  });
-			  
-				  console.log("Signup response:", response.data);
-				  navigate("/signin");
-		} catch (err: any) {
-		  console.error("Signup error:", err);
-		  // Check specifically for mail server errors
-		  const errorData = err.response?.data?.data || err.response?.data;
+        try {
+            const res = await fetch.post<ResponseMsg>("/auth/user/signup", {
+                email: email.trim(),
+                password: password,
+                name: name.trim(),
+                isVendor: isVendor,
+            });
 
-		  const errorMessage =
-				errorData?.err || err.response?.data?.error || err.message;
+            console.log("Signup response:", res);
+            enqueueSnackbar(res.msg, { variant: "success" });
+            navigate("/signin");
+        } catch (error) {
+            const err = resolveError(error);
+            if (err.response?.data.err) {
+                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-			if (
-				errorMessage &&
-				typeof errorMessage === "string" &&
-				(errorMessage.includes("mail server") ||
-					errorMessage.includes("timeout"))
-			) {
-				// Special handling for mail server errors
-				setSignupPartialSuccess(true);
-				setError(
-					"Your account was created, but we couldn't send a verification email. Please try signing in, or contact support if you have issues.",
-				);
-			} else {
-				// General error handling
-				setError(errorMessage || "Server error. Please try again.");
-			}
-		} finally {
-			setIsLoading(false);
-		}
-	};
+    return (
+        <div className="flex flex-col min-h-screen bg-white">
+            {/* Main Content */}
+            <div className="flex flex-grow justify-center items-center py-10">
+                <div
+                    className="p-8 w-96 rounded-lg border border-gray-300 shadow-lg bg-wine"
+                    style={{ backgroundColor: "#722F37" }}
+                >
+                    <h2 className="mb-4 text-2xl font-bold text-center text-white">Sign Up</h2>
 
-	return (
-		<div className="flex flex-col min-h-screen bg-white">
-			{/* Header Section */}
-			<header
-				className="flex justify-center py-4 shadow-md bg-wine"
-				style={{ backgroundColor: "#722F37" }}
-			>
-				<h1 className="text-2xl font-bold text-white">Ashesi DWA</h1>
-			</header>
+                    {signupPartialSuccess ? (
+                        <div
+                            className="p-4 mb-4 text-yellow-700 bg-yellow-100 border-l-4 border-yellow-500"
+                            role="alert"
+                        >
+                            <p>{error}</p>
+                            <button
+                                onClick={() => navigate("/signin")}
+                                className="py-1 px-3 mt-2 text-sm text-white bg-yellow-500 rounded hover:bg-yellow-600"
+                            >
+                                Go to Sign In
+                            </button>
+                        </div>
+                    ) : error ? (
+                        <p className="p-2 mb-4 text-black bg-yellow-300 rounded">{error}</p>
+                    ) : null}
 
-			{/* Main Content */}
-			<div className="flex flex-grow justify-center items-center py-10">
-				<div
-					className="p-8 w-96 rounded-lg border border-gray-300 shadow-lg bg-wine"
-					style={{ backgroundColor: "#722F37" }}
-				>
-					<h2 className="mb-4 text-2xl font-bold text-center text-white">
-						Sign Up
-					</h2>
+                    <form onSubmit={handleSignup} className="flex flex-col">
+                        <label className="mb-1 text-sm font-bold text-white">Full Name</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            className="p-2 mb-4 w-full rounded border focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                        />
+                        <label className="mb-1 text-sm font-bold text-white">Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="p-2 mb-4 w-full rounded border focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                        />
+                        <label className="mb-1 text-sm font-bold text-white">Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="p-2 mb-4 w-full rounded border focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                        />
+                        <div className="flex items-center mb-4">
+                            <input
+                                type="checkbox"
+                                checked={isVendor}
+                                onChange={(e) => setIsVendor(e.target.checked)}
+                                className="mr-2"
+                            />
+                            <label className="text-sm text-white">Sign up as vendor</label>
+                        </div>
 
-					{signupPartialSuccess ? (
-						<div
-							className="p-4 mb-4 text-yellow-700 bg-yellow-100 border-l-4 border-yellow-500"
-							role="alert"
-						>
-							<p>{error}</p>
-							<button
-								onClick={() => navigate("/signin")}
-								className="py-1 px-3 mt-2 text-sm text-white bg-yellow-500 rounded hover:bg-yellow-600"
-							>
-								Go to Sign In
-							</button>
-						</div>
-					) : error ? (
-						<p className="p-2 mb-4 text-black bg-yellow-300 rounded">{error}</p>
-					) : null}
-
-					<form onSubmit={handleSignup} className="flex flex-col">
-						<label className="mb-1 text-sm font-bold text-white">
-							Full Name
-						</label>
-						<input
-							type="text"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							required
-							className="p-2 mb-4 w-full rounded border focus:ring-2 focus:ring-yellow-500 focus:outline-none"
-						/>
-						<label className="mb-1 text-sm font-bold text-white">Email</label>
-						<input
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-							className="p-2 mb-4 w-full rounded border focus:ring-2 focus:ring-yellow-500 focus:outline-none"
-						/>
-						<label className="mb-1 text-sm font-bold text-white">
-							Password
-						</label>
-						<input
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
-							className="p-2 mb-4 w-full rounded border focus:ring-2 focus:ring-yellow-500 focus:outline-none"
-						/>
-						<div className="flex items-center mb-4">
-							<input
-								type="checkbox"
-								checked={isVendor}
-								onChange={(e) => setIsVendor(e.target.checked)}
-								className="mr-2"
-							/>
-							<label className="text-sm text-white">Sign up as vendor</label>
-						</div>
-
-						<button
-							type="submit"
-							className="py-2 w-full font-bold text-black bg-yellow-400 rounded hover:bg-yellow-500 disabled:opacity-50"
-							disabled={isLoading}
-						>
-							{isLoading ? "Signing up..." : "Sign Up"}
-						</button>
-					</form>
-					<p className="mt-4 text-sm text-center text-white">
-						Already have an account?
-						<span
-							className="text-yellow-300 cursor-pointer hover:underline"
-							onClick={() => navigate("/signin")}
-						>
-							{" "}
-							Sign in
-						</span>
-					</p>
-				</div>
-			</div>
-
-			{/* Footer Section */}
-			<footer
-				className="py-5 text-xs text-center text-white border-t border-gray-300 bg-wine"
-				style={{ backgroundColor: "#722F37" }}
-			>
-				<p className="mb-1">
-					<span className="text-yellow-400 cursor-pointer hover:underline">
-						Terms of Service
-					</span>{" "}
-					&nbsp; | &nbsp;
-					<span className="text-yellow-400 cursor-pointer hover:underline">
-						Privacy Policy
-					</span>{" "}
-					&nbsp; | &nbsp;
-					<span className="text-yellow-400 cursor-pointer hover:underline">
-						Help
-					</span>
-				</p>
-				<p>
-					&copy; {new Date().getFullYear()} Ashesi DWA, Inc. All rights
-					reserved.
-				</p>
-			</footer>
-		</div>
-	);
+                        <button
+                            type="submit"
+                            className="py-2 w-full font-bold text-black bg-yellow-400 rounded hover:bg-yellow-500 disabled:opacity-50"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Signing up..." : "Sign Up"}
+                        </button>
+                    </form>
+                    <p className="mt-4 text-sm text-center text-white">
+                        Already have an account?
+                        <span
+                            className="text-yellow-300 cursor-pointer hover:underline"
+                            onClick={() => navigate("/signin")}
+                        >
+                            {" "}
+                            Sign in
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default Signup;
-

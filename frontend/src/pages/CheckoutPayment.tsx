@@ -1,21 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetch } from "./utils/Fetch";
-import { useCart, useLogout } from "./utils/hooks";
+import { useCart } from "./utils/hooks";
 import useStore from "./store";
 import { CartItem } from "./types";
 import placeholder from "../assets/dwa-icon.jpg";
-import { getBuyerCart } from "./utils/api";
 
 // Define types for component props
 interface CartItemRowProps {
     item: CartItem;
     onDelete: () => void;
-}
-
-interface HeaderProps {
-    onNavigateToProfile: () => void;
-    onLogout: () => void;
 }
 
 interface PriceBreakdownProps {
@@ -52,67 +46,6 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onDelete }) => (
             Delete
         </button>
     </div>
-);
-
-const Header: React.FC<HeaderProps> = ({ onNavigateToProfile, onLogout }) => (
-    <header className="py-4 shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
-        <div className="container flex justify-between items-center px-4 mx-auto">
-            <div className="flex items-center space-x-3">
-                <a href="/landing">
-                    <img
-                        src="/src/assets/dwa-icon.jpg"
-                        alt="DWA Logo"
-                        className="object-cover w-10 h-10 rounded-full"
-                    />
-                </a>
-                <h1 className="text-2xl font-bold text-white">Ashesi DWA - Checkout</h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-                <button
-                    onClick={onNavigateToProfile}
-                    className="text-white transition-colors hover:text-yellow-400"
-                    aria-label="User Profile"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-6 h-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                    </svg>
-                </button>
-                <button
-                    onClick={onLogout}
-                    className="flex flex-col items-center text-white transition-colors hover:text-yellow-400"
-                    aria-label="Logout"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-6 h-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 16l4-4m0 0l-4-4m4 4H7"
-                        />
-                    </svg>
-                    <span className="mt-1 text-xs">Logout</span>
-                </button>
-            </div>
-        </div>
-    </header>
 );
 
 const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
@@ -156,14 +89,6 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
     </div>
 );
 
-// Adding missing types that might not be available in the imported files
-interface User {
-    uid: string;
-    email: string;
-    name?: string;
-    userType: string;
-}
-
 interface ResponseBody {
     status: number;
     message?: string;
@@ -172,7 +97,6 @@ interface ResponseBody {
 
 const CheckoutPayment: React.FC = () => {
     const navigate = useNavigate();
-    const handleLogout = useLogout();
     const user = useStore((state) => state.user);
     const cart = useStore((state) => state.cart as CartItem[]);
     const setCart = useStore((state) => state.setCart as (items: CartItem[]) => void);
@@ -225,14 +149,9 @@ const CheckoutPayment: React.FC = () => {
         }
     }, [cart, user?.uid, navigate, clearCart]);
 
-    const navigateToProfile = useCallback((): void => {
-        navigate("/user-profile");
-    }, [navigate]);
-
     if (isLoading && cart.length === 0) {
         return (
             <div className="flex flex-col min-h-screen bg-gray-100">
-                <Header onNavigateToProfile={navigateToProfile} onLogout={handleLogout} />
                 <div className="container flex flex-grow justify-center items-center">
                     <p className="text-xl">Loading your cart...</p>
                 </div>
@@ -242,8 +161,6 @@ const CheckoutPayment: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
-            <Header onNavigateToProfile={navigateToProfile} onLogout={handleLogout} />
-
             <main className="container flex-grow py-8 px-4 mx-auto">
                 {error && <div className="p-4 mb-6 text-red-700 bg-red-100 rounded-lg">{error}</div>}
 

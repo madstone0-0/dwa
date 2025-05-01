@@ -4,10 +4,12 @@ import Fetch, { fetch } from "./Fetch";
 import useStore from "../store";
 import { getLocalStorage, removeLocalStorage, resolveError, setLocalStorage } from ".";
 import { CartItem, Item, ResponseMsg } from "pages/types";
+import { useSnackbar } from "notistack";
 
 export const useLogout = () => {
     const navigate = useNavigate();
     const reset = useStore((state) => state.reset);
+    const { enqueueSnackbar } = useSnackbar();
 
     const handleLogout = useCallback(() => {
         try {
@@ -17,7 +19,8 @@ export const useLogout = () => {
             removeLocalStorage("cart");
             removeLocalStorage("structured_profile");
             reset();
-            navigate("/signin", { replace: true });
+            navigate("/auth/signin", { replace: true });
+            enqueueSnackbar("Logged out successfully", { variant: "success" });
             return true; // Indicate successful logout
         } catch (error) {
             console.error("Logout failed:", error);
@@ -30,10 +33,12 @@ export const useLogout = () => {
 
 export const useAuthErrorHandler = () => {
     const logout = useLogout();
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
         if (!Fetch.hasErrorHandler(401)) {
             Fetch.registerErrorHandler(401, () => {
+                enqueueSnackbar("Unauthorized logging out...", { variant: "error" });
                 logout();
                 console.log("401 error handler triggered");
             });
@@ -51,6 +56,7 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
     const setCart = useStore((state) => state.setCart);
     const user = useStore((state) => state.user);
     const [isUpdatingCart, setIsUpdatingCart] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
 
     const addToCart = useCallback(
         async (item: Item) => {
@@ -122,17 +128,24 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
                         setLocalStorage("cart", updatedItems);
                         if (setLoading) setLoading(false);
                     }
-                } catch (error) {
-                    console.error("Cart update failed:", error);
+                } catch (e) {
+                    const err = resolveError(e);
+                    if (err.response?.data.err) {
+                        enqueueSnackbar(err.response.data.err, { variant: "error" });
+                    }
                     // Re-sync with server to ensure consistency
                     await refreshCart(buyerId);
                     if (setLoading) setLoading(false);
-                    throw error;
+                    throw err;
                 }
             } catch (error) {
-                console.error("Cart operation failed:", error);
+                const err = resolveError(error);
+                if (err.response?.data.err) {
+                    enqueueSnackbar(err.response.data.err, { variant: "error" });
+                }
                 if (setLoading) setLoading(false);
             } finally {
+                enqueueSnackbar("Item added to cart", { variant: "success" });
                 setIsUpdatingCart(false);
                 if (setLoading) setLoading(false);
             }
@@ -143,7 +156,7 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
     const removeFromCart = useCallback(
         async (item: CartItem) => {
             try {
-                await fetch.post<ResponseMsg>(`/buyer/cart/remove`, {
+                const res = await fetch.post<ResponseMsg>(`/buyer/cart/remove`, {
                     bid: user.uid,
                     vid: item.vid,
                     iid: item.iid,
@@ -152,8 +165,13 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
                 // Update local state optimistically
                 const newCart = cart.filter((cartItem) => cartItem.iid !== item.iid || cartItem.vid !== item.vid);
                 setCart(newCart);
+                enqueueSnackbar(res.msg, { variant: "success" });
                 if (setLoading) setLoading(false);
             } catch (error) {
+                const err = resolveError(error);
+                if (err.response?.data.err) {
+                    enqueueSnackbar(err.response.data.err, { variant: "error" });
+                }
                 console.error("Error deleting item:", error);
                 if (setLoading) setLoading(false);
             }
@@ -163,10 +181,15 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
 
     const clearCart = useCallback(async () => {
         try {
-            await fetch.post<ResponseMsg>(`/buyer/cart/${user.uid}/clear`);
+            const res = await fetch.post<ResponseMsg>(`/buyer/cart/${user.uid}/clear`);
             setCart([]);
+            enqueueSnackbar(res.msg, { variant: "success" });
             if (setLoading) setLoading(false);
         } catch (error) {
+            const err = resolveError(error);
+            if (err.response?.data.err) {
+                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            }
             console.error("Error clearing cart:", error);
             if (setLoading) setLoading(false);
         }
@@ -175,14 +198,17 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
     // Helper function to refresh cart data from server
     const refreshCart = async (buyerId: string) => {
         try {
-            const cartResponse = await fetch.get<{ items: CartItem[] }>(`/buyer/cart/${buyerId}`);
-            const items = cartResponse.items;
+            const res = await fetch.get<{ items: CartItem[] }>(`/buyer/cart/${buyerId}`);
+            const items = res.items;
             setCart(items);
             setLocalStorage("cart", items); // Keep local storage in sync
             if (setLoading) setLoading(false);
         } catch (e) {
             const err = resolveError(e);
-            console.error("Failed to refresh cart:", err);
+            if (err.response?.data.err) {
+                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            }
+            console.error("Error refreshing cart:", e);
             if (setLoading) setLoading(false);
         }
     };
