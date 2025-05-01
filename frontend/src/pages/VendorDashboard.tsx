@@ -8,7 +8,9 @@ import useStore from "./store";
 import { useSnackbar } from "notistack";
 import { resolveError } from "./utils";
 
+// This component is the vendor dashboard where vendors can add new products to their inventory.
 const VendorDashboard: React.FC = () => {
+    // Hooks and state management
     const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
     const [formData, setFormData] = useState<NewItem>({
@@ -42,6 +44,7 @@ const VendorDashboard: React.FC = () => {
         }));
     };
 
+    // Handle form submission
     const handleAddProduct = async () => {
         // Check form validity again as a safety measure
         if (!isFormValid) {
@@ -111,6 +114,7 @@ const VendorDashboard: React.FC = () => {
     };
 
     return (
+        // Main container for the dashboard
         <div className="flex flex-col min-h-screen bg-gray-100">
             <main className="flex-grow p-8">
                 <div className="p-6 mb-8 bg-white rounded-lg shadow-md">
@@ -130,7 +134,7 @@ const VendorDashboard: React.FC = () => {
                                 className="p-2 w-full rounded border focus:ring-2 focus:ring-wine"
                             />
                         </div>
-
+                        {/* Product description input */}
                         <div>
                             <label htmlFor="description" className="block mb-1 text-sm font-medium text-gray-700">
                                 Product Description
@@ -144,7 +148,7 @@ const VendorDashboard: React.FC = () => {
                                 className="p-2 w-full rounded border focus:ring-2 focus:ring-wine"
                             />
                         </div>
-
+                        {/* Cost, Quantity, and Category inputs */}
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
                                 <label htmlFor="cost" className="block mb-1 text-sm font-medium text-gray-700">
@@ -161,6 +165,7 @@ const VendorDashboard: React.FC = () => {
                                 />
                             </div>
 
+                            {/* Quantity input */}
                             <div>
                                 <label htmlFor="quantity" className="block mb-1 text-sm font-medium text-gray-700">
                                     Quantity
@@ -176,6 +181,7 @@ const VendorDashboard: React.FC = () => {
                                 />
                             </div>
 
+                            {/* Category selection */}
                             <div>
                                 <label htmlFor="category" className="block mb-1 text-sm font-medium text-gray-700">
                                     Category
@@ -195,7 +201,8 @@ const VendorDashboard: React.FC = () => {
                                 </select>
                             </div>
                         </div>
-
+                            
+                            {/* Image URL input and preview */}
                         <div>
                             <label htmlFor="pictureurl" className="block mb-1 text-sm font-medium text-gray-700">
                                 Image URL
@@ -225,13 +232,15 @@ const VendorDashboard: React.FC = () => {
                                 </div>
                             )}
                         </div>
-
+                            
+                            
+                            {/* Error message display */}
                         {formError && (
                             <div className="py-3 px-4 text-red-600 bg-red-50 rounded border border-red-200">
                                 {formError}
                             </div>
                         )}
-
+                        {/* Add Product button */}
                         <button
                             onClick={handleAddProduct}
                             className="py-2 mt-4 w-full font-bold text-black bg-yellow-400 rounded hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -245,5 +254,5 @@ const VendorDashboard: React.FC = () => {
         </div>
     );
 };
-
+// This component is the main entry point for the vendor dashboard. It sets up the header and routes for the vendor pages.
 export default VendorDashboard;

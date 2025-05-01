@@ -50,6 +50,7 @@
     flex-direction: column;
   }
   
+/* Adjust the gap for smaller screens */
   .main-navigation li {
     margin-right: 0;
     margin-bottom: 0.5rem;

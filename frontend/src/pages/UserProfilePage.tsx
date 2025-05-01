@@ -40,17 +40,20 @@ const UserProfilePage = () => {
 	const [logoUrl, setLogoUrl] = useState<string>(
 		userData.user_types?.vendor?.logo || "",
 	);
-
+	// This function handles the change in the full name input field. It updates the state with the new full name.
+	// It is used to update the user's profile information.
 	const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setNewFullName(e.target.value);
 	};
-
+	// This function handles the change in the logo URL input field. It updates the state with the new logo URL.
+	// It is used to preview the logo image before submission.
 	const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setLogoUrl(e.target.value);
 	};
 
 	const isFormValid = newFullName.trim().length > 0;
-
+	// This function handles the submission of the form. It validates the input fields and sends a request to update the user's profile information.
+	// If the update is successful, it updates the local storage and shows a success message.
 	const handleSubmit = async () => {
 		if (!isFormValid) {
 			alert("Please fill in all fields correctly.");
@@ -96,7 +99,8 @@ const UserProfilePage = () => {
 			return;
 		}
 	};
-
+	// This function handles the deletion of the user's account. It prompts the user for confirmation and then sends a request to delete the account.
+	// If the deletion is successful, it clears the local storage and redirects the user to the sign-in page.
 	const handleDeleteAccount = async () => {
 		const confirmation = window.confirm(
 			"Are you sure you want to delete your account? This action cannot be undone."
@@ -115,7 +119,7 @@ const UserProfilePage = () => {
 						},
 					}
 				);
-	
+				// Clear local storage and redirect to sign-in page
 				alert("Your account has been deleted.");
 				localStorage.removeItem("user");
 				localStorage.removeItem("user_type");
@@ -130,12 +134,13 @@ const UserProfilePage = () => {
 	
 
 	return (
+		// This is the main component for the user profile page. It allows users to edit their profile information and delete their account.
 		<div className="flex flex-col min-h-screen bg-gray-100">
 			<main className="flex-grow p-4">
 				<h1 className="mb-6 text-2xl font-semibold text-center">
 					User Profile
 				</h1>
-
+				{/* Profile section with user information */}
 				<div className="p-6 mx-auto max-w-3xl bg-white rounded-xl shadow-md">
 					<h2 className="mb-4 text-xl font-semibold">Edit Profile</h2>
 
@@ -151,7 +156,10 @@ const UserProfilePage = () => {
 							  placeholder="Enter your full name"
 						/>
 					</div>
-
+					{/* Email input field */}
+					{/* This field is read-only and displays the user's email address. */}
+					{/* It is not editable by the user. */}
+					{/* The email address is fetched from the user data in local storage. */}					
 					<div className="mb-4">
 						<label className="block text-sm font-medium text-gray-700">
 							Email
@@ -163,7 +171,10 @@ const UserProfilePage = () => {
 							className="p-2 mt-1 w-full bg-gray-100 rounded-md border border-gray-300 cursor-not-allowed"
 						/>
 					</div>
-
+					
+					
+					{/* Logo URL input field for vendors */}
+					{/* This field is only visible to vendors. It allows them to update their logo URL. */}
 					{userType === "vendor" && (
 						<div className="mb-4">
 							<label className="block text-sm font-medium text-gray-700">
@@ -185,7 +196,9 @@ const UserProfilePage = () => {
 							)}
 						</div>
 					)}
-
+				
+					
+					{/* Update profile button */}	
 					<button
 						onClick={handleSubmit}
 						className="py-2 px-4 w-full text-black bg-yellow-500 rounded hover:bg-yellow-400"
@@ -194,7 +207,8 @@ const UserProfilePage = () => {
 						Update Profile
 					</button>
 				</div>
-
+					
+				{/* Logout button */}
 				<div className="p-6 mx-auto mt-6 max-w-3xl text-center bg-white rounded-xl shadow-md">
 					<h2 className="mb-4 text-xl font-semibold text-red-600">
 						Delete Account
@@ -211,7 +225,7 @@ const UserProfilePage = () => {
 					</button>
 				</div>
 			</main>
-
+					{/* Footer section with links to terms of service, privacy policy, and help */}
 			<footer
 				className="py-5 text-xs text-center text-white border-t border-gray-300 bg-wine"
 				style={{ backgroundColor: "#722F37" }}

@@ -4,7 +4,7 @@ import { fetch } from "./utils/Fetch";
 import { resolveError } from "./utils";
 import { useSnackbar } from "notistack";
 import { ResponseMsg } from "./types";
-
+// This component is the signup page for the application. It allows users to create a new account by providing their name, email, password, and whether they want to sign up as a vendor.
 function Signup() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ function Signup() {
     const [signupPartialSuccess, setSignupPartialSuccess] = useState(false);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
-
+    // This hook is used to handle authentication errors. It will redirect the user to the login page if they are not authenticated.
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -72,7 +72,7 @@ function Signup() {
                     style={{ backgroundColor: "#722F37" }}
                 >
                     <h2 className="mb-4 text-2xl font-bold text-center text-white">Sign Up</h2>
-
+                    {/* Error message for signup partial success or other errors */}
                     {signupPartialSuccess ? (
                         <div
                             className="p-4 mb-4 text-yellow-700 bg-yellow-100 border-l-4 border-yellow-500"
@@ -89,7 +89,7 @@ function Signup() {
                     ) : error ? (
                         <p className="p-2 mb-4 text-black bg-yellow-300 rounded">{error}</p>
                     ) : null}
-
+                    {/* Signup form */}
                     <form onSubmit={handleSignup} className="flex flex-col">
                         <label className="mb-1 text-sm font-bold text-white">Full Name</label>
                         <input
@@ -124,7 +124,7 @@ function Signup() {
                             />
                             <label className="text-sm text-white">Sign up as vendor</label>
                         </div>
-
+                        {/* Submit button */}
                         <button
                             type="submit"
                             className="py-2 w-full font-bold text-black bg-yellow-400 rounded hover:bg-yellow-500 disabled:opacity-50"

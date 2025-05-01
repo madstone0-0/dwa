@@ -7,9 +7,12 @@ import { HeaderItem } from "./types";
 import Header from "./Header";
 import { useAuthErrorHandler } from "./utils/hooks";
 import Profile from "./svgs/Profile";
-
+// This component is the main entry point for the vendor dashboard. It sets up the header and routes for the vendor pages.
+// It imports various components and hooks to manage the vendor's dashboard, sales, inventory, and profile pages.
 const Vendor = () => {
+    // This hook is used to handle authentication errors. It will redirect the user to the login page if they are not authenticated.
     useAuthErrorHandler();
+    // This hook is used to navigate between different pages in the application.
     const vendorHeaderItems: HeaderItem[] = [
         {
             name: "Inventory",
@@ -58,6 +61,8 @@ const Vendor = () => {
         },
     ];
     return (
+        // This component is the main entry point for the vendor dashboard. It sets up the header and routes for the vendor pages.
+        // It imports various components and hooks to manage the vendor's dashboard, sales, inventory, and profile pages.
         <>
             <Header pageTitle="Vendor Dashboard" homeLink="/vendor" items={vendorHeaderItems} />
             <Routes>
