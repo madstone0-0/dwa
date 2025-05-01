@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetch } from "./utils/Fetch"; 
 
 interface CartItem {
-  id: number;
+  iid: number;
   name: string;
   cost: number;
   quantity: number;
@@ -62,7 +62,58 @@ function CheckoutPayment() {
   const tax = subtotal * 0.05; // 5% tax
   const total = subtotal + deliveryFee + tax;
 
-  // mock function to simulate placing an order
+  const handleDeleteItem = async (itemId: number, vendorId: string) => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token?.trim().replace(/\s/g, "");
+    const bid = userData.uid;
+
+    try {
+      const response = await fetch.post(`/buyer/cart/remove`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bid,
+          vid: vendorId,
+          iid: itemId,
+        }),
+      });
+
+      if (response.ok) {
+        setCartItems(prevItems => prevItems.filter(item => item.iid !== itemId));
+      } else {
+        alert('Failed to delete item. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  const handleClearCart = async () => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = userData.token?.trim().replace(/\s/g, "");
+    const bid = userData.uid;
+
+    try {
+      const response = await fetch.post(`/buyer/cart/${bid}/clear`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log("Clear cart response:", response);
+
+      if (response.ok) {
+        setCartItems([]); 
+      } else {
+        alert('Failed to clear cart. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
 
@@ -70,15 +121,13 @@ function CheckoutPayment() {
     const token = userData.token?.trim().replace(/\s/g, "");
 
     try {
-      // Need cart table to make this work
       for (const item of cartItems) {
         const paymentBody = {
-          bid: userData.bid,        
+          bid: userData.uid,        
           vid: item.vid,          
-          iid: item.id,   
-          amt: item.cost ,
+          iid: item.iid,   
+          amt: item.cost,
           qty_bought: item.quantity,
-          
         };
 
         const response = await fetch.post('buyer/pay/initialize', {
@@ -94,11 +143,10 @@ function CheckoutPayment() {
         }
       }
 
-      // If all payments succeed
       setIsProcessing(false);
-      localStorage.removeItem('cart'); // clear the cart
-      navigate('/order-confirmation');
-
+      handleClearCart(); 
+      // localStorage.removeItem('cart'); 
+      navigate('/checkout-payment');
     } catch (error) {
       console.error('Error placing order:', error);
       setIsProcessing(false);
@@ -175,7 +223,7 @@ function CheckoutPayment() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-bold text-wine mb-4" style={{ color: '#722F37' }}>My Cart</h3>
               {cartItems.map(item => (
-                <div key={item.id} className="flex justify-between items-center mb-4">
+                <div key={item.iid} className="flex justify-between items-center mb-4">
                   <div className="flex items-center">
                     <img 
                       src={item.pictureUrl} 
@@ -190,8 +238,21 @@ function CheckoutPayment() {
                   <div className="text-sm text-gray-600">
                     {item.quantity} x ${item.cost}
                   </div>
+                  <button 
+                    onClick={() => handleDeleteItem(item.iid, item.vid)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Delete
+                  </button>
                 </div>
               ))}
+              {/* Clear Cart Button */}
+              <button
+                onClick={handleClearCart}
+                className="mt-4 w-full py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Clear Cart
+              </button>
             </div>
           </div>
 
