@@ -4,6 +4,52 @@ import { fetch } from "./utils/Fetch";
 import { useCart, useLogout } from "./utils/hooks";
 import { CATEGORIES, Item, ItemWithVendorInfo } from "./types";
 
+
+
+
+
+// Toast notification component
+interface ToastProps {
+    message: string;
+    type: "success" | "error";
+    onClose: () => void;
+  }
+  
+  const Toast = ({ message, type, onClose }: ToastProps) => {
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 3000); 
+      
+      return () => clearTimeout(timer);
+    }, [onClose]);
+    
+    const bgColor = type === "success" ? "bg-green-500" : "bg-red-500";
+    
+    return (
+      <div className={`fixed top-4 right-4 z-50 flex items-center p-4 rounded-lg shadow-lg text-white ${bgColor}`}>
+        <span className="mr-2">
+          {type === "success" ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          )}
+        </span>
+        <p>{message}</p>
+        <button onClick={onClose} className="ml-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    );
+  };
+  
+
 // Hardcoded sample data
 const SAMPLE_ITEMS: ItemWithVendorInfo[] = [
     {
@@ -58,6 +104,31 @@ function ItemPage() {
     const { addToCart } = useCart();
     const handleLogout = useLogout();
 
+
+
+     // Toast state
+     const [toast, setToast] = useState<{
+        visible: boolean;
+        message: string;
+        type: "success" | "error";
+      }>({
+        visible: false,
+        message: "",
+        type: "success",
+      });
+      
+      const showToast = (message: string, type: "success" | "error") => {
+        setToast({
+          visible: true,
+          message,
+          type,
+        });
+      };
+      
+      const hideToast = () => {
+        setToast(prev => ({ ...prev, visible: false }));
+      };
+
     // Fetch item details - with fallback to hardcoded data
     useEffect(() => {
         const getItem = async () => {
@@ -86,13 +157,26 @@ function ItemPage() {
         if (!item) return;
         try {
             await addToCart(item);
+            // Show success toast notification
+            showToast(`${item.name} added to cart successfully!`, "success");
         } catch (error) {
             console.error("Failed to add item to cart:", error);
+            // Show error toast notification
+            showToast(`Failed to add item to cart: ${error instanceof Error ? error.message : "Unknown error"}`, "error");
         }
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-white">
+             {/* Toast Notification */}
+             {toast.visible && (
+              <Toast 
+                message={toast.message} 
+                type={toast.type} 
+                onClose={hideToast} 
+              />
+            )}
+            
             {/* Header */}
             <header className="flex justify-between py-4 px-8 shadow-md bg-wine" style={{ backgroundColor: "#722F37" }}>
                 <h1 className="text-2xl font-bold text-white">Ashesi DWA</h1>
