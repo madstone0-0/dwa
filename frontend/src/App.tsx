@@ -8,6 +8,7 @@ import Vendor from "./pages/Vendor";
 import Footer from "./pages/Footer";
 import Auth from "./pages/Auth";
 import Buyer from "./pages/Buyer";
+import ShopByCat from "./pages/ShopByCat";
 
 // Header Component
 
@@ -28,6 +29,7 @@ const AppContent = () => {
                     <Route path="auth/*" element={<Auth />} />
                     <Route path="vendor/*" element={<Vendor />} />
                     <Route path="buyer/*" element={<Buyer />} />
+                    <Route path="shop-by-category" element={<ShopByCat />} />
                 </Routes>
                 <Footer />
             </main>

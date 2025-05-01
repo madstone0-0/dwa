@@ -7,6 +7,7 @@ import { HeaderItem } from "./types";
 import Header from "./Header";
 import UserProfilePage from "./UserProfilePage";
 
+
 const Buyer = () => {
     const headerItems: HeaderItem[] = [
         {
