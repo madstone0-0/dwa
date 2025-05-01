@@ -8,7 +8,9 @@ import { useAuthErrorHandler, useCart, useLogout } from "./utils/hooks.js";
 interface SectionHeaderProps {
     title: string;
     linkText: string;
+	onLinkClick?: () => void | Promise<void>;
 }
+
 
 function LandingPage() {
     const navigate = useNavigate();
@@ -34,12 +36,12 @@ function LandingPage() {
             .catch((e) => console.error({ e }));
     }, []);
 
-    const SectionHeader = ({ title, linkText }: SectionHeaderProps) => (
+    const SectionHeader = ({ title, linkText,onLinkClick, }: SectionHeaderProps) => (
         <div className="flex justify-between items-center px-8 mb-4 w-full">
             <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-            <button className="font-semibold text-wine hover:text-wine-dark" style={{ color: "#722F37" }}>
-                {linkText}
-            </button>
+			<button className="font-semibold text-wine hover:text-wine-dark" style={{ color: "#722F37" }} onClick={onLinkClick}>
+          {linkText}
+        </button>
         </div>
     );
 
@@ -164,7 +166,7 @@ function LandingPage() {
                 </div>
 
                 {/* Frequently Repurchased */}
-                <SectionHeader title="Frequently Repurchased" linkText="Shop all essentials" />
+                <SectionHeader title="Frequently Repurchased" linkText="Shop By Category" onLinkClick={() => navigate('/shop-by-category')} />
                 <div className="grid grid-cols-1 gap-4 py-6 px-8 w-full md:grid-cols-4">
                     {items.map((item) => (
                         <ItemCard key={item.iid} item={item} addToCart={addToCart} />
