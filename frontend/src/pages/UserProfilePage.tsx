@@ -53,37 +53,49 @@ const UserProfilePage = () => {
 
 	const handleSubmit = async () => {
 		if (!isFormValid) {
-		  alert("Please fill in all fields correctly.");
-		  return;
+			alert("Please fill in all fields correctly.");
+			return;
 		}
-	  
+
+		const user = getLocalStorage("user") as unknown as User;
+		const userType = user.user_type;
+
+		const updatedProfile: any = {
+			user: {
+				user_type: userType,
+				email: userEmail,
+			},
+			user_types: {},
+		};
+
+		if (userType === "vendor") {
+			updatedProfile.user_types["vendor"] = {
+				uid: userId,
+				name: newFullName,
+				logo: logoUrl,
+			};
+		} else if (userType === "buyer") {
+			updatedProfile.user_types["buyer"] = {
+				uid: userId,
+				name: newFullName,
+			};
+		}
+
 		try {
-		  const endpoint = userType === "vendor" 
-			? "/vendor/update-profile" 
-			: "/buyer/update-profile";
-	  
-		  // Update request structure to match backend
-		  const updateData = userType === "vendor"
-			? { name: newFullName, logo: logoUrl }
-			: { name: newFullName };
-	  
-		  await fetch.put(endpoint, updateData);
-	  
-		  // Update local storage
-		  const updatedUser = {
-			...userData,
-			name: newFullName,
-			...(userType === "vendor" && { logo: logoUrl })
-		  };
-		  
-		  setLocalStorage("user", updatedUser);
-		  alert("Profile updated successfully!");
-		  
+			await fetch.put<ResponseMsg>(
+				"auth/user/update",
+				updatedProfile,
+			);
+
+			setLocalStorage("user", updatedProfile);
+			setUserName(newFullName);
+			alert("Profile updated successfully!");
 		} catch (e) {
-		  console.error("Update failed:", e);
-		  alert("Failed to update profile");
+			console.error({ e });
+			alert("Failed to update profile. Please try again.");
+			return;
 		}
-	  };
+	};
 
 	const handleDeleteAccount = async () => {
 		const confirmation = window.confirm(
