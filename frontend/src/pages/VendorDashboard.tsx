@@ -5,8 +5,11 @@ import { AxiosError } from "axios";
 import { CATEGORIES, NewItem } from "./types";
 import placeholder from "../assets/dwa-icon.jpg";
 import useStore from "./store";
+import { useSnackbar } from "notistack";
+import { resolveError } from "./utils";
 
 const VendorDashboard: React.FC = () => {
+    const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
     const [formData, setFormData] = useState<NewItem>({
         name: "",
@@ -85,9 +88,15 @@ const VendorDashboard: React.FC = () => {
                 pictureurl: "",
             });
 
+            enqueueSnackbar("Product added successfully!", { variant: "success" });
             // Navigate to inventory management
             navigate("/vendor/inventory");
         } catch (error: unknown) {
+            const err = resolveError(error);
+            if (err.response?.data.err) {
+                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            }
+
             console.error("Error adding product:", error);
 
             if (error instanceof AxiosError && error.response) {
