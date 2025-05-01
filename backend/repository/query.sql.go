@@ -236,19 +236,36 @@ func (q *Queries) GetCartItem(ctx context.Context, arg GetCartItemParams) (GetCa
 }
 
 const GetCartItemsForBuyer = `-- name: GetCartItemsForBuyer :many
-select vendor.name, item.name, item.cost, cart.quantity, cart.added_time from cart
-left join vendor on vendor.uid = cart.vid
-left join item on item.iid = cart.iid
-where cart.bid = $1
-order by added_time desc
+select
+    vendor.name as vendor_name,
+    item.name,
+    item.cost,
+    item.pictureurl,
+    cart.quantity,
+    cart.added_time,
+    item.iid,
+    item.vid 
+from
+    cart
+left join vendor on
+    vendor.uid = cart.vid
+left join item on
+    item.iid = cart.iid
+where
+    cart.bid = $1
+order by
+    added_time desc
 `
 
 type GetCartItemsForBuyerRow struct {
-	Name      *string          `json:"name"`
-	Name_2    *string          `json:"name_2"`
-	Cost      pgtype.Numeric   `json:"cost"`
-	Quantity  int32            `json:"quantity"`
-	AddedTime pgtype.Timestamp `json:"added_time"`
+	VendorName *string          `json:"vendor_name"`
+	Name       *string          `json:"name"`
+	Cost       pgtype.Numeric   `json:"cost"`
+	Pictureurl *string          `json:"pictureurl"`
+	Quantity   int32            `json:"quantity"`
+	AddedTime  pgtype.Timestamp `json:"added_time"`
+	Iid        pgtype.UUID      `json:"iid"`
+	Vid        pgtype.UUID      `json:"vid"`
 }
 
 func (q *Queries) GetCartItemsForBuyer(ctx context.Context, bid pgtype.UUID) ([]GetCartItemsForBuyerRow, error) {
@@ -261,11 +278,14 @@ func (q *Queries) GetCartItemsForBuyer(ctx context.Context, bid pgtype.UUID) ([]
 	for rows.Next() {
 		var i GetCartItemsForBuyerRow
 		if err := rows.Scan(
+			&i.VendorName,
 			&i.Name,
-			&i.Name_2,
 			&i.Cost,
+			&i.Pictureurl,
 			&i.Quantity,
 			&i.AddedTime,
+			&i.Iid,
+			&i.Vid,
 		); err != nil {
 			return nil, err
 		}
@@ -293,6 +313,62 @@ func (q *Queries) GetItemById(ctx context.Context, iid pgtype.UUID) (Item, error
 		&i.Category,
 		&i.Quantity,
 		&i.Cost,
+	)
+	return i, err
+}
+
+const GetItemByIdWithVendorInfo = `-- name: GetItemByIdWithVendorInfo :one
+select
+    iid,
+    vid,
+    i."name" as name,
+    pictureurl,
+    description,
+    "category",
+    quantity,
+    cost,
+    v."name" as vendor_name,
+    v.logo as vendor_logo,
+    u.email as vendor_email
+from
+    item i
+join vendor v on
+    v.uid = i.vid
+join "user" u on
+    u.uid = v.uid
+where
+    iid = $1
+`
+
+type GetItemByIdWithVendorInfoRow struct {
+	Iid         pgtype.UUID    `json:"iid"`
+	Vid         pgtype.UUID    `json:"vid"`
+	Name        string         `json:"name"`
+	Pictureurl  *string        `json:"pictureurl"`
+	Description *string        `json:"description"`
+	Category    Category       `json:"category"`
+	Quantity    int32          `json:"quantity"`
+	Cost        pgtype.Numeric `json:"cost"`
+	VendorName  string         `json:"vendor_name"`
+	VendorLogo  *string        `json:"vendor_logo"`
+	VendorEmail string         `json:"vendor_email"`
+}
+
+func (q *Queries) GetItemByIdWithVendorInfo(ctx context.Context, iid pgtype.UUID) (GetItemByIdWithVendorInfoRow, error) {
+	row := q.db.QueryRow(ctx, GetItemByIdWithVendorInfo, iid)
+	var i GetItemByIdWithVendorInfoRow
+	err := row.Scan(
+		&i.Iid,
+		&i.Vid,
+		&i.Name,
+		&i.Pictureurl,
+		&i.Description,
+		&i.Category,
+		&i.Quantity,
+		&i.Cost,
+		&i.VendorName,
+		&i.VendorLogo,
+		&i.VendorEmail,
 	)
 	return i, err
 }

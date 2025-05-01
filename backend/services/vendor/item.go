@@ -76,7 +76,7 @@ func ByIid(ctx context.Context, pool db.Pool, iid pgtype.UUID) utils.ServiceRetu
 	}
 
 	q := repository.New(pool)
-	item, err := q.GetItemById(ctx, iid)
+	item, err := q.GetItemByIdWithVendorInfo(ctx, iid)
 	if err != nil {
 		return utils.MakeError(err, http.StatusInternalServerError)
 	}

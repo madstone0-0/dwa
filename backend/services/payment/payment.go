@@ -8,6 +8,8 @@ import (
 	"context"
 	"errors"
 	"net/http"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj repository.CreateTransactionParams) utils.ServiceReturn[any] {
@@ -16,7 +18,10 @@ func CreateTransactionRecord(ctx context.Context, pool db.Pool, transactionObj r
 
 	if err != nil {
 		logging.Errorf("There was an error fetching the item")
-		return utils.MakeError(err, http.StatusNotFound)
+		if err == pgx.ErrNoRows {
+			return utils.MakeError(errors.New("item not found"), http.StatusNotFound)
+		}
+		return utils.MakeError(err, http.StatusInternalServerError)
 	}
 
 	if item.Vid != transactionObj.Vid {
