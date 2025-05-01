@@ -84,6 +84,7 @@ function ItemPage() {
             bid: buyerId,
             iid: item.iid,
             vid: item.vid,
+            amt: item.cost,
             quantity: quantity
           },
           {
@@ -101,11 +102,12 @@ function ItemPage() {
       } else {
         // Item doesn't exist in cart - send POST request to add it
         const response = await fetch.post(
-          "/buyer/cart/",
+          "/buyer/cart",
           {
             bid: buyerId,
             iid: item.iid,
             vid: item.vid,
+            amt: item.cost,
             quantity: quantity
           },
           {
@@ -190,7 +192,7 @@ function ItemPage() {
           <button onClick={() => navigate("/landing")} className="text-white hover:text-yellow-400">
             Home
           </button>
-          <button onClick={() => navigate("/cart")} className="flex flex-col items-center text-white hover:text-yellow-400">
+          <button onClick={() => navigate("/checkout-payment")} className="flex flex-col items-center text-white hover:text-yellow-400">
             {/* cart icon */}
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

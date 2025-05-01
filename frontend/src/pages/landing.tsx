@@ -130,7 +130,7 @@ function LandingPage() {
             bid: buyerId,
             iid: item.iid,
             vid: item.vid,
-			amt: item.cost,
+			      amt: item.cost,
             quantity: quantity
           },
           {
@@ -155,6 +155,7 @@ function LandingPage() {
                 bid: buyerId,
                 iid: item.iid,
                 vid: item.vid,
+                amt: item.cost,
                 quantity: quantity
               },
               {
