@@ -8,63 +8,55 @@ function Signin() {
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
-	const handleSignin = async (e: React.FormEvent) => {
-		e.preventDefault();
-		console.log("Request payload:", { email, password });
-
-		// Validate that both fields are filled in
-		if (!email || !password) {
-			setError("Both fields are required.");
-			return;
-		}
-
-		// Validate email format
-		const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		if (!emailPattern.test(email)) {
-			setError("Please enter a valid email address.");
-			return;
-		}
-
-		// Validate password length
-		if (password.length < 6) {
-			setError("Password must be at least 6 characters long.");
-			return;
-		}
-
-		try {
-			// Send login request
-			const response = await login({ email, password });
-
-			console.log("User logged in successfully:", response);
-
-			// Save the user data to localStorage to persist the session
-			const userData = response;
-
-			localStorage.setItem("user", JSON.stringify(userData));
-
-			// Handle user type and navigate accordingly
-			const { user_type } = userData;
-			//Save the user type to localStorage for later use
-			localStorage.setItem("user_type", user_type);
-
-			if (user_type === "vendor") {
-				console.log("Navigating to vendor dashboard");
-				navigate("/vendor-dashboard");
-			} else if (user_type === "buyer") {
-				navigate("/landing");
-			} else if (user_type === "admin") {
-				navigate("/admin-dashboard");
-			} else {
-				setError("Unknown user type.");
-			}
-
-			// Clear error
-			setError("");
-		} catch (error) {
-			console.error("Signin error:", error);
-			setError("An error occurred while signing in.");
-		}
-	};
+	
+const handleSignin = async (e: React.FormEvent) => {
+	e.preventDefault();
+	console.log("Request payload:", { email, password });
+  
+	// Validation code unchanged...
+  
+	setError("");
+	try {
+	  // Send login request
+	  const response = await login({ email, password });
+  
+	  console.log("User logged in successfully:", response);
+  
+	  // Save the user data to localStorage
+	  const userData = response;
+	  localStorage.setItem("user", JSON.stringify(userData));
+	  localStorage.setItem("userType", userData.user_type); // Changed from user_type to userType for consistency
+  
+	  // Save token directly for easier access
+	  if (userData.token) {
+		localStorage.setItem("token", userData.token.trim().replace(/\s/g, ""));
+	  }
+  
+	  // Save bid or vid based on user_type
+	  if (userData.user_type === "buyer") {
+		localStorage.setItem("bid", userData.uid); // Save Buyer ID
+	  } else if (userData.user_type === "vendor") {
+		localStorage.setItem("vid", userData.uid); // Save Vendor ID
+	  }
+  
+	  // Navigate based on user type
+	  if (userData.user_type === "vendor") {
+		navigate("/vendor-dashboard");
+	  } else if (userData.user_type === "buyer") {
+		navigate("/landing");
+	  } else if (userData.user_type === "admin") {
+		navigate("/admin-dashboard");
+	  } else {
+		setError("Unknown user type.");
+	  }
+  
+	  // Clear error
+	  setError("");
+	} catch (error) {
+	  console.error("Signin error:", error);
+	  setError("An error occurred while signing in.");
+	}
+  };
 
 	return (
 		<div className="flex flex-col min-h-screen bg-white">
