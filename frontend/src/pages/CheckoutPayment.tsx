@@ -68,12 +68,13 @@ function CheckoutPayment() {
       setError(null);
       
       try {
-        const bid = localStorage.getItem("bid");
+        const userData = JSON.parse(localStorage.getItem("user") || "{}");
+        const bid = userData.uid;
         if (!bid) {
           throw new Error("Buyer ID not found. Please log in again.");
         }
         
-        const userData = JSON.parse(localStorage.getItem("user") || "{}");
+        
         const token = userData.token;
         
         if (!token) {

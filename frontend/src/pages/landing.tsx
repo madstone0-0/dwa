@@ -9,14 +9,6 @@ interface SectionHeaderProps {
   linkText: string;
 }
 
-// CATEGORIES
-const CATEGORIES = {
-  FASHION: "Fashion",
-  ELECTRONICS: "Electronics",
-  SERVICES: "Services",
-  BOOKS: "Books & Supplies",
-};
-
 function LandingPage() {
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -247,39 +239,9 @@ function LandingPage() {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
 
-    const allItems = [
-      ...Object.values(CATEGORIES),
-      ...[{
-        id: 1,
-        name: "Essential Item 1",
-        price: 12.99,
-        image: "/images/repurchase-1.jpg",
-      },
-      {
-        id: 2,
-        name: "Essential Item 2",
-        price: 12.99,
-        image: "/images/repurchase-2.jpg",
-      },
-      {
-        id: 3,
-        name: "Essential Item 3",
-        price: 12.99,
-        image: "/images/repurchase-3.jpg",
-      },
-      {
-        id: 4,
-        name: "Essential Item 4",
-        price: 12.99,
-        image: "/images/repurchase-4.jpg",
-      }],
-      ...["Hair Styling", "Tutoring", "Graphic Design"],
-    ];
-
-    const filtered = allItems.filter((item) => {
-      const searchString =
-        typeof item === "string" ? item.toLowerCase() : item.name.toLowerCase();
-      return searchString.includes(term);
+    // Filter items from backend data
+    const filtered = items.filter((item) => {
+      return item.name.toLowerCase().includes(term);
     });
 
     setFilteredItems(filtered);
@@ -392,28 +354,21 @@ function LandingPage() {
                     onClick={() => {
                       setSearchTerm("");
                       setFilteredItems([]);
+                      navigate(`/item/${item.iid}`);
                     }}
                   >
                     <div className="flex items-center">
-                      {typeof item === "string" ? (
-                        <span>{item}</span>
-                      ) : (
-                        <>
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="object-cover mr-4 w-12 h-12 rounded"
-                          />
-                          <div>
-                            <p className="font-semibold">{item.name}</p>
-                            {item.price && (
-                              <p className="text-sm text-gray-600">
-                                GH₵{item.price}
-                              </p>
-                            )}
-                          </div>
-                        </>
-                      )}
+                      <img
+                        src={item.pictureurl}
+                        alt={item.name}
+                        className="object-cover mr-4 w-12 h-12 rounded"
+                      />
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-sm text-gray-600">
+                          GH₵{item.cost}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
