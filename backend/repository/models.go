@@ -11,17 +11,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// AccType defines the type for account types used in the system (e.g., MOMO, BANK)
 type AccType string
 
-// Constants representing valid account types
 const (
 	AccTypeMOMO AccType = "MOMO"
 	AccTypeBANK AccType = "BANK"
 )
 
-// Scan implements the sql.Scanner interface for AccType
-// It converts database types to the AccType Go type
 func (e *AccType) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
@@ -34,14 +30,12 @@ func (e *AccType) Scan(src interface{}) error {
 	return nil
 }
 
-// NullAccType represents a nullable version of AccType for use with SQL NULL values
 type NullAccType struct {
 	AccType AccType `json:"acc_type"`
 	Valid   bool    `json:"valid"` // Valid is true if AccType is not NULL
 }
 
-// Scan implements the sql.Scanner interface for NullAccType
-// It allows scanning from a SQL value to NullAccType
+// Scan implements the Scanner interface.
 func (ns *NullAccType) Scan(value interface{}) error {
 	if value == nil {
 		ns.AccType, ns.Valid = "", false
@@ -51,8 +45,7 @@ func (ns *NullAccType) Scan(value interface{}) error {
 	return ns.AccType.Scan(value)
 }
 
-// Value implements the driver.Valuer interface for NullAccType
-// It allows converting a NullAccType to a driver.Value for writing to the database
+// Value implements the driver Valuer interface.
 func (ns NullAccType) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
@@ -60,10 +53,8 @@ func (ns NullAccType) Value() (driver.Value, error) {
 	return string(ns.AccType), nil
 }
 
-// Category defines the type for item categories in the system
 type Category string
 
-// Constants representing valid item categories
 const (
 	CategoryFASHION       Category = "FASHION"
 	CategoryELECTRONICS   Category = "ELECTRONICS"
@@ -71,8 +62,6 @@ const (
 	CategoryBOOKSSUPPLIES Category = "BOOKS_SUPPLIES"
 )
 
-// Scan implements the sql.Scanner interface for Category
-// It converts database types to the Category Go type
 func (e *Category) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
@@ -85,13 +74,12 @@ func (e *Category) Scan(src interface{}) error {
 	return nil
 }
 
-// NullCategory represents a nullable version of Category for use with SQL NULL values
 type NullCategory struct {
 	Category Category `json:"category"`
-	Valid    bool     `json:"valid"` 
+	Valid    bool     `json:"valid"` // Valid is true if Category is not NULL
 }
 
-// Scan implements the sql.Scanner interface for NullCategory
+// Scan implements the Scanner interface.
 func (ns *NullCategory) Scan(value interface{}) error {
 	if value == nil {
 		ns.Category, ns.Valid = "", false
@@ -101,7 +89,7 @@ func (ns *NullCategory) Scan(value interface{}) error {
 	return ns.Category.Scan(value)
 }
 
-// Value implements the driver.Valuer interface for NullCategory
+// Value implements the driver Valuer interface.
 func (ns NullCategory) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
@@ -109,62 +97,56 @@ func (ns NullCategory) Value() (driver.Value, error) {
 	return string(ns.Category), nil
 }
 
-// Account represents a vendor or buyer's financial account information
 type Account struct {
 	Uid          pgtype.UUID `json:"uid"`
-	Accounttype  AccType     `json:"accounttype"`  
-	Bankname     *string     `json:"bankname"`     
+	Accounttype  AccType     `json:"accounttype"`
+	Bankname     *string     `json:"bankname"`
 	Momoprovider *string     `json:"momoprovider"`
 }
 
-// Buyer represents a buyer in the marketplace
 type Buyer struct {
 	Uid  pgtype.UUID `json:"uid"`
-	Name string      `json:"name"` 
+	Name string      `json:"name"`
 }
 
-// Cart represents a buyer's shopping cart entry
 type Cart struct {
-	Bid       pgtype.UUID      `json:"bid"`        
-	Iid       pgtype.UUID      `json:"iid"`        
-	Vid       pgtype.UUID      `json:"vid"`       
-	Quantity  int32            `json:"quantity"`   
+	Bid       pgtype.UUID      `json:"bid"`
+	Iid       pgtype.UUID      `json:"iid"`
+	Vid       pgtype.UUID      `json:"vid"`
+	Quantity  int32            `json:"quantity"`
 	AddedTime pgtype.Timestamp `json:"added_time"`
 }
 
-// Item represents a product listed by a vendor
 type Item struct {
-	Iid         pgtype.UUID    `json:"iid"`         
+	Iid         pgtype.UUID    `json:"iid"`
 	Vid         pgtype.UUID    `json:"vid"`
-	Name        string         `json:"name"`        
+	Name        string         `json:"name"`
 	Pictureurl  *string        `json:"pictureurl"`
-	Description *string        `json:"description"` 
-	Category    Category       `json:"category"`    
+	Description *string        `json:"description"`
+	Category    Category       `json:"category"`
 	Quantity    int32          `json:"quantity"`
-	Cost        pgtype.Numeric `json:"cost"`        
+	Cost        pgtype.Numeric `json:"cost"`
 }
 
-// Transaction represents a purchase transaction between buyer and vendor
 type Transaction struct {
-	Tid       pgtype.UUID      `json:"tid"`        
-	Bid       pgtype.UUID      `json:"bid"`        
+	Tid       pgtype.UUID      `json:"tid"`
+	Bid       pgtype.UUID      `json:"bid"`
 	Vid       pgtype.UUID      `json:"vid"`
-	Iid       pgtype.UUID      `json:"iid"`        
+	Iid       pgtype.UUID      `json:"iid"`
 	Amt       pgtype.Numeric   `json:"amt"`
-	QtyBought int32            `json:"qty_bought"` 
-	TTime     pgtype.Timestamp `json:"t_time"`     
+	QtyBought int32            `json:"qty_bought"`
+	TTime     pgtype.Timestamp `json:"t_time"`
 }
 
-// User represents a platform user (buyer or vendor)
 type User struct {
 	Uid      pgtype.UUID `json:"uid"`
-	Email    string      `json:"email"`    
-	Passhash string      `json:"passhash"` 
-	Isadmin  *bool       `json:"isadmin"`  
+	Email    string      `json:"email"`
+	Passhash string      `json:"passhash"`
+	Isadmin  *bool       `json:"isadmin"`
+}
 
-// Vendor represents a vendor in the system
 type Vendor struct {
-	Uid  pgtype.UUID `json:"uid"`  // Vendor ID
-	Name string      `json:"name"` 
+	Uid  pgtype.UUID `json:"uid"`
+	Name string      `json:"name"`
 	Logo *string     `json:"logo"`
 }
