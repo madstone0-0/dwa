@@ -25,6 +25,7 @@ The ground shakes, drums... drums in the deep. We cannot get out.
 A shadow lurks in the dark. We can not get out.
 They are coming.
 `
+
 // Enver loads environment variables
 var Enver utils.Enver = utils.DefaultEnv{}
 
@@ -41,7 +42,7 @@ func main() {
 		Port:     Enver.Env("DB_PORT"),
 	})
 
-		// Handle DB connection error
+	// Handle DB connection error
 	if err != nil {
 		logging.Fatalf("Cannot connect to db")
 	}
@@ -49,7 +50,7 @@ func main() {
 	defer closeFunc()
 
 	app := gin.Default()
-// Apply CORS config only in debug mode
+	// Apply CORS config only in debug mode
 	if Enver.Env("GIN_MODE") == "debug" {
 		app.Use(cors.New(cors.Config{
 			AllowOrigins:     []string{"http://localhost:5173", "*"},
@@ -60,9 +61,20 @@ func main() {
 		}))
 	}
 
+	// Set production CORS config
+	if Enver.Env("GIN_MODE") == "release" {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{"https://dwa.surge.sh"},
+			AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+			AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
+
 	// Use built-in recovery middleware to handle panics gracefully
 	app.Use(gin.Recovery())
-// Define basic route to check if the server is up
+	// Define basic route to check if the server is up
 	app.GET("/info", func(c *gin.Context) {
 		utils.SendMsg(c, http.StatusOK, "Dwa backend server")
 	})
@@ -82,15 +94,12 @@ func main() {
 		})
 	})
 
-
 	// Register all route groups for authentication, items, vendors, and buyers
 	auth.AuthRoutes(ctx, pool, app)
 
 	items.ItemsRoute(ctx, pool, app)
 	vendors.VendorRoutes(ctx, pool, app)
 	buyers.BuyerRoutes(ctx, pool, app)
-
-
 
 	// Start the server on the host and port from environment variables
 	app.Run(fmt.Sprintf("%s:%s", Enver.Env("HOST"), Enver.Env("PORT")))
