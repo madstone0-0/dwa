@@ -215,7 +215,13 @@ go test ./...
 ---
 
 ## 📸 Screenshots
-(https://dwa.surge.sh/assets/buyer-landing-page-ByJZ5kBg.jpg)
+![buyer-landing-page](https://github.com/user-attachments/assets/be3c5283-827a-4bd9-a3c4-0bf50eef85e3)
+![buyer-explore-page](https://github.com/user-attachments/assets/a75e8f76-6b95-4b32-b220-7fbd29beb291)
+![buyer-cart](https://github.com/user-attachments/assets/a8e13ccf-f9ab-49a7-962f-b28d5978535f)
+![vendor-dashboard](https://github.com/user-attachments/assets/2f694268-ccdd-4171-9ca0-7ff21f957be4)
+
+
+
 
 ---
 
