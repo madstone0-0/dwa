@@ -215,8 +215,7 @@ go test ./...
 ---
 
 ## 📸 Screenshots
-
-*Coming soon*
+(https://dwa.surge.sh/assets/buyer-landing-page-ByJZ5kBg.jpg)
 
 ---
 
