@@ -225,7 +225,7 @@ go test ./...
 Additional documentation is available in the following locations:
 - [Frontend Documentation](./frontend/README.md)
 - [Backend Documentation](./backend/README.md)
-- [API Documentation](./backend/docs/api.md) (coming soon)
+
 
 ---
 
