@@ -18,7 +18,6 @@ const UserProfilePage = () => {
     const user = useStore((state) => state.user);
     const userType = user.user_type;
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log("userData", userData);
     const userId = userData.uid;
     const fullNameFromProfile = userData.name || "";
 

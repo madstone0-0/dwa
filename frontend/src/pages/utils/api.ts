@@ -113,7 +113,6 @@ export const signup = async (data: {
 // Logs in a user and saves the user data to localStorage
 export const login = async (credentials: LoginData): Promise<User> => {
     const res = await fetch.post<User>("auth/user/login", credentials);
-    console.log({ res }); // Log the user data
     if (res) {
         setLocalStorage("user", res); // Save user to localStorage
     }

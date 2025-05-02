@@ -50,7 +50,6 @@ function Signup() {
                 isVendor: isVendor,
             });
 
-            console.log("Signup response:", res);
             enqueueSnackbar(res.msg, { variant: "success" });
             navigate("/auth/signin");
         } catch (error) {

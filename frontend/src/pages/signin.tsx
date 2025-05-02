@@ -44,7 +44,6 @@ function Signin() {
     useEffect(() => {
         if (user.uid !== "") {
             enqueueSnackbar("Already logged in, navigating to home", { variant: "success" });
-            console.log({ user });
             navToHome(user.user_type);
         }
     }, []);
@@ -52,13 +51,11 @@ function Signin() {
     // Handles what happens when the user submits the sign-in form
     const handleSignin = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent the page from reloading
-        console.log("Request payload:", { email, password });
 
         setError(""); // Clear previous error messages
         try {
             // Try to log the user in using the API
             const response = await login({ email, password });
-            console.log("User logged in successfully:", response);
 
             // Save user data to global state
             const userData = response;

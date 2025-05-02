@@ -116,7 +116,6 @@ const useStore = create<UserState>()(
 
                     // Function that runs when the store is being rehydrated from storage
                     onRehydrateStorage: (state) => {
-                        console.log("Rehydrating state");
 
                         // Ping the backend to check session validity
                         ping()

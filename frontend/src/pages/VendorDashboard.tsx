@@ -78,9 +78,6 @@ const VendorDashboard: React.FC = () => {
             // Make API request
             const response = await fetch.post("/vendor/item/add", productData);
 
-            // Handle successful response
-            console.log("Product added successfully:", response);
-
             // Reset form
             setFormData({
                 name: "",

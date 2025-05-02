@@ -40,7 +40,6 @@ export const useAuthErrorHandler = () => {
             Fetch.registerErrorHandler(401, () => {
                 enqueueSnackbar("Unauthorized logging out...", { variant: "error" });
                 logout();
-                console.log("401 error handler triggered");
             });
         }
 

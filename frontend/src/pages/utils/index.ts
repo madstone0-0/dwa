@@ -4,7 +4,6 @@ import { ResponseErr } from "pages/types";
 // Stores a key-value pair in localStorage after converting the value to a JSON string
 export const setLocalStorage = (key: string, value: any) => {
     const stringValue = JSON.stringify(value);
-    console.log({ stringValue });
     localStorage.setItem(key, stringValue);
 };
 
