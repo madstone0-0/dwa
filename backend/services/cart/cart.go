@@ -13,6 +13,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// IsItemInCart checks if a specific item exists in the buyer's cart.
+// Returns true if it exists, false otherwise.
+// Returns an error if something goes wrong with the database query.
 func IsItemInCart(q *repository.Queries, ctx context.Context, args repository.GetCartItemParams) (bool, error) {
 	_, err := q.GetCartItem(ctx, args)
 
@@ -25,6 +28,8 @@ func IsItemInCart(q *repository.Queries, ctx context.Context, args repository.Ge
 	return true, nil
 }
 
+// AddToCart adds a new item to the buyer's cart if it's not already in the cart.
+// Returns an error if the item is already in the cart or if any database operation fails.
 func AddToCart(ctx context.Context, pool db.Pool, addToCartObj repository.AddToCartParams) utils.ServiceReturn[any] {
 	q := repository.New(pool)
 
@@ -59,7 +64,8 @@ func AddToCart(ctx context.Context, pool db.Pool, addToCartObj repository.AddToC
 		},
 	}
 }
-
+// RemoveFromCart deletes an item from the buyer's cart.
+// Returns an error if the item does not exist or if deletion fails.
 func RemoveFromCart(ctx context.Context, pool db.Pool, args repository.DeleteCartItemParams) utils.ServiceReturn[any] {
 	q := repository.New(pool)
 
@@ -90,6 +96,8 @@ func RemoveFromCart(ctx context.Context, pool db.Pool, args repository.DeleteCar
 	}
 }
 
+// UpdateCartItemQuantity changes the quantity of an item already present in the cart.
+// Returns an error if the item doesn't exist or if the update operation fails.
 func UpdateCartItemQuantity(ctx context.Context, pool db.Pool, args repository.UpdateQuantityOfCartItemParams) utils.ServiceReturn[any] {
 	q := repository.New(pool)
 
@@ -122,6 +130,8 @@ func UpdateCartItemQuantity(ctx context.Context, pool db.Pool, args repository.U
 	}
 }
 
+// GetCartItemsForBuyer retrieves all cart items associated with a specific buyer.
+// Returns an error if the retrieval operation fails.
 func GetCartItemsForBuyer(ctx context.Context, pool db.Pool, bid pgtype.UUID) utils.ServiceReturn[any] {
 	q := repository.New(pool)
 	cartItems, err := q.GetCartItemsForBuyer(ctx, bid)
@@ -139,6 +149,8 @@ func GetCartItemsForBuyer(ctx context.Context, pool db.Pool, bid pgtype.UUID) ut
 	}
 }
 
+// ClearCart deletes all items from a buyer’s cart.
+// Returns an error if the clear operation fails.
 func ClearCart(ctx context.Context, pool db.Pool, bid pgtype.UUID) utils.ServiceReturn[any] {
 	q := repository.New(pool)
 	err := q.ClearCart(ctx, bid)
