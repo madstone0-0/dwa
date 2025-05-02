@@ -88,7 +88,7 @@ func (e *Category) Scan(src interface{}) error {
 // NullCategory represents a nullable version of Category for use with SQL NULL values
 type NullCategory struct {
 	Category Category `json:"category"`
-	Valid    bool     `json:"valid"` // Valid is true if Category is not NULL
+	Valid    bool     `json:"valid"` 
 }
 
 // Scan implements the sql.Scanner interface for NullCategory
@@ -111,61 +111,60 @@ func (ns NullCategory) Value() (driver.Value, error) {
 
 // Account represents a vendor or buyer's financial account information
 type Account struct {
-	Uid          pgtype.UUID `json:"uid"`          // User ID
-	Accounttype  AccType     `json:"accounttype"`  // Type of account (MOMO or BANK)
-	Bankname     *string     `json:"bankname"`     // Optional bank name if account is BANK
-	Momoprovider *string     `json:"momoprovider"` // Optional momo provider if account is MOMO
+	Uid          pgtype.UUID `json:"uid"`
+	Accounttype  AccType     `json:"accounttype"`  
+	Bankname     *string     `json:"bankname"`     
+	Momoprovider *string     `json:"momoprovider"`
 }
 
 // Buyer represents a buyer in the marketplace
 type Buyer struct {
-	Uid  pgtype.UUID `json:"uid"`  // Unique buyer ID
-	Name string      `json:"name"` // Buyer's name
+	Uid  pgtype.UUID `json:"uid"`
+	Name string      `json:"name"` 
 }
 
 // Cart represents a buyer's shopping cart entry
 type Cart struct {
-	Bid       pgtype.UUID      `json:"bid"`        // Buyer ID
-	Iid       pgtype.UUID      `json:"iid"`        // Item ID
-	Vid       pgtype.UUID      `json:"vid"`        // Vendor ID
-	Quantity  int32            `json:"quantity"`   // Quantity of item added
-	AddedTime pgtype.Timestamp `json:"added_time"` // Time the item was added
+	Bid       pgtype.UUID      `json:"bid"`        
+	Iid       pgtype.UUID      `json:"iid"`        
+	Vid       pgtype.UUID      `json:"vid"`       
+	Quantity  int32            `json:"quantity"`   
+	AddedTime pgtype.Timestamp `json:"added_time"`
 }
 
 // Item represents a product listed by a vendor
 type Item struct {
-	Iid         pgtype.UUID    `json:"iid"`         // Item ID
-	Vid         pgtype.UUID    `json:"vid"`         // Vendor ID
-	Name        string         `json:"name"`        // Name of the item
-	Pictureurl  *string        `json:"pictureurl"`  // Optional image URL
-	Description *string        `json:"description"` // Optional description
-	Category    Category       `json:"category"`    // Category of the item
-	Quantity    int32          `json:"quantity"`    // Quantity available
-	Cost        pgtype.Numeric `json:"cost"`        // Price per unit
+	Iid         pgtype.UUID    `json:"iid"`         
+	Vid         pgtype.UUID    `json:"vid"`
+	Name        string         `json:"name"`        
+	Pictureurl  *string        `json:"pictureurl"`
+	Description *string        `json:"description"` 
+	Category    Category       `json:"category"`    
+	Quantity    int32          `json:"quantity"`
+	Cost        pgtype.Numeric `json:"cost"`        
 }
 
 // Transaction represents a purchase transaction between buyer and vendor
 type Transaction struct {
-	Tid       pgtype.UUID      `json:"tid"`        // Transaction ID
-	Bid       pgtype.UUID      `json:"bid"`        // Buyer ID
-	Vid       pgtype.UUID      `json:"vid"`        // Vendor ID
-	Iid       pgtype.UUID      `json:"iid"`        // Item ID
-	Amt       pgtype.Numeric   `json:"amt"`        // Total amount
-	QtyBought int32            `json:"qty_bought"` // Quantity purchased
-	TTime     pgtype.Timestamp `json:"t_time"`     // Transaction time
+	Tid       pgtype.UUID      `json:"tid"`        
+	Bid       pgtype.UUID      `json:"bid"`        
+	Vid       pgtype.UUID      `json:"vid"`
+	Iid       pgtype.UUID      `json:"iid"`        
+	Amt       pgtype.Numeric   `json:"amt"`
+	QtyBought int32            `json:"qty_bought"` 
+	TTime     pgtype.Timestamp `json:"t_time"`     
 }
 
 // User represents a platform user (buyer or vendor)
 type User struct {
-	Uid      pgtype.UUID `json:"uid"`      // User ID
-	Email    string      `json:"email"`    // Email address
-	Passhash string      `json:"passhash"` // Password hash
-	Isadmin  *bool       `json:"isadmin"`  // Optional: true if user is an admin
-}
+	Uid      pgtype.UUID `json:"uid"`
+	Email    string      `json:"email"`    
+	Passhash string      `json:"passhash"` 
+	Isadmin  *bool       `json:"isadmin"`  
 
 // Vendor represents a vendor in the system
 type Vendor struct {
 	Uid  pgtype.UUID `json:"uid"`  // Vendor ID
-	Name string      `json:"name"` // Vendor name
-	Logo *string     `json:"logo"` // Optional vendor logo URL
+	Name string      `json:"name"` 
+	Logo *string     `json:"logo"`
 }
