@@ -76,7 +76,7 @@ const VendorDashboard: React.FC = () => {
             };
 
             // Make API request
-            const response = await fetch.post("/vendor/item/add", productData);
+            await fetch.post("/vendor/item/add", productData);
 
             // Reset form
             setFormData({
