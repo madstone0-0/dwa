@@ -52,8 +52,9 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
                 })
                 .catch((e) => {
                     const err = resolveError(e);
-                    if (err.response?.data.err) {
-                        enqueueSnackbar(err.response.data.err, { variant: "error" });
+                    if (err.response?.data.data.err) {
+                        const msg = err.response.data.data.err;
+                        enqueueSnackbar(msg, { variant: "error" });
                     }
                 }),
         );

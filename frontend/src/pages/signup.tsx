@@ -55,8 +55,9 @@ function Signup() {
             navigate("/auth/signin");
         } catch (error) {
             const err = resolveError(error);
-            if (err.response?.data.err) {
-                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            if (err.response?.data.data.err) {
+                const msg = err.response.data.data.err;
+                enqueueSnackbar(msg, { variant: "error" });
             }
         } finally {
             setIsLoading(false);

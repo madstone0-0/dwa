@@ -1,4 +1,4 @@
-import { setLocalStorage } from "."; 
+import { setLocalStorage } from ".";
 import { CartItem, Item, ItemWithVendorInfo, LoginData, ResponseMsg, SignupResponse, Transaction } from "../types";
 import { fetch } from "./Fetch";
 import { User } from "pages/types";
@@ -112,14 +112,10 @@ export const signup = async (data: {
 
 // Logs in a user and saves the user data to localStorage
 export const login = async (credentials: LoginData): Promise<User> => {
-    try {
-        const res = await fetch.post<User>("auth/user/login", credentials);
-        console.log({ res }); // Log the user data
-        if (res) {
-            setLocalStorage("user", res); // Save user to localStorage
-        }
-        return res; // Return the logged-in user
-    } catch (e) {
-        throw e;
+    const res = await fetch.post<User>("auth/user/login", credentials);
+    console.log({ res }); // Log the user data
+    if (res) {
+        setLocalStorage("user", res); // Save user to localStorage
     }
+    return res; // Return the logged-in user
 };

@@ -96,8 +96,9 @@ const VendorDashboard: React.FC = () => {
             navigate("/vendor/inventory");
         } catch (error: unknown) {
             const err = resolveError(error);
-            if (err.response?.data.err) {
-                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            if (err.response?.data.data.err) {
+                const msg = err.response.data.data.err;
+                enqueueSnackbar(msg, { variant: "error" });
             }
 
             console.error("Error adding product:", error);

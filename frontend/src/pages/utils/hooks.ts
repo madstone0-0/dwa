@@ -115,7 +115,7 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
                                         quantity: quantity,
                                     });
                                 } else {
-                                    throw new Error(err.response?.data.err);
+                                    throw new Error(err.response?.data.data.err);
                                 }
                             });
 
@@ -130,8 +130,9 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
                     }
                 } catch (e) {
                     const err = resolveError(e);
-                    if (err.response?.data.err) {
-                        enqueueSnackbar(err.response.data.err, { variant: "error" });
+                    if (err.response?.data.data.err) {
+                        const msg = err.response.data.data.err;
+                        enqueueSnackbar(msg, { variant: "error" });
                     }
                     // Re-sync with server to ensure consistency
                     await refreshCart(buyerId);
@@ -140,8 +141,9 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
                 }
             } catch (error) {
                 const err = resolveError(error);
-                if (err.response?.data.err) {
-                    enqueueSnackbar(err.response.data.err, { variant: "error" });
+                if (err.response?.data.data.err) {
+                    const msg = err.response.data.data.err;
+                    enqueueSnackbar(msg, { variant: "error" });
                 }
                 if (setLoading) setLoading(false);
             } finally {
@@ -169,8 +171,9 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
                 if (setLoading) setLoading(false);
             } catch (error) {
                 const err = resolveError(error);
-                if (err.response?.data.err) {
-                    enqueueSnackbar(err.response.data.err, { variant: "error" });
+                if (err.response?.data.data.err) {
+                    const msg = err.response.data.data.err;
+                    enqueueSnackbar(msg, { variant: "error" });
                 }
                 console.error("Error deleting item:", error);
                 if (setLoading) setLoading(false);
@@ -187,8 +190,9 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
             if (setLoading) setLoading(false);
         } catch (error) {
             const err = resolveError(error);
-            if (err.response?.data.err) {
-                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            if (err.response?.data.data.err) {
+                const msg = err.response.data.data.err;
+                enqueueSnackbar(msg, { variant: "error" });
             }
             console.error("Error clearing cart:", error);
             if (setLoading) setLoading(false);
@@ -205,8 +209,9 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
             if (setLoading) setLoading(false);
         } catch (e) {
             const err = resolveError(e);
-            if (err.response?.data.err) {
-                enqueueSnackbar(err.response.data.err, { variant: "error" });
+            if (err.response?.data.data.err) {
+                const msg = err.response.data.data.err;
+                enqueueSnackbar(msg, { variant: "error" });
             }
             console.error("Error refreshing cart:", e);
             if (setLoading) setLoading(false);

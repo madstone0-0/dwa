@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Interface for the custom fetch utility with basic HTTP methods
 export interface IFetch {
-    get: (url: string) => Promise<any>;           // Make a GET request to a URL
+    get: (url: string) => Promise<any>; // Make a GET request to a URL
     post: (url: string, data: any) => Promise<any>; // Make a POST request with data
-    put: (url: string, data: any) => Promise<any>;  // Make a PUT request to update data
-    delete: (url: string) => Promise<any>;         // Make a DELETE request to a URL
+    put: (url: string, data: any) => Promise<any>; // Make a PUT request to update data
+    delete: (url: string) => Promise<any>; // Make a DELETE request to a URL
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -46,14 +46,14 @@ export interface SignupResponse {
 
 // Structure for a marketplace item
 export type Item = {
-    iid: string;         // Item ID
-    vid: string;         // Vendor ID
+    iid: string; // Item ID
+    vid: string; // Vendor ID
     name: string;
     pictureurl: string;
     description: string;
     category: CATEGORIES;
-    quantity: number;    // Available stock
-    cost: number;        // Price of item
+    quantity: number; // Available stock
+    cost: number; // Price of item
 };
 
 // Structure for creating a new item (no ID or vendor yet)
@@ -89,14 +89,16 @@ export type ResponseMsg = {
 
 // Standard structure for an error message
 export type ResponseErr = {
-    err: string;
+    data: {
+        err: string;
+    };
 };
 
 // A record of a transaction (e.g., a purchase)
 export type Transaction = {
-    name: string;     // Buyer or item name
-    amt: number;      // Amount spent
-    t_time: string;   // Timestamp of transaction
+    name: string; // Buyer or item name
+    amt: number; // Amount spent
+    t_time: string; // Timestamp of transaction
 };
 
 // An item in a buyer's shopping cart
@@ -123,7 +125,7 @@ export type Icon = React.FC<React.SVGProps<SVGSVGElement>>;
 
 // Structure for a navigation header item
 export type HeaderItem = {
-    name: string;       // Label shown to users
-    link: string;       // Route or URL
-    icon?: Icon;        // Optional icon component
+    name: string; // Label shown to users
+    link: string; // Route or URL
+    icon?: Icon; // Optional icon component
 };
