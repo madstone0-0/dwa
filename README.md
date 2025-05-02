@@ -197,8 +197,9 @@ go test ./...
 
 - [Madiba](mailto:madstone.github@gmail.com) - Full Stack Developer
 - [Peniel](mailto:pennyansah@gmail.com) - Frontend Developer
-- [Tani](mailto:tanitoluwaadebayo@gmail.com) - Backend Developer
 - [Vera](mailto:verafaithat18@gmail.com) - UI/UX Designer
+- [Tani](mailto:tanitoluwaadebayo@gmail.com) - Backend Developer
+
 
 ---
 
