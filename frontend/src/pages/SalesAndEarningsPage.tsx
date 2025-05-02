@@ -1,5 +1,4 @@
 import React, { useState, useEffect, FC } from "react";
-import { useNavigate } from "react-router-dom";
 import { WithLoadingProps, LoadingSpinner, withLoading } from "./withLoading";
 import { Transaction, User } from "./types";
 import { getLocalStorage } from "./utils";
@@ -40,9 +39,6 @@ const SalesSummary: FC<SalesSummaryProps> = ({ transactions }) => {
     const totalEarnings = transactions.reduce((sum, sale) => sum + sale.amt, 0);
     const totalTransactions = transactions.length;
     const averageTransactionValue = totalTransactions > 0 ? totalEarnings / totalTransactions : 0;
-
-    // Get current month name
-    const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
     return (
         <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-3">

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import Fetch, { fetch } from "./Fetch";
 import useStore from "../store";
-import { getLocalStorage, removeLocalStorage, resolveError, setLocalStorage } from ".";
+import { removeLocalStorage, resolveError, setLocalStorage } from ".";
 import { CartItem, Item, ResponseMsg } from "pages/types";
 import { useSnackbar } from "notistack";
 
@@ -181,7 +181,7 @@ export const useCart = (setLoading?: (b: boolean) => void) => {
 
     const clearCart = useCallback(async () => {
         try {
-            const res = await fetch.post<ResponseMsg>(`/buyer/cart/${user.uid}/clear`);
+            const res = await fetch.post<ResponseMsg>(`/buyer/cart/${user.uid}/clear`, {});
             setCart([]);
             enqueueSnackbar(res.msg, { variant: "success" });
             if (setLoading) setLoading(false);

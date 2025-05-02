@@ -1,3 +1,5 @@
+import { FC } from "react";
+
 // Footer component for reusability
 const Footer: FC = () => (
     // This is the footer component that will be displayed at the bottom of the page.

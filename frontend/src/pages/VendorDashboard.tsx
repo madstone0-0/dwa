@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetch } from "./utils/Fetch";
 import { AxiosError } from "axios";
@@ -201,8 +201,8 @@ const VendorDashboard: React.FC = () => {
                                 </select>
                             </div>
                         </div>
-                            
-                            {/* Image URL input and preview */}
+
+                        {/* Image URL input and preview */}
                         <div>
                             <label htmlFor="pictureurl" className="block mb-1 text-sm font-medium text-gray-700">
                                 Image URL
@@ -232,9 +232,8 @@ const VendorDashboard: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                            
-                            
-                            {/* Error message display */}
+
+                        {/* Error message display */}
                         {formError && (
                             <div className="py-3 px-4 text-red-600 bg-red-50 rounded border border-red-200">
                                 {formError}

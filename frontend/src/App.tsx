@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-route
 import { SnackbarProvider } from "notistack";
 
 import "./App.css";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { health } from "./pages/utils/api";
 import Vendor from "./pages/Vendor";
 import Footer from "./pages/Footer";

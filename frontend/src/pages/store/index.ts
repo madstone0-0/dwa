@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer"; // Allows state mutation in a simpler way (like Redux Toolkit)
-import { health, ping } from "../utils/api"; // API functions
+import { ping } from "../utils/api"; // API functions
 import { CartItem, User, USER_TYPE } from "../types"; // TypeScript types
 
 // This is the default user state when no one is logged in

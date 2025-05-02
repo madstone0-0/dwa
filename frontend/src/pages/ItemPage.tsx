@@ -1,14 +1,12 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
-import { fetch } from "./utils/Fetch";
-import { useCart, useLogout } from "./utils/hooks";
-import { CATEGORIES, Item, ItemWithVendorInfo } from "./types";
+import { useCart } from "./utils/hooks";
+import { CATEGORIES, ItemWithVendorInfo } from "./types";
 import { LoadingSpinner, withLoading, WithLoadingProps } from "./withLoading";
 import { getItem } from "./utils/api";
 
 // This component displays the details of a specific item, including its image, name, cost, description, and availability.
 const ItemPage: FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
-    const navigate = useNavigate();
     const { iid } = useParams<{ iid: string }>();
     const [item, setItem] = useState<ItemWithVendorInfo>({
         iid: "",
@@ -24,7 +22,6 @@ const ItemPage: FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
         vid: "",
     });
     const { addToCart } = useCart();
-    const handleLogout = useLogout();
 
     const fetchItem = async () => {
         if (iid) {

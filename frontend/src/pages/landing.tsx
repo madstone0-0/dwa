@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { getAllItems, getBuyerCart } from "./utils/api.js";
 import { Item, USER_TYPE } from "./types";
 import useStore from "./store";
-import { useAuthErrorHandler, useCart, useLogout } from "./utils/hooks.js";
+import { useAuthErrorHandler, useCart } from "./utils/hooks.js";
+import placeholder from "../assets/dwa-icon.jpg";
 
 // This interface is used to define the props for the SectionHeader component. It includes the title, link text, and an optional onLinkClick function.
 interface SectionHeaderProps {
     title: string;
     linkText: string;
-	onLinkClick?: () => void | Promise<void>;
+    onLinkClick?: () => void | Promise<void>;
 }
 
 // This component is the landing page for buyers. It displays a welcome message, a search bar, and a list of frequently repurchased items.
@@ -38,12 +39,16 @@ function LandingPage() {
             .catch((e) => console.error({ e }));
     }, []);
 
-    const SectionHeader = ({ title, linkText,onLinkClick, }: SectionHeaderProps) => (
-        <div className="flex justify-between items-center px-8 mb-4 w-full">
+    const SectionHeader = ({ title, linkText, onLinkClick }: SectionHeaderProps) => (
+        <div className="flex justify-between items-center py-2 px-8 mb-4 w-full">
             <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-			<button className="font-semibold text-wine hover:text-wine-dark" style={{ color: "#722F37" }} onClick={onLinkClick}>
-          {linkText}
-        </button>
+            <button
+                className="font-semibold text-wine hover:text-wine-dark"
+                style={{ color: "#722F37" }}
+                onClick={onLinkClick}
+            >
+                {linkText}
+            </button>
         </div>
     );
 
@@ -68,7 +73,7 @@ function LandingPage() {
         const bid = user.uid;
 
         try {
-            //  Map down to the minimal payload 
+            //  Map down to the minimal payload
             const cart = JSON.parse(localStorage.getItem("cart") || "[]");
             if (!Array.isArray(cart)) {
                 console.error("Cart is not an array");
@@ -103,7 +108,7 @@ function LandingPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-white">
-            <div className="flex flex-col flex-grow items-center py-10">
+            <div className="flex flex-col flex-grow items-center">
                 {/* Hero Section */}
                 <div className="flex flex-col items-center py-16 px-6 w-full text-center bg-yellow-100">
                     <h2 className="mb-2 text-3xl font-bold text-gray-900">Welcome to Ashesi DWA</h2>
@@ -168,7 +173,7 @@ function LandingPage() {
                 </div>
 
                 {/* Frequently Repurchased */}
-                <SectionHeader title="Frequently Repurchased" linkText="EXPLORE" onLinkClick={() => navigate('/shop-by-category')} />
+                <SectionHeader title="All Items" linkText="EXPLORE" onLinkClick={() => navigate("/shop-by-category")} />
                 <div className="grid grid-cols-1 gap-4 py-6 px-8 w-full md:grid-cols-4">
                     {items.map((item) => (
                         <ItemCard key={item.iid} item={item} addToCart={addToCart} />
@@ -218,7 +223,16 @@ const ItemCard = ({ item, addToCart }: ItemCardProps) => {
     const { iid, pictureurl: pictureUrl, name, cost } = item;
     return (
         <div key={iid} className="p-4 bg-white rounded-lg border border-gray-200 transition-shadow hover:shadow-lg">
-            <img src={pictureUrl} alt={name} className="object-contain mb-4 w-full h-48" />
+            <img
+                src={pictureUrl}
+                alt={name}
+                onError={(e) => {
+                    (e as React.SyntheticEvent<HTMLImageElement, Event>).currentTarget.onerror = null;
+                    (e.target as HTMLImageElement).src = placeholder;
+                    (e.target as HTMLImageElement).alt = "Image load failed";
+                }}
+                className="object-contain mb-4 w-full h-48"
+            />
             <h3 className="font-bold">{name}</h3>
             <p className="text-sm text-gray-600">GH₵{cost}</p>
 

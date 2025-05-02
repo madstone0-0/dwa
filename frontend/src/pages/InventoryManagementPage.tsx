@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Item } from "./types";
 import { deleteItem, getVendorItems, updateItem } from "./utils/api";
 import { withLoading, WithLoadingProps, LoadingSpinner } from "./withLoading";
 import placeholder from "../assets/dwa-icon.jpg";
 import { useForm } from "@tanstack/react-form";
 import useStore from "./store";
+import { resolveError } from "./utils";
+import { useSnackbar } from "notistack";
 
 const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLoading }) => {
     const [items, setItems] = useState<Item[]>([]);
@@ -14,6 +15,7 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
     const [editItem, setEditItem] = useState<Item | null>(null);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const user = useStore((state) => state.user);
+    const { enqueueSnackbar } = useSnackbar();
 
     // Fetch items only once on mount or when explicitly needed
     const fetchItems = async () => {
@@ -38,7 +40,7 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
     const handleUpdateItem = (updatedItem: Item) => {
         withLoading(
             updateItem(updatedItem)
-                .then(() => {
+                .then((res) => {
                     // Update local state to avoid unnecessary refetch
                     setItems((prevItems) =>
                         prevItems.map((item) => (item.iid === updatedItem.iid ? updatedItem : item)),
@@ -46,8 +48,14 @@ const InventoryManagementPage: React.FC<WithLoadingProps> = ({ isLoading, withLo
                     setFilteredItems((prevItems) =>
                         prevItems.map((item) => (item.iid === updatedItem.iid ? updatedItem : item)),
                     );
+                    enqueueSnackbar(res, { variant: "success" });
                 })
-                .catch((e) => console.error({ e })),
+                .catch((e) => {
+                    const err = resolveError(e);
+                    if (err.response?.data.err) {
+                        enqueueSnackbar(err.response.data.err, { variant: "error" });
+                    }
+                }),
         );
     };
 
@@ -299,6 +307,7 @@ const EditItemDialog = ({ item, onClose, onSave }: EditItemDialogProps) => {
             description: item.description,
             cost: item.cost,
             quantity: item.quantity,
+            pictureurl: item.pictureurl,
         },
         onSubmit: async ({ value }) => {
             const updatedItem: Item = {
@@ -307,6 +316,7 @@ const EditItemDialog = ({ item, onClose, onSave }: EditItemDialogProps) => {
                 description: value.description,
                 cost: value.cost,
                 quantity: value.quantity,
+                pictureurl: value.pictureurl,
             };
             onSave(updatedItem);
         },
@@ -428,6 +438,44 @@ const EditItemDialog = ({ item, onClose, onSave }: EditItemDialogProps) => {
                                 )}
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="pictureurl" className="block mb-2 text-sm font-medium text-gray-700">
+                            Picture URL
+                        </label>
+                        <form.Field
+                            name="pictureurl"
+                            children={(field) => (
+                                <>
+                                    <input
+                                        id="pictureurl"
+                                        type="text"
+                                        min="0"
+                                        className="py-2 px-3 w-full bg-gray-50 rounded-md border border-gray-300 focus:border-transparent focus:ring-2 focus:outline-none focus:ring-wine"
+                                        name={field.name}
+                                        value={field.state.value}
+                                        onChange={(e) => {
+                                            field.handleChange(e.target.value);
+                                        }}
+                                    />
+                                    <div className="flex gap-4 mt-4">
+                                        <img
+                                            src={`${field.state.value}`}
+                                            alt="Product Preview"
+                                            className="object-cover w-16 h-16 rounded"
+                                            onError={(e) => {
+                                                (
+                                                    e as React.SyntheticEvent<HTMLImageElement, Event>
+                                                ).currentTarget.onerror = null;
+                                                (e.target as HTMLImageElement).src = placeholder;
+                                                (e.target as HTMLImageElement).alt = "Image load failed";
+                                            }}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        />
                     </div>
 
                     <div className="flex gap-3 justify-end mt-6">

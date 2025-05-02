@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { ResponseErr, ResponseMsg } from "pages/types";
+import { ResponseErr } from "pages/types";
 
 // Stores a key-value pair in localStorage after converting the value to a JSON string
 export const setLocalStorage = (key: string, value: any) => {
@@ -52,7 +52,6 @@ export const resolveError = <T = ResponseErr, D = any>(error: unknown) => {
         return error as AxiosError<T, D>; // Return the original AxiosError with generics
     } else if (error instanceof Error && error.message != undefined) {
         return new AxiosError<T, D>(error.message, "500"); // Wrap regular Error in AxiosError format
-
     }
 
     // Fallback for unknown error types
