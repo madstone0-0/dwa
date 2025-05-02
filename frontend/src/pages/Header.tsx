@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogout } from "./utils/hooks";
 import { HeaderItem } from "./types";
 import useStore from "./store";
+import logo from "/src/assets/dwa-icon.jpg";
+
 // This component renders a header with a logo, navigation items, and a logout button. It also handles mobile responsiveness and back navigation.
 type HeaderProps = {
     pageTitle?: string;
@@ -13,7 +15,7 @@ type HeaderProps = {
 };
 // This constant defines the default values for the header component. It includes the page title, home link, and navigation items.
 const Header: FC<HeaderProps> = memo(
-    ({ pageTitle = "Ashesi DWA", homeLink, items, logoSrc = "/src/assets/dwa-icon.jpg", logoAlt = "DWA Logo" }) => {
+    ({ pageTitle = "Ashesi DWA", homeLink, items, logoSrc = logo, logoAlt = "DWA Logo" }) => {
         const handleLogout = useLogout();
         const user = useStore((state) => state.user);
         const location = useLocation();
