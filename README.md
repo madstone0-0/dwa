@@ -197,14 +197,9 @@ go test ./...
 
 - [Madiba](mailto:madstone.github@gmail.com) - Full Stack Developer
 - [Peniel](mailto:pennyansah@gmail.com) - Frontend Developer
-- [Tani](mailto:tanitoluwaadebayo@gmail.com) - Backend Developer
 - [Vera](mailto:verafaithat18@gmail.com) - UI/UX Designer
+- [Tani](mailto:tanitoluwaadebayo@gmail.com) - Backend Developer
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -230,7 +225,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Additional documentation is available in the following locations:
 - [Frontend Documentation](./frontend/README.md)
 - [Backend Documentation](./backend/README.md)
-- [API Documentation](./backend/docs/api.md) (coming soon)
+
 
 ---
 
