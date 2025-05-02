@@ -38,12 +38,7 @@ frontend/
 ├── public/                # Static assets (favicon, etc.)
 ├── src/                   # Main source code
 │   ├── assets/            # Images and static media
-│   ├── components/        # Reusable UI components
-│   ├── hooks/             # Custom React hooks
 │   ├── pages/             # Page components for routes
-│   ├── services/          # API communication via Axios
-│   ├── store/             # Global state management with Zustand
-│   ├── utils/             # Helper functions/utilities
 │   ├── App.tsx            # Main app component
 │   └── main.tsx           # Application entry point
 ├── .env                   # Environment variables (not committed)
@@ -167,64 +162,6 @@ Note: Never commit secrets or production credentials to version control.
 - 📊 Dynamic charts with Recharts
 - 📱 Fully responsive design
 - 🧩 Easy component reuse and extensibility
-
----
-
-## 🔧 React + TypeScript + Vite
-
-This project uses Vite for fast development and HMR with React + TypeScript.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
----
-
-## 🧹 Expanding the ESLint Configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-### 1. Configure `parserOptions`:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-### 2. Use stricter ESLint configs:
-
-- Replace `tseslint.configs.recommended` with:
-  - `tseslint.configs.recommendedTypeChecked` or
-  - `tseslint.configs.strictTypeChecked`
-  - Optionally add `...tseslint.configs.stylisticTypeChecked`
-
-### 3. Add ESLint React Plugin
-
-Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    react,
-  },
-  rules: {
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
 
 ---
 
